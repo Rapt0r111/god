@@ -63,12 +63,14 @@ function AutoTextarea({
   onBlur,
   placeholder,
   className,
+  style,
 }: {
   value: string;
   onChange: (v: string) => void;
   onBlur?: () => void;
   placeholder: string;
   className?: string;
+  style?: CSSProperties;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -88,7 +90,7 @@ function AutoTextarea({
       placeholder={placeholder}
       rows={1}
       className={className}
-      style={{ resize: "none", overflow: "hidden" }}
+      style={{ resize: "none", overflow: "hidden", ...style }}
     />
   );
 }
@@ -300,13 +302,6 @@ function NotesSection({
     setSavedNotes(task.notes ?? "");
   }, [task.id, task.description, task.notes]);
 
-  useEffect(() => {
-    setDesc(initialDescription ?? "");
-    setNotes(initialNotes ?? "");
-    setSavedDesc(initialDescription ?? "");
-    setSavedNotes(initialNotes ?? "");
-  }, [initialDescription, initialNotes]);
-
   const saveField = (field: "description" | "notes", value: string) => {
     const original = field === "description" ? savedDesc : savedNotes;
     if (value === original) return;
@@ -454,8 +449,11 @@ function TaskDetailsModal({
   const cat = CATEGORIES[task.category] ?? { icon: "•", color: "#6b8ba8" };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden glass-elevated border border-white/15" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(30,41,59,0.92),rgba(15,23,42,0.88))] shadow-[0_20px_70px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
           <div>
             <p className="text-sm text-white font-semibold">{task.title}</p>
