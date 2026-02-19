@@ -138,26 +138,34 @@ function CheckBox({
 function SubtaskRow({
   subtask,
   onDelete,
+  onStatusChange,
+  onContentChange,
 }: {
   subtask:  Subtask;
   onDelete: (id: number) => void;
+  onStatusChange: (id: number, status: Subtask["status"]) => void;
+  onContentChange: (id: number, data: { title?: string; description?: string | null }) => void;
 }) {
-  const [status,  setStatus]  = useState(subtask.status);
   const [editing, setEditing] = useState(false);
   const [title,   setTitle]   = useState(subtask.title);
   const [desc,    setDesc]    = useState(subtask.description ?? "");
   const [showDesc,setShowDesc]= useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const isDone = status === "done";
+  const isDone = subtask.status === "done";
+
+  useEffect(() => {
+    setTitle(subtask.title);
+    setDesc(subtask.description ?? "");
+  }, [subtask.title, subtask.description]);
 
   const handleToggle = () => {
     startTransition(async () => {
       if (isDone) {
-        setStatus("pending");
+        onStatusChange(subtask.id, "pending");
         await reopenSubtask(subtask.id);
       } else {
-        setStatus("done");
+        onStatusChange(subtask.id, "done");
         await completeSubtask(subtask.id);
       }
     });
@@ -169,10 +177,13 @@ function SubtaskRow({
       return;
     }
     startTransition(async () => {
+      const nextTitle = title.trim() || subtask.title;
+      const nextDescription = desc || null;
       await updateSubtask(subtask.id, {
-        title:       title.trim() || subtask.title,
+        title:       nextTitle,
         description: desc || undefined,
       });
+      onContentChange(subtask.id, { title: nextTitle, description: nextDescription });
       setEditing(false);
     });
   };
@@ -250,6 +261,7 @@ function SubtaskRow({
               if (desc !== (subtask.description ?? "")) {
                 startTransition(async () => {
                   await updateSubtask(subtask.id, { description: desc });
+                  onContentChange(subtask.id, { description: desc || null });
                 });
               }
             }}
@@ -334,16 +346,27 @@ function NotesSection({
 }) {
   const [desc,    setDesc]    = useState(initialDescription ?? "");
   const [notes,   setNotes]   = useState(initialNotes ?? "");
+  const [savedDesc, setSavedDesc] = useState(initialDescription ?? "");
+  const [savedNotes, setSavedNotes] = useState(initialNotes ?? "");
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
   const [, startTransition]   = useTransition();
 
+  useEffect(() => {
+    setDesc(initialDescription ?? "");
+    setNotes(initialNotes ?? "");
+    setSavedDesc(initialDescription ?? "");
+    setSavedNotes(initialNotes ?? "");
+  }, [initialDescription, initialNotes]);
+
   const saveField = (field: "description" | "notes", value: string) => {
-    const original = field === "description" ? (initialDescription ?? "") : (initialNotes ?? "");
+    const original = field === "description" ? savedDesc : savedNotes;
     if (value === original) return;
     setSaving(true);
     startTransition(async () => {
       await updateTaskNotes(taskId, { [field]: value });
+      if (field === "description") setSavedDesc(value);
+      if (field === "notes") setSavedNotes(value);
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -411,6 +434,11 @@ function TaskRow({ task }: { task: TaskData }) {
   const [subs,     setSubs]     = useState<Subtask[]>(task.subtasksList);
   const [isPending, startTransition] = useTransition();
 
+  useEffect(() => {
+    setStatus(task.status);
+    setSubs(task.subtasksList);
+  }, [task.status, task.subtasksList]);
+
   const isDone      = status === "done";
   const cat         = CATEGORIES[task.category] ?? { icon: "•", color: "#6b8ba8" };
   const priColor    = PRIORITY_COLOR[task.priority] ?? "#6b8ba8";
@@ -446,6 +474,17 @@ function TaskRow({ task }: { task: TaskData }) {
 
   const handleAddSubtask = (subtask: Subtask) => {
     setSubs(prev => [...prev, subtask]);
+  };
+
+  const handleSubtaskStatusChange = (id: number, nextStatus: Subtask["status"]) => {
+    setSubs((prev) => prev.map((sub) => (sub.id === id ? { ...sub, status: nextStatus } : sub)));
+  };
+
+  const handleSubtaskContentChange = (
+    id: number,
+    data: { title?: string; description?: string | null },
+  ) => {
+    setSubs((prev) => prev.map((sub) => (sub.id === id ? { ...sub, ...data } : sub)));
   };
 
   return (
@@ -551,6 +590,8 @@ function TaskRow({ task }: { task: TaskData }) {
                     key={sub.id}
                     subtask={sub}
                     onDelete={handleDeleteSubtask}
+                    onStatusChange={handleSubtaskStatusChange}
+                    onContentChange={handleSubtaskContentChange}
                   />
                 ))}
                 <AddSubtaskInput taskId={task.id} onAdd={handleAddSubtask} />
