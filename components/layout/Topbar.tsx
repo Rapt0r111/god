@@ -29,7 +29,7 @@ function LiveClock() {
   }, []);
 
   return (
-    <span className="font-mono text-sm tracking-widest text-[var(--color-accent-green)]">
+    <span className="font-mono text-sm tracking-widest text-(--color-accent-green)">
       {time}
     </span>
   );
@@ -59,24 +59,24 @@ export function Topbar({ criticalCount }: TopbarProps) {
       </h2>
 
       {/* Разделитель */}
-      <div className="w-px h-5 bg-[var(--color-border)]" />
+      <div className="w-px h-5 bg-border" />
 
       {/* Дата */}
       <span className="font-mono text-[11px] text-secondary capitalize">{today}</span>
 
       {/* Критичных задач */}
       {criticalCount > 0 && (
-        <span className="font-mono text-[10px] text-[var(--color-critical)] tracking-wide">
+        <span className="font-mono text-[10px] text-(--color-critical) tracking-wide">
           ⚠ {criticalCount} КРИ
         </span>
       )}
 
       {/* Правая часть */}
       <div className="ml-auto flex items-center gap-3">
-        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-[var(--color-accent-blue)] text-[var(--color-accent-blue)] bg-[rgba(96,165,250,0.08)] hover:bg-[rgba(96,165,250,0.18)] transition-colors uppercase">
+        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-accent-blue text-accent-blue bg-[rgba(96,165,250,0.08)] hover:bg-[rgba(96,165,250,0.18)] transition-colors uppercase">
           ⊕ Добавить задачу
         </button>
-        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-[var(--color-accent-green)] text-[var(--color-accent-green)] bg-[rgba(52,211,153,0.08)] hover:bg-[rgba(52,211,153,0.18)] transition-colors uppercase">
+        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-(--color-accent-green) text-(--color-accent-green) bg-[rgba(52,211,153,0.08)] hover:bg-[rgba(52,211,153,0.18)] transition-colors uppercase">
           ⤓ Доклад
         </button>
         <LiveClock />

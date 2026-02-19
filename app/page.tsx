@@ -47,15 +47,15 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#060b14] text-[#e2eaf4]" style={{ fontFamily: "'Exo 2', sans-serif" }}>
+    <div className="min-h-screen bg-bg-deep text-text-primary" style={{ fontFamily: "'Exo 2', sans-serif" }}>
 
       {/* ── TOPBAR ───────────────────────────────── */}
-      <header className="h-14 bg-[#0a1220] border-b border-[#1a2d4a] flex items-center px-6 gap-5">
+      <header className="h-14 bg-bg-panel border-b border-border flex items-center px-6 gap-5">
         <span className="font-bold text-[16px] tracking-wide uppercase" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
           Оперативный центр управления
         </span>
-        <div className="w-px h-5 bg-[#1a2d4a]" />
-        <span className="text-[11px] text-[#6b8ba8] capitalize" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+        <div className="w-px h-5 bg-border" />
+        <span className="text-[11px] text-text-secondary capitalize" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
           {today}
         </span>
         {critical > 0 && (
@@ -68,9 +68,9 @@ export default async function DashboardPage() {
       <div className="flex h-[calc(100vh-56px)]">
 
         {/* ── SIDEBAR ──────────────────────────────── */}
-        <nav className="w-[220px] min-w-[220px] bg-[#0a1220] border-r border-[#1a2d4a] flex flex-col">
-          <div className="px-4 pt-5 pb-4 border-b border-[#1a2d4a]">
-            <p className="text-[9px] text-[#60a5fa] tracking-[3px] uppercase mb-1.5 opacity-70" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+        <nav className="w-[220px] min-w-[220px] bg-bg-panel border-r border-border flex flex-col">
+          <div className="px-4 pt-5 pb-4 border-b border-border">
+            <p className="text-[9px] text-accent-blue tracking-[3px] uppercase mb-1.5 opacity-70" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
               // СИСТЕМА УПРАВЛЕНИЯ
             </p>
             <h1 className="text-[18px] font-bold tracking-wide" style={{ fontFamily: "'Rajdhani', sans-serif" }}>ЦСУ ПД</h1>
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex-1 py-3 overflow-y-auto">
-            <p className="text-[9px] text-[#3d5570] tracking-[2px] px-4 py-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+            <p className="text-[9px] text-text-dim tracking-[2px] px-4 py-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
               Навигация
             </p>
             {[
@@ -92,8 +92,8 @@ export default async function DashboardPage() {
               <a key={item.href} href={item.href}
                 className={`flex items-center gap-2.5 px-4 py-[9px] border-l-2 text-[13px] font-medium transition-all
                   ${item.active
-                    ? "border-[#60a5fa] bg-[rgba(96,165,250,0.08)] text-[#60a5fa]"
-                    : "border-transparent text-[#6b8ba8] hover:bg-[#111f35] hover:text-[#e2eaf4]"
+                    ? "border-accent-blue bg-[rgba(96,165,250,0.08)] text-accent-blue"
+                    : "border-transparent text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                   }`}
               >
                 <span className="text-[15px] w-5 text-center">{item.icon}</span>
@@ -107,12 +107,12 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          <div className="px-4 py-3 border-t border-[#1a2d4a] space-y-1.5">
+          <div className="px-4 py-3 border-t border-border space-y-1.5">
             {[
               { color: "#34d399", label: "СИСТЕМА АКТИВНА",         delay: "0s"  },
               { color: "#f59e0b", label: "OFFLINE OK · LOCAL-FIRST", delay: "1s" },
             ].map(s => (
-              <div key={s.label} className="flex items-center gap-2 text-[10px] text-[#3d5570]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+              <div key={s.label} className="flex items-center gap-2 text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: s.color, animationDelay: s.delay }} />
                 {s.label}
               </div>
@@ -165,10 +165,10 @@ export default async function DashboardPage() {
             />
 
             {/* Gauge — правая колонка, 2 строки */}
-            <div className="row-span-2 bg-[#0d1929] border border-[#1a2d4a] p-4 relative overflow-hidden"
+            <div className="row-span-2 bg-bg-card border border-border p-4 relative overflow-hidden"
               style={{ borderTop: "1px solid transparent", backgroundImage: "linear-gradient(#0d1929,#0d1929), linear-gradient(to right, transparent, rgba(96,165,250,0.3), transparent)", backgroundOrigin: "border-box", backgroundClip: "padding-box, border-box" }}
             >
-              <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 // ОПЕРАТИВНАЯ ГОТОВНОСТЬ
               </p>
               <GaugeSvg value={readiness} color={gaugeColor} />
@@ -178,17 +178,17 @@ export default async function DashboardPage() {
                   { label: "🟡 ВЫСОКИЕ",   value: total - done - critical },
                   { label: "🟢 ВЫПОЛНЕНО", value: done },
                 ].map(row => (
-                  <div key={row.label} className="flex justify-between text-[10px] text-[#6b8ba8]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                  <div key={row.label} className="flex justify-between text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                     <span>{row.label}</span>
-                    <span className="text-[#e2eaf4]">{row.value}</span>
+                    <span className="text-text-primary">{row.value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* График по месяцам */}
-            <div className="col-span-3 bg-[#0d1929] border border-[#1a2d4a] p-4">
-              <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+            <div className="col-span-3 bg-bg-card border border-border p-4">
+              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 // ГОДОВОЙ ПЛАН · НАГРУЗКА ПО МЕСЯЦАМ
               </p>
               <div className="flex gap-[3px] items-end h-[72px]">
@@ -221,7 +221,7 @@ export default async function DashboardPage() {
                       }}>
                         {MONTHS[m.month]}
                       </span>
-                      <span className="text-[9px] text-[#3d5570]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                      <span className="text-[9px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                         {m.total}
                       </span>
                     </a>
@@ -231,12 +231,12 @@ export default async function DashboardPage() {
             </div>
 
             {/* Критичные задачи */}
-            <div className="col-span-3 bg-[#0d1929] border border-[#1a2d4a] p-4">
-              <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+            <div className="col-span-3 bg-bg-card border border-border p-4">
+              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 // КРИТИЧНЫЕ ЗАДАЧИ · ТРЕБУЮТ ИСПОЛНЕНИЯ
               </p>
               {criticalTasks.length === 0 ? (
-                <p className="text-[12px] text-[#3d5570] text-center py-6" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                <p className="text-[12px] text-text-dim text-center py-6" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                   // ВСЕ КРИТИЧНЫЕ ЗАДАЧИ ВЫПОЛНЕНЫ ✓
                 </p>
               ) : (
@@ -249,8 +249,8 @@ export default async function DashboardPage() {
             </div>
 
             {/* Постоянные задачи */}
-            <div className="bg-[#0d1929] border border-[#1a2d4a] p-4">
-              <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+            <div className="bg-bg-card border border-border p-4">
+              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-3" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 // ПОСТОЯННЫЕ ЗАДАЧИ
               </p>
               {[
@@ -264,7 +264,7 @@ export default async function DashboardPage() {
                 { freq: "ЕМС", label: "Подведение итогов роты",  role: "ПС"    },
                 { freq: "ЕМС", label: "Приказ № 85дсп",          role: "ЗКВ-2" },
               ].map((r, i) => (
-                <div key={i} className="flex items-center gap-2 py-[6px] border-b border-[#1a2d4a] last:border-0 text-[#6b8ba8]" style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 10 }}>
+                <div key={i} className="flex items-center gap-2 py-[6px] border-b border-border last:border-0 text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 10 }}>
                   <span className="px-1.5 py-px text-[8px] tracking-wide border"
                     style={r.freq === "ЕЖН"
                       ? { background: "rgba(96,165,250,0.1)",  color: "#60a5fa", borderColor: "rgba(96,165,250,0.3)"  }
@@ -274,7 +274,7 @@ export default async function DashboardPage() {
                     {r.freq}
                   </span>
                   <span className="flex-1 leading-tight">{r.label}</span>
-                  <span className="text-[9px] text-[#3d5570]">{r.role}</span>
+                  <span className="text-[9px] text-text-dim">{r.role}</span>
                 </div>
               ))}
             </div>
@@ -291,19 +291,19 @@ function KpiCard({ label, value, color, sub, progress }: {
   label: string; value: number; color: string; sub: string; progress: number;
 }) {
   return (
-    <div className="bg-[#0d1929] border border-[#1a2d4a] p-4 relative overflow-hidden"
+    <div className="bg-bg-card border border-border p-4 relative overflow-hidden"
       style={{ borderLeft: `3px solid ${color}` }}
     >
-      <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+      <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
         {label}
       </p>
       <p className="text-[40px] font-bold leading-none mb-1" style={{ fontFamily: "'Rajdhani', sans-serif", color, filter: `drop-shadow(0 0 8px ${color}40)` }}>
         {value}
       </p>
-      <p className="text-[10px] text-[#6b8ba8] mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+      <p className="text-[10px] text-text-secondary mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
         {sub}
       </p>
-      <div className="h-[3px] bg-[#0a1220] rounded-sm overflow-hidden">
+      <div className="h-[3px] bg-bg-panel rounded-sm overflow-hidden">
         <div className="h-full rounded-sm transition-all duration-700" style={{ width: `${progress}%`, background: color }} />
       </div>
     </div>
@@ -370,14 +370,14 @@ function StaticTaskRow({ task }: { task: any }) {
   const date = task.dateFrom === task.dateTo ? `${task.dateFrom}` : `${task.dateFrom}–${task.dateTo}`;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 border border-[#1a2d4a] bg-[#0a1220] relative"
+    <div className="flex items-center gap-3 px-4 py-2.5 border border-border bg-bg-panel relative"
       style={{ borderLeft: "3px solid #ef4444" }}
     >
-      <div className="w-[18px] h-[18px] min-w-[18px] border border-[#1e3a5f]" />
+      <div className="w-[18px] h-[18px] min-w-[18px] border border-border-bright" />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-medium text-[#e2eaf4] truncate mb-0.5">{task.title}</p>
-        <div className="flex items-center gap-2 text-[10px] text-[#3d5570]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-          <span className="text-[#6b8ba8]">{MONTH_SHORT[task.month]} {date}</span>
+        <p className="text-[13px] font-medium text-text-primary truncate mb-0.5">{task.title}</p>
+        <div className="flex items-center gap-2 text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+          <span className="text-text-secondary">{MONTH_SHORT[task.month]} {date}</span>
           <span className="px-1.5 py-px text-[9px]" style={{ background: `${cat.color}15`, color: cat.color, border: `1px solid ${cat.color}40` }}>
             {cat.icon} {task.category}
           </span>

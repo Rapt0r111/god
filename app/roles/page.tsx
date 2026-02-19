@@ -61,14 +61,14 @@ export default async function RolesPage() {
       <div className="flex h-screen overflow-hidden">
 
         {/* Sidebar */}
-        <nav className="w-[220px] min-w-[220px] bg-[#0a1220] border-r border-[#1a2d4a] flex flex-col">
-          <div className="px-4 pt-5 pb-4 border-b border-[#1a2d4a]">
-            <p className="text-[9px] text-[#60a5fa] tracking-[3px] uppercase mb-1.5 opacity-70" style={{ fontFamily: "'Share Tech Mono', monospace" }}>// СИСТЕМА УПРАВЛЕНИЯ</p>
+        <nav className="w-55 min-w-55 bg-bg-panel border-r border-border flex flex-col">
+          <div className="px-4 pt-5 pb-4 border-b border-border">
+            <p className="text-[9px] text-accent-blue tracking-[3px] uppercase mb-1.5 opacity-70" style={{ fontFamily: "'Share Tech Mono', monospace" }}>// СИСТЕМА УПРАВЛЕНИЯ</p>
             <h1 className="text-[18px] font-bold tracking-wide" style={{ fontFamily: "'Rajdhani', sans-serif" }}>ЦСУ ПД</h1>
             <p className="text-[10px] text-[#f59e0b] mt-1 tracking-wide" style={{ fontFamily: "'Share Tech Mono', monospace" }}>НАУЧНАЯ РОТА · В/Ч</p>
           </div>
           <div className="flex-1 py-3">
-            <p className="text-[9px] text-[#3d5570] tracking-[2px] px-4 py-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Навигация</p>
+            <p className="text-[9px] text-text-dim tracking-[2px] px-4 py-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Навигация</p>
             {[
               { href: "/",         icon: "◈", label: "Дашборд"      },
               { href: "/tasks",    icon: "≡", label: "Задачи"        },
@@ -76,10 +76,10 @@ export default async function RolesPage() {
               { href: "/roles",    icon: "◉", label: "Личный состав", active: true },
             ].map(item => (
               <a key={item.href} href={item.href}
-                className={`flex items-center gap-2.5 px-4 py-[9px] border-l-2 text-[13px] font-medium transition-all
+                className={`flex items-center gap-2.5 px-4 py-2.25 border-l-2 text-[13px] font-medium transition-all
                   ${(item as any).active
-                    ? "border-[#60a5fa] bg-[rgba(96,165,250,0.08)] text-[#60a5fa]"
-                    : "border-transparent text-[#6b8ba8] hover:bg-[#111f35] hover:text-[#e2eaf4]"}`}
+                    ? "border-accent-blue bg-[rgba(96,165,250,0.08)] text-accent-blue"
+                    : "border-transparent text-text-secondary hover:bg-bg-hover hover:text-text-primary"}`}
               >
                 <span className="text-[15px] w-5 text-center">{item.icon}</span>
                 {item.label}
@@ -87,19 +87,19 @@ export default async function RolesPage() {
             ))}
 
             {/* Быстрый переход к роли */}
-            <p className="text-[9px] text-[#3d5570] tracking-[2px] px-4 pt-4 pb-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Роли</p>
+            <p className="text-[9px] text-text-dim tracking-[2px] px-4 pt-4 pb-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Роли</p>
             {roleStats.map(r => (
               <a key={r.key} href={`#role-${r.key}`}
-                className="flex items-center justify-between px-4 py-1.5 transition-all hover:bg-[#111f35]"
+                className="flex items-center justify-between px-4 py-1.5 transition-all hover:bg-bg-hover"
               >
                 <span className="text-[11px]" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>{r.key}</span>
-                <span className="text-[10px] text-[#3d5570]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{r.roleTasks.length} зад.</span>
+                <span className="text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{r.roleTasks.length} зад.</span>
               </a>
             ))}
           </div>
-          <div className="px-4 py-3 border-t border-[#1a2d4a] space-y-1.5">
+          <div className="px-4 py-3 border-t border-border space-y-1.5">
             {[{ color: "#34d399", label: "СИСТЕМА АКТИВНА", delay: "0s" }, { color: "#f59e0b", label: "OFFLINE OK", delay: "1s" }].map(s => (
-              <div key={s.label} className="flex items-center gap-2 text-[10px] text-[#3d5570]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+              <div key={s.label} className="flex items-center gap-2 text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: s.color, animationDelay: s.delay }} />
                 {s.label}
               </div>
@@ -109,12 +109,12 @@ export default async function RolesPage() {
 
         {/* Main */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="h-14 min-h-14 bg-[#0a1220] border-b border-[#1a2d4a] flex items-center px-6 gap-5">
+          <header className="h-14 min-h-14 bg-bg-panel border-b border-border flex items-center px-6 gap-5">
             <span className="text-[16px] font-bold tracking-wide uppercase" style={{ fontFamily: "'Rajdhani', sans-serif" }}>Личный состав</span>
-            <div className="w-px h-5 bg-[#1a2d4a]" />
-            <span className="text-[11px] text-[#6b8ba8] capitalize" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{today}</span>
+            <div className="w-px h-5 bg-border" />
+            <span className="text-[11px] text-text-secondary capitalize" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{today}</span>
             <div className="ml-auto">
-              <span className="text-[10px] text-[#6b8ba8]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+              <span className="text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 {Object.keys(ROLES).length} должностей · {allTasks.length} задач
               </span>
             </div>
@@ -123,8 +123,8 @@ export default async function RolesPage() {
           <div className="flex-1 overflow-y-auto p-6">
 
             {/* Сводная таблица нагрузки */}
-            <div className="mb-6 bg-[#0d1929] border border-[#1a2d4a] p-4">
-              <p className="text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+            <div className="mb-6 bg-bg-card border border-border p-4">
+              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 // СВОДНАЯ НАГРУЗКА ПО ДОЛЖНОСТЯМ
               </p>
               <div className="space-y-2">
@@ -133,11 +133,11 @@ export default async function RolesPage() {
                     <span className="w-14 text-[11px] font-bold" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>
                       {r.key}
                     </span>
-                    <div className="flex-1 h-5 bg-[#0a1220] border border-[#1a2d4a] relative overflow-hidden">
+                    <div className="flex-1 h-5 bg-bg-panel border border-border relative overflow-hidden">
                       <div className="absolute left-0 top-0 h-full transition-all duration-700"
                         style={{ width: `${r.roleTasks.length > 0 ? (r.done / r.roleTasks.length) * 100 : 0}%`, background: `${r.color}30` }} />
-                      <div className="absolute left-0 top-0 h-full w-[2px]" style={{ background: r.color }} />
-                      <span className="absolute left-3 top-0 bottom-0 flex items-center text-[10px] text-[#6b8ba8]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                      <div className="absolute left-0 top-0 h-full w-0.5" style={{ background: r.color }} />
+                      <span className="absolute left-3 top-0 bottom-0 flex items-center text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                         {r.done}/{r.roleTasks.length} задач
                       </span>
                       <span className="absolute right-3 top-0 bottom-0 flex items-center text-[11px] font-bold" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>
@@ -158,7 +158,7 @@ export default async function RolesPage() {
             <div className="grid grid-cols-2 gap-4">
               {roleStats.map(r => (
                 <div key={r.key} id={`role-${r.key}`}
-                  className="bg-[#0d1929] border border-[#1a2d4a] p-4 relative overflow-hidden"
+                  className="bg-bg-card border border-border p-4 relative overflow-hidden"
                   style={{ borderLeft: `3px solid ${r.color}` }}
                 >
                   {/* Заголовок */}
@@ -171,7 +171,7 @@ export default async function RolesPage() {
                       <h3 className="text-[18px] font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", color: r.color }}>
                         {r.key}
                       </h3>
-                      <p className="text-[10px] text-[#6b8ba8]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                      <p className="text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                         {r.full}
                       </p>
                     </div>
@@ -183,7 +183,7 @@ export default async function RolesPage() {
                   </div>
 
                   {/* Прогресс-бар */}
-                  <div className="h-[3px] bg-[#0a1220] rounded-sm overflow-hidden mb-4">
+                  <div className="h-0.75 bg-bg-panel rounded-sm overflow-hidden mb-4">
                     <div className="h-full rounded-sm transition-all duration-700" style={{ width: `${r.progress}%`, background: r.color }} />
                   </div>
 
@@ -194,9 +194,9 @@ export default async function RolesPage() {
                       { label: "ВЫПОЛНЕНО", value: r.done,             color: "#34d399"  },
                       { label: "КРИТИЧНЫХ", value: r.critical,         color: "#ef4444"  },
                     ].map(stat => (
-                      <div key={stat.label} className="bg-[#0a1220] border border-[#1a2d4a] p-2 text-center">
+                      <div key={stat.label} className="bg-bg-panel border border-border p-2 text-center">
                         <p className="text-[18px] font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", color: stat.color }}>{stat.value}</p>
-                        <p className="text-[8px] text-[#3d5570] tracking-wide" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{stat.label}</p>
+                        <p className="text-[8px] text-text-dim tracking-wide" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{stat.label}</p>
                       </div>
                     ))}
                   </div>
@@ -204,7 +204,7 @@ export default async function RolesPage() {
                   {/* Категории */}
                   {r.catBreakdown.length > 0 && (
                     <div className="mb-4">
-                      <p className="text-[9px] text-[#3d5570] tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                      <p className="text-[9px] text-text-dim tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                         Направления
                       </p>
                       <div className="flex flex-wrap gap-1">
@@ -225,17 +225,17 @@ export default async function RolesPage() {
                   {/* Ближайшие задачи */}
                   {r.upcoming.length > 0 && (
                     <div>
-                      <p className="text-[9px] text-[#3d5570] tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                      <p className="text-[9px] text-text-dim tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                         Ближайшие задачи
                       </p>
                       <div className="space-y-1">
                         {r.upcoming.map((task: typeof allTasks[number]) => {
                           const priColor = PRIORITY_COLOR[task.priority as keyof typeof PRIORITY_COLOR];
                           return (
-                            <div key={task.id} className="flex items-center gap-2 py-1.5 border-b border-[#1a2d4a]/50">
+                            <div key={task.id} className="flex items-center gap-2 py-1.5 border-b border-border/50">
                               <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: priColor }} />
-                              <span className="text-[11px] text-[#e2eaf4] flex-1 truncate">{task.title}</span>
-                              <span className="text-[9px] text-[#3d5570] shrink-0" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                              <span className="text-[11px] text-text-primary flex-1 truncate">{task.title}</span>
+                              <span className="text-[9px] text-text-dim shrink-0" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                                 {MONTHS_SHORT[task.month]} {task.dateFrom}
                               </span>
                             </div>
@@ -246,7 +246,7 @@ export default async function RolesPage() {
                   )}
 
                   {r.roleTasks.length === 0 && (
-                    <p className="text-[11px] text-[#3d5570] text-center py-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                    <p className="text-[11px] text-text-dim text-center py-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                       // задачи не назначены
                     </p>
                   )}

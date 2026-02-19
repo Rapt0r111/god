@@ -22,13 +22,13 @@ export async function Sidebar() {
     <nav className="w-[220px] min-w-[220px] bg-panel border-r border-default flex flex-col relative z-10">
       {/* Логотип */}
       <div className="px-4 pt-5 pb-4 border-b border-default">
-        <p className="font-mono text-[9px] text-[var(--color-accent-blue)] tracking-[3px] uppercase mb-1.5 opacity-70">
+        <p className="font-mono text-[9px] text-accent-blue tracking-[3px] uppercase mb-1.5 opacity-70">
           // СИСТЕМА УПРАВЛЕНИЯ
         </p>
         <h1 className="font-display text-[18px] font-bold text-primary tracking-wide leading-tight">
           ЦСУ ПД
         </h1>
-        <p className="font-mono text-[10px] text-[var(--color-accent-amber)] mt-1 tracking-wide">
+        <p className="font-mono text-[10px] text-(--color-accent-amber) mt-1 tracking-wide">
           НАУЧНАЯ РОТА · В/Ч
         </p>
       </div>
@@ -46,7 +46,7 @@ export async function Sidebar() {
               "flex items-center gap-2.5 px-4 py-[9px] border-l-2 border-transparent",
               "font-body text-[13px] font-medium text-secondary",
               "transition-all duration-150",
-              "hover:bg-[var(--color-bg-hover)] hover:text-primary",
+              "hover:bg-bg-hover hover:text-primary",
             ].join(" ")}
           >
             <span className="text-[15px] w-5 text-center">{item.icon}</span>
@@ -61,7 +61,7 @@ export async function Sidebar() {
           <Link
             key={cat.code}
             href={`/tasks?category=${cat.code}`}
-            className="flex items-center gap-2.5 px-4 py-2 transition-all hover:bg-[var(--color-bg-hover)]"
+            className="flex items-center gap-2.5 px-4 py-2 transition-all hover:bg-bg-hover"
           >
             <span className="text-[12px]">{cat.icon}</span>
             <span

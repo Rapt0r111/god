@@ -85,14 +85,14 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const monthLabel = selMonth !== 0 ? MONTHS_SHORT[selMonth] : "Все месяцы";
 
   return (
-    <div className="min-h-screen bg-[#060b14] text-[#e2eaf4]"
+    <div className="min-h-screen bg-bg-deep text-text-primary"
       style={{ fontFamily: "'Exo 2', sans-serif" }}>
       <div className="flex h-screen overflow-hidden">
 
         {/* ── Sidebar ─────────────────────────────── */}
-        <nav className="w-[220px] min-w-[220px] bg-[#0a1220] border-r border-[#1a2d4a] flex flex-col">
-          <div className="px-4 pt-5 pb-4 border-b border-[#1a2d4a]">
-            <p className="text-[9px] text-[#60a5fa] tracking-[3px] uppercase mb-1.5 opacity-70"
+        <nav className="w-55 min-w-55 bg-bg-panel border-r border-border flex flex-col">
+          <div className="px-4 pt-5 pb-4 border-b border-border">
+            <p className="text-[9px] text-accent-blue tracking-[3px] uppercase mb-1.5 opacity-70"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}>
               // СИСТЕМА УПРАВЛЕНИЯ
             </p>
@@ -106,7 +106,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
             </p>
           </div>
           <div className="flex-1 py-3 overflow-y-auto">
-            <p className="text-[9px] text-[#3d5570] tracking-[2px] px-4 py-2 uppercase"
+            <p className="text-[9px] text-text-dim tracking-[2px] px-4 py-2 uppercase"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}>
               Навигация
             </p>
@@ -117,10 +117,10 @@ export default async function TasksPage({ searchParams }: PageProps) {
               { href: "/roles",    icon: "◉", label: "Личный состав" },
             ] as const).map(item => (
               <a key={item.href} href={item.href}
-                className={`flex items-center gap-2.5 px-4 py-[9px] border-l-2 text-[13px] font-medium transition-all
+                className={`flex items-center gap-2.5 px-4 py-2.25 border-l-2 text-[13px] font-medium transition-all
                   ${"active" in item && item.active
-                    ? "border-[#60a5fa] bg-[rgba(96,165,250,0.08)] text-[#60a5fa]"
-                    : "border-transparent text-[#6b8ba8] hover:bg-[#111f35] hover:text-[#e2eaf4]"
+                    ? "border-accent-blue bg-[rgba(96,165,250,0.08)] text-accent-blue"
+                    : "border-transparent text-text-secondary hover:bg-bg-hover hover:text-text-primary"
                   }`}
               >
                 <span className="text-[15px] w-5 text-center">{item.icon}</span>
@@ -128,12 +128,12 @@ export default async function TasksPage({ searchParams }: PageProps) {
               </a>
             ))}
           </div>
-          <div className="px-4 py-3 border-t border-[#1a2d4a] space-y-1.5">
+          <div className="px-4 py-3 border-t border-border space-y-1.5">
             {[
               { color: "#34d399", label: "СИСТЕМА АКТИВНА",  delay: "0s" },
               { color: "#f59e0b", label: "OFFLINE OK",        delay: "1s" },
             ].map(s => (
-              <div key={s.label} className="flex items-center gap-2 text-[10px] text-[#3d5570]"
+              <div key={s.label} className="flex items-center gap-2 text-[10px] text-text-dim"
                 style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse"
                   style={{ backgroundColor: s.color, animationDelay: s.delay }} />
@@ -145,13 +145,13 @@ export default async function TasksPage({ searchParams }: PageProps) {
 
         {/* ── Main ────────────────────────────────── */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="h-14 min-h-14 bg-[#0a1220] border-b border-[#1a2d4a] flex items-center px-6 gap-5">
+          <header className="h-14 min-h-14 bg-bg-panel border-b border-border flex items-center px-6 gap-5">
             <span className="text-[16px] font-bold tracking-wide uppercase"
               style={{ fontFamily: "'Rajdhani', sans-serif" }}>
               Журнал задач
             </span>
-            <div className="w-px h-5 bg-[#1a2d4a]" />
-            <span className="text-[11px] text-[#6b8ba8] capitalize"
+            <div className="w-px h-5 bg-border" />
+            <span className="text-[11px] text-text-secondary capitalize"
               style={{ fontFamily: "'Share Tech Mono', monospace" }}>
               {today}
             </span>
@@ -166,11 +166,11 @@ export default async function TasksPage({ searchParams }: PageProps) {
                 {monthLabel}
                 {selCategory !== "ALL" && ` · ${selCategory}`}
               </h2>
-              <span className="text-[10px] text-[#6b8ba8]"
+              <span className="text-[10px] text-text-secondary"
                 style={{ fontFamily: "'Share Tech Mono', monospace" }}>
                 {doneCount}/{totalCount} выполнено
               </span>
-              <div className="flex-1 h-[2px] bg-[#1a2d4a] relative overflow-hidden">
+              <div className="flex-1 h-0.5 bg-border relative overflow-hidden">
                 <div className="absolute left-0 top-0 h-full bg-[#34d399] transition-all duration-700"
                   style={{ width: totalCount > 0 ? `${(doneCount / totalCount) * 100}%` : "0%" }} />
               </div>
@@ -182,7 +182,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
                 className={`text-[10px] px-3 py-1 border tracking-wide transition-all
                   ${selMonth === 0
                     ? "border-[#f59e0b] text-[#f59e0b] bg-[rgba(245,158,11,0.08)]"
-                    : "border-[#1a2d4a] text-[#3d5570] hover:text-[#6b8ba8] hover:border-[#1e3a5f]"
+                    : "border-border text-text-dim hover:text-text-secondary hover:border-border-bright"
                   }`}
                 style={{ fontFamily: "'Share Tech Mono', monospace" }}
               >
@@ -197,7 +197,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
                     className={`text-[10px] px-3 py-1 border tracking-wide transition-all
                       ${selMonth === month
                         ? "border-[#f59e0b] text-[#f59e0b] bg-[rgba(245,158,11,0.08)]"
-                        : "border-[#1a2d4a] text-[#3d5570] hover:text-[#6b8ba8] hover:border-[#1e3a5f]"
+                        : "border-border text-text-dim hover:text-text-secondary hover:border-border-bright"
                       }`}
                     style={{ fontFamily: "'Share Tech Mono', monospace" }}
                   >
@@ -212,8 +212,8 @@ export default async function TasksPage({ searchParams }: PageProps) {
               <a href={filterUrl("category", "ALL")}
                 className={`text-[10px] px-2.5 py-1 border transition-all
                   ${selCategory === "ALL"
-                    ? "border-[#60a5fa] text-[#60a5fa] bg-[rgba(96,165,250,0.08)]"
-                    : "border-[#1a2d4a] text-[#3d5570] hover:border-[#1e3a5f]"
+                    ? "border-accent-blue text-accent-blue bg-[rgba(96,165,250,0.08)]"
+                    : "border-border text-text-dim hover:border-border-bright"
                   }`}
                 style={{ fontFamily: "'Share Tech Mono', monospace" }}
               >

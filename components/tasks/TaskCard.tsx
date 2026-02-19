@@ -64,8 +64,8 @@ export function TaskCard({ task }: TaskCardProps) {
     <article
       className={[
         "relative mb-2 border transition-all duration-200",
-        "bg-[var(--color-bg-panel)] border-[var(--color-border)]",
-        "hover:bg-[var(--color-bg-hover)] hover:border-[var(--color-border-bright)]",
+        "bg-bg-panel border-border",
+        "hover:bg-bg-hover hover:border-border-bright",
         "hover:translate-x-0.5",
         isDone && "opacity-40",
         isPending && "opacity-60 pointer-events-none",
@@ -90,8 +90,8 @@ export function TaskCard({ task }: TaskCardProps) {
             "w-[18px] h-[18px] min-w-[18px] border flex items-center justify-center",
             "text-[10px] transition-all duration-150",
             isDone
-              ? "border-[var(--color-accent-green)] bg-[rgba(52,211,153,0.15)] text-[var(--color-accent-green)]"
-              : "border-[var(--color-border-bright)] hover:border-[var(--color-accent-green)] hover:bg-[rgba(52,211,153,0.1)]",
+              ? "border-(--color-accent-green) bg-[rgba(52,211,153,0.15)] text-(--color-accent-green)"
+              : "border-border-bright hover:border-(--color-accent-green) hover:bg-[rgba(52,211,153,0.1)]",
           ].join(" ")}
           aria-label={isDone ? "Переоткрыть" : "Завершить"}
         >
@@ -169,7 +169,7 @@ export function TaskCard({ task }: TaskCardProps) {
           {subs.map((sub, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 font-mono text-[11px] text-secondary py-[3px] border-b border-[var(--color-border)]/50"
+              className="flex items-center gap-2 font-mono text-[11px] text-secondary py-[3px] border-b border-border/50"
             >
               <span className="text-dim w-5 text-right text-[10px]">
                 {String(i + 1).padStart(2, "0")}

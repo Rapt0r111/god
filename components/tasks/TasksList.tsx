@@ -121,10 +121,10 @@ function CheckBox({
         "w-[18px] h-[18px] min-w-[18px] border flex items-center justify-center",
         "text-[10px] transition-all duration-150 shrink-0",
         pending
-          ? "opacity-50 cursor-wait border-[#1e3a5f]"
+          ? "opacity-50 cursor-wait border-border-bright"
           : done
             ? "border-[#34d399] bg-[rgba(52,211,153,0.15)] text-[#34d399] hover:bg-[rgba(52,211,153,0.25)]"
-            : "border-[#1e3a5f] hover:border-[#34d399] hover:bg-[rgba(52,211,153,0.08)]",
+            : "border-border-bright hover:border-[#34d399] hover:bg-[rgba(52,211,153,0.08)]",
       ].join(" ")}
       aria-label={done ? "Переоткрыть" : "Завершить"}
     >
@@ -183,10 +183,10 @@ function SubtaskRow({
   };
 
   return (
-    <div className={`group border-b border-[#1a2d4a]/60 last:border-0 transition-opacity ${isDone ? "opacity-50" : ""}`}>
+    <div className={`group border-b border-border/60 last:border-0 transition-opacity ${isDone ? "opacity-50" : ""}`}>
       <div className="flex items-center gap-2 py-2">
         {/* Маркер */}
-        <div className="w-1 h-1 rounded-full bg-[#1e3a5f] shrink-0 ml-1" />
+        <div className="w-1 h-1 rounded-full bg-border-bright shrink-0 ml-1" />
 
         {/* Чекбокс подзадачи */}
         <CheckBox done={isDone} pending={isPending} onToggle={handleToggle} />
@@ -199,12 +199,12 @@ function SubtaskRow({
             onChange={e => setTitle(e.target.value)}
             onBlur={handleSaveTitle}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-[#060b14] border border-[#1e3a5f] px-2 py-0.5 text-[12px] text-[#e2eaf4] outline-none focus:border-[#60a5fa]"
+            className="flex-1 bg-bg-deep border border-border-bright px-2 py-0.5 text-[12px] text-text-primary outline-none focus:border-accent-blue"
             style={{ fontFamily: "'Exo 2', sans-serif" }}
           />
         ) : (
           <span
-            className={`flex-1 text-[12px] text-[#c8d8e8] cursor-text ${isDone ? "line-through text-[#6b8ba8]" : ""}`}
+            className={`flex-1 text-[12px] text-[#c8d8e8] cursor-text ${isDone ? "line-through text-text-secondary" : ""}`}
             onDoubleClick={() => !isDone && setEditing(true)}
             title="Двойной клик для редактирования"
           >
@@ -220,8 +220,8 @@ function SubtaskRow({
               onClick={() => setShowDesc(s => !s)}
               className={`text-[9px] px-1.5 py-0.5 border transition-all
                 ${showDesc
-                  ? "border-[#60a5fa] text-[#60a5fa] bg-[rgba(96,165,250,0.08)]"
-                  : "border-[#1a2d4a] text-[#3d5570] hover:border-[#1e3a5f] hover:text-[#6b8ba8]"
+                  ? "border-accent-blue text-accent-blue bg-[rgba(96,165,250,0.08)]"
+                  : "border-border text-text-dim hover:border-border-bright hover:text-text-secondary"
                 }`}
               style={{ fontFamily: "'Share Tech Mono', monospace" }}
               title="Описание подзадачи"
@@ -231,7 +231,7 @@ function SubtaskRow({
           )}
           <button
             onClick={() => onDelete(subtask.id)}
-            className="text-[9px] px-1.5 py-0.5 border border-[#1a2d4a] text-[#3d5570] hover:border-[#ef4444] hover:text-[#ef4444] transition-all"
+            className="text-[9px] px-1.5 py-0.5 border border-border text-text-dim hover:border-[#ef4444] hover:text-[#ef4444] transition-all"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}
             title="Удалить подзадачу"
           >
@@ -254,7 +254,7 @@ function SubtaskRow({
               }
             }}
             placeholder="Описание подзадачи..."
-            className="w-full bg-[#060b14] border border-[#1a2d4a] px-2 py-1.5 text-[11px] text-[#6b8ba8] outline-none focus:border-[#1e3a5f] placeholder-[#3d5570]"
+            className="w-full bg-bg-deep border border-border px-2 py-1.5 text-[11px] text-text-secondary outline-none focus:border-border-bright placeholder-text-dim"
           />
         </div>
       )}
@@ -294,9 +294,9 @@ function AddSubtaskInput({
   };
 
   return (
-    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#1a2d4a]/60">
-      <div className="w-1 h-1 rounded-full bg-[#1e3a5f] shrink-0 ml-1" />
-      <div className="w-[18px] h-[18px] min-w-[18px] border border-dashed border-[#1e3a5f]" />
+    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/60">
+      <div className="w-1 h-1 rounded-full bg-border-bright shrink-0 ml-1" />
+      <div className="w-[18px] h-[18px] min-w-[18px] border border-dashed border-border-bright" />
       <input
         ref={inputRef}
         value={value}
@@ -351,10 +351,10 @@ function NotesSection({
   };
 
   return (
-    <div className="border-t border-[#1a2d4a] mt-3 pt-3 space-y-3">
+    <div className="border-t border-border mt-3 pt-3 space-y-3">
       {/* Описание */}
       <div>
-        <label className="block text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-1.5"
+        <label className="block text-[9px] text-text-dim tracking-[2px] uppercase mb-1.5"
           style={{ fontFamily: "'Share Tech Mono', monospace" }}>
           // ОПИСАНИЕ ЗАДАЧИ
         </label>
@@ -363,13 +363,13 @@ function NotesSection({
           onChange={setDesc}
           onBlur={() => saveField("description", desc)}
           placeholder="Подробное описание задачи, цели, контекст..."
-          className="w-full bg-[#060b14] border border-[#1a2d4a] px-3 py-2 text-[12px] text-[#c8d8e8] outline-none focus:border-[#1e3a5f] placeholder-[#2a4060] transition-colors"
+          className="w-full bg-bg-deep border border-border px-3 py-2 text-[12px] text-[#c8d8e8] outline-none focus:border-border-bright placeholder-[#2a4060] transition-colors"
         />
       </div>
 
       {/* Примечания */}
       <div>
-        <label className="block text-[9px] text-[#3d5570] tracking-[2px] uppercase mb-1.5"
+        <label className="block text-[9px] text-text-dim tracking-[2px] uppercase mb-1.5"
           style={{ fontFamily: "'Share Tech Mono', monospace" }}>
           // ПРИМЕЧАНИЯ ОФИЦЕРА
         </label>
@@ -378,7 +378,7 @@ function NotesSection({
           onChange={setNotes}
           onBlur={() => saveField("notes", notes)}
           placeholder="Заметки, напоминания, особые указания..."
-          className="w-full bg-[#060b14] border border-[#1a2d4a] px-3 py-2 text-[12px] text-[#f59e0b]/70 outline-none focus:border-[#1e3a5f] placeholder-[#2a4060] transition-colors"
+          className="w-full bg-bg-deep border border-border px-3 py-2 text-[12px] text-[#f59e0b]/70 outline-none focus:border-border-bright placeholder-[#2a4060] transition-colors"
           style={{ fontFamily: "'Share Tech Mono', monospace" } as React.CSSProperties}
         />
       </div>
@@ -386,7 +386,7 @@ function NotesSection({
       {/* Индикатор сохранения */}
       <div className="flex justify-end h-4">
         {saving && (
-          <span className="text-[9px] text-[#3d5570] animate-pulse"
+          <span className="text-[9px] text-text-dim animate-pulse"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}>
             сохранение...
           </span>
@@ -449,22 +449,22 @@ function TaskRow({ task }: { task: TaskData }) {
   };
 
   return (
-    <div className={`border transition-all duration-200 ${isDone ? "opacity-50" : ""} ${expanded ? "border-[#1e3a5f]" : "border-[#1a2d4a] hover:border-[#1e3a5f]"}`}
+    <div className={`border transition-all duration-200 ${isDone ? "opacity-50" : ""} ${expanded ? "border-border-bright" : "border-border hover:border-border-bright"}`}
       style={{ borderLeft: `3px solid ${priColor}` }}
     >
       {/* ── Шапка карточки ── */}
-      <div className="flex items-center gap-3 px-4 py-2.5 pl-[16px] bg-[#0a1220] hover:bg-[#0d1929] transition-colors">
+      <div className="flex items-center gap-3 px-4 py-2.5 pl-[16px] bg-bg-panel hover:bg-bg-card transition-colors">
         {/* Чекбокс */}
         <CheckBox done={isDone} pending={isPending} onToggle={handleToggle} />
 
         {/* Инфо */}
         <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpanded(e => !e)}>
-          <p className={`text-[13px] font-medium text-[#e2eaf4] truncate mb-0.5 ${isDone ? "line-through" : ""}`}>
+          <p className={`text-[13px] font-medium text-text-primary truncate mb-0.5 ${isDone ? "line-through" : ""}`}>
             {task.title}
           </p>
           <div className="flex items-center gap-2 text-[10px] flex-wrap"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-            <span className="text-[#6b8ba8]">{MONTHS_SHORT[task.month]} {dateRange}</span>
+            <span className="text-text-secondary">{MONTHS_SHORT[task.month]} {dateRange}</span>
             <span className="px-1.5 py-px text-[9px]"
               style={{ background: `${cat.color}15`, color: cat.color, border: `1px solid ${cat.color}40` }}>
               {cat.icon} {task.category}
@@ -477,8 +477,8 @@ function TaskRow({ task }: { task: TaskData }) {
             {/* Прогресс подзадач */}
             {subsTotal > 0 && (
               <span className="flex items-center gap-1 text-[9px]">
-                <span className="text-[#3d5570]">{subsDone}/{subsTotal}</span>
-                <span className="w-12 h-[3px] bg-[#1a2d4a] rounded-sm overflow-hidden inline-block">
+                <span className="text-text-dim">{subsDone}/{subsTotal}</span>
+                <span className="w-12 h-[3px] bg-border rounded-sm overflow-hidden inline-block">
                   <span className="block h-full rounded-sm bg-[#34d399] transition-all"
                     style={{ width: `${progress}%` }} />
                 </span>
@@ -496,10 +496,10 @@ function TaskRow({ task }: { task: TaskData }) {
         {/* Кнопка разворота */}
         <button
           onClick={() => setExpanded(e => !e)}
-          className="flex items-center gap-1 px-2 py-1 text-[#3d5570] hover:text-[#6b8ba8] transition-all group"
+          className="flex items-center gap-1 px-2 py-1 text-text-dim hover:text-text-secondary transition-all group"
           aria-label={expanded ? "Свернуть" : "Развернуть"}
         >
-          <span className="text-[9px] group-hover:text-[#6b8ba8] transition-all hidden group-hover:inline"
+          <span className="text-[9px] group-hover:text-text-secondary transition-all hidden group-hover:inline"
             style={{ fontFamily: "'Share Tech Mono', monospace" }}>
             {expanded ? "СВЕРНУТЬ" : "ОТКРЫТЬ"}
           </span>
@@ -515,9 +515,9 @@ function TaskRow({ task }: { task: TaskData }) {
 
       {/* ── Раскрытое тело ── */}
       {expanded && (
-        <div className="bg-[#080f1c] border-t border-[#1a2d4a]">
+        <div className="bg-[#080f1c] border-t border-border">
           {/* Вкладки */}
-          <div className="flex border-b border-[#1a2d4a]">
+          <div className="flex border-b border-border">
             {([
               { key: "subtasks" as const, label: `ПОДЗАДАЧИ${subsTotal > 0 ? ` (${subsDone}/${subsTotal})` : ""}` },
               { key: "notes"    as const, label: "ОПИСАНИЕ / ПРИМЕЧАНИЯ" + (hasNotes ? " ✎" : "") },
@@ -526,8 +526,8 @@ function TaskRow({ task }: { task: TaskData }) {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-4 py-2 text-[9px] tracking-widest border-b-2 transition-all
                   ${activeTab === tab.key
-                    ? "border-[#60a5fa] text-[#60a5fa] bg-[rgba(96,165,250,0.05)]"
-                    : "border-transparent text-[#3d5570] hover:text-[#6b8ba8]"
+                    ? "border-accent-blue text-accent-blue bg-[rgba(96,165,250,0.05)]"
+                    : "border-transparent text-text-dim hover:text-text-secondary"
                   }`}
                 style={{ fontFamily: "'Share Tech Mono', monospace" }}
               >
@@ -580,7 +580,7 @@ interface TasksListProps {
 export function TasksList({ tasks: taskList }: TasksListProps) {
   if (taskList.length === 0) {
     return (
-      <div className="text-center py-16 text-[#3d5570]"
+      <div className="text-center py-16 text-text-dim"
         style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 12 }}>
         // ЗАДАЧИ НЕ НАЙДЕНЫ
       </div>
