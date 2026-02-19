@@ -9,7 +9,8 @@ import type { TaskWithSubtasks, NewSubtask } from "@/lib/db/schema";
 
 const REVALIDATE_PATHS = ["/", "/tasks", "/timeline", "/roles"];
 function revalidateAll() {
-  REVALIDATE_PATHS.forEach(revalidatePath);
+  // Исправлено: передаем стрелочную функцию, чтобы index не попадал в аргумент type
+  REVALIDATE_PATHS.forEach((path) => revalidatePath(path));
 }
 
 // ─── Задачи ──────────────────────────────────────
@@ -18,9 +19,10 @@ export async function getTasks(): Promise<TaskWithSubtasks[]> {
   const allTasks    = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
   const allSubtasks = await db.select().from(subtasks).orderBy(asc(subtasks.order));
 
-  return allTasks.map(task => ({
+  // Исправлено: добавлены явные типы для task и s
+  return allTasks.map((task: typeof tasks.$inferSelect) => ({
     ...task,
-    subtasksList: allSubtasks.filter(s => s.taskId === task.id),
+    subtasksList: allSubtasks.filter((s: typeof subtasks.$inferSelect) => s.taskId === task.id),
   }));
 }
 
@@ -96,7 +98,8 @@ export async function addSubtask(
     .where(eq(subtasks.taskId, taskId));
 
   const maxOrder = existing.length > 0
-    ? Math.max(...existing.map(s => s.order))
+    // Исправлено: добавлен явный тип для s
+    ? Math.max(...existing.map((s: typeof subtasks.$inferSelect) => s.order))
     : -1;
 
   const [subtask] = await db
@@ -128,7 +131,7 @@ export async function completeSubtask(subtaskId: number) {
     .from(subtasks)
     .where(eq(subtasks.taskId, updated.taskId));
 
-  const allDone = siblings.every(s => s.status === "done");
+  const allDone = siblings.every((s: typeof subtasks.$inferSelect) => s.status === "done");
   if (allDone) {
     await db
       .update(tasks)
@@ -186,22 +189,26 @@ export async function getDashboardStats() {
   const allSubtasks = await db.select().from(subtasks);
 
   const total    = allTasks.length;
-  const done     = allTasks.filter(t => t.status === "done").length;
-  const critical = allTasks.filter(t => t.priority === "critical" && t.status !== "done").length;
+  // Исправлено: явные типы для t
+  const done     = allTasks.filter((t: typeof tasks.$inferSelect) => t.status === "done").length;
+  const critical = allTasks.filter((t: typeof tasks.$inferSelect) => t.priority === "critical" && t.status !== "done").length;
 
   const monthStats = Array.from({ length: 12 }, (_, i) => {
-    const m = allTasks.filter(t => t.month === i + 1);
+    // Исправлено: явный тип для t
+    const m = allTasks.filter((t: typeof tasks.$inferSelect) => t.month === i + 1);
     return {
       month:    i + 1,
       total:    m.length,
-      done:     m.filter(t => t.status === "done").length,
-      critical: m.filter(t => t.priority === "critical").length,
+      // Исправлено: явные типы для t внутри map
+      done:     m.filter((t: typeof tasks.$inferSelect) => t.status === "done").length,
+      critical: m.filter((t: typeof tasks.$inferSelect) => t.priority === "critical").length,
     };
   });
 
   const subtaskStats = {
     total: allSubtasks.length,
-    done:  allSubtasks.filter(s => s.status === "done").length,
+    // Исправлено: явный тип для s
+    done:  allSubtasks.filter((s: typeof subtasks.$inferSelect) => s.status === "done").length,
   };
 
   return { total, done, critical, monthStats, subtaskStats };

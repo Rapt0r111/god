@@ -57,7 +57,7 @@ export default async function RolesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#060b14] text-[#e2eaf4]" style={{ fontFamily: "'Exo 2', sans-serif" }}>
+    <div className="min-h-screen bg-bg-deep text-text-primary" style={{ fontFamily: "'Exo 2', sans-serif" }}>
       <div className="flex h-screen overflow-hidden">
 
         {/* Sidebar */}
