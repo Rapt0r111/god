@@ -29,7 +29,7 @@ function LiveClock() {
   }, []);
 
   return (
-    <span className="font-mono text-sm tracking-widest text-(--color-accent-green)">
+    <span className="font-mono text-sm tracking-widest text-emerald-400">
       {time}
     </span>
   );
@@ -52,31 +52,31 @@ export function Topbar({ criticalCount }: TopbarProps) {
   });
 
   return (
-    <header className="h-14 min-h-14 bg-panel border-b border-default flex items-center px-6 gap-5">
+    <header className="h-14 min-h-14 glass-elevated border-b border-white/10 flex items-center px-6 gap-5">
       {/* Заголовок страницы */}
-      <h2 className="font-display text-[16px] font-bold text-primary tracking-wide uppercase">
+      <h2 className="text-[16px] font-bold text-white tracking-wide uppercase">
         {title}
       </h2>
 
       {/* Разделитель */}
-      <div className="w-px h-5 bg-border" />
+      <div className="w-px h-5 bg-white/20" />
 
       {/* Дата */}
-      <span className="font-mono text-[11px] text-secondary capitalize">{today}</span>
+      <span className="font-mono text-[11px] text-white/50 capitalize">{today}</span>
 
       {/* Критичных задач */}
       {criticalCount > 0 && (
-        <span className="font-mono text-[10px] text-(--color-critical) tracking-wide">
+        <span className="font-mono text-[10px] text-red-400 tracking-wide">
           ⚠ {criticalCount} КРИ
         </span>
       )}
 
       {/* Правая часть */}
       <div className="ml-auto flex items-center gap-3">
-        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-accent-blue text-accent-blue bg-[rgba(96,165,250,0.08)] hover:bg-[rgba(96,165,250,0.18)] transition-colors uppercase">
+        <button className="text-[11px] tracking-wide px-4 py-1.5 rounded-lg border border-blue-500/40 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition-colors uppercase font-medium">
           ⊕ Добавить задачу
         </button>
-        <button className="font-mono text-[11px] tracking-wide px-3.5 py-1.5 border border-(--color-accent-green) text-(--color-accent-green) bg-[rgba(52,211,153,0.08)] hover:bg-[rgba(52,211,153,0.18)] transition-colors uppercase">
+        <button className="text-[11px] tracking-wide px-4 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors uppercase font-medium">
           ⤓ Доклад
         </button>
         <LiveClock />

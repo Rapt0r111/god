@@ -1,261 +1,554 @@
 // src/app/roles/page.tsx
-import { db }    from "@/lib/db";
-import { tasks } from "@/lib/db/schema";
+"use client";
 
-const ROLES = {
-  "КНР":   { color: "#f59e0b", full: "Командир научной роты",    icon: "★" },
-  "КВ-1":  { color: "#34d399", full: "Командир взвода 1",        icon: "◈" },
-  "КВ-2":  { color: "#60a5fa", full: "Командир взвода 2",        icon: "◈" },
-  "ЗКВ-1": { color: "#a78bfa", full: "Зам. командира взвода 1",  icon: "◇" },
-  "ЗКВ-2": { color: "#f472b6", full: "Зам. командира взвода 2",  icon: "◇" },
-  "ПС":    { color: "#fb923c", full: "Постоянный состав",        icon: "▣" },
-  "СР":    { color: "#94a3b8", full: "Старшина роты",            icon: "▤" },
-} as const;
+import { useState, useMemo } from "react";
 
-const CATEGORIES: Record<string, { icon: string; color: string; label: string }> = {
-  "Н":   { icon: "⚗",  color: "#34d399", label: "Наука"            },
-  "А":   { icon: "📡", color: "#60a5fa", label: "Агитация"          },
-  "БП":  { icon: "🎯", color: "#f87171", label: "Боевая подготовка" },
-  "ПД":  { icon: "⚙",  color: "#f59e0b", label: "Повседн. деят."   },
-  "ВПР": { icon: "🎖", color: "#a78bfa", label: "ВПР"              },
-  "У":   { icon: "🏁", color: "#fb923c", label: "Увольнение"        },
-  "П":   { icon: "🔰", color: "#22d3ee", label: "Призыв"           },
-  "ЗиТ": { icon: "💻", color: "#94a3b8", label: "Техника"          },
-  "ЕМ":  { icon: "📋", color: "#fbbf24", label: "Ежемесячные"      },
-  "НД":  { icon: "🔬", color: "#34d399", label: "Научная деят."    },
-  "МГ":  { icon: "⚡", color: "#ef4444", label: "Мобготовность"    },
+// ── Типы ──────────────────────────────────────────────────────────────
+
+type Rank =
+  | "Полковник" | "Подполковник" | "Майор"
+  | "Капитан" | "Старший лейтенант" | "Лейтенант"
+  | "Прапорщик" | "Старший прапорщик"
+  | "Сержант" | "Младший сержант" | "Рядовой";
+
+type Status = "active" | "on-leave" | "sick" | "detached";
+
+interface Person {
+  id:          string;
+  lastName:    string;
+  firstName:   string;
+  patronymic:  string;
+  rank:        Rank;
+  role:        string;       // должность
+  code:        string;       // краткий код КВ-2, ЗКВ-2, ПС…
+  status:      Status;
+  phone?:      string;
+  tasks:       number;       // кол-во активных задач
+  tasksDone:   number;
+  specialty?:  string;
+}
+
+// ── Константы ─────────────────────────────────────────────────────────
+
+const STATUS_META: Record<Status, { label: string; color: string; bg: string; border: string }> = {
+  active:    { label: "В СТРОЮ",    color: "#10b981", bg: "rgba(16,185,129,0.1)",  border: "rgba(16,185,129,0.3)"  },
+  "on-leave":{ label: "В ОТПУСКЕ", color: "#3b82f6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.3)"  },
+  sick:      { label: "НА Б/Л",    color: "#f59e0b", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.3)"  },
+  detached:  { label: "ОТКОМАНД.", color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.3)" },
 };
 
-const MONTHS_SHORT = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
-const PRIORITY_COLOR = { critical: "#ef4444", high: "#f59e0b", normal: "#34d399" } as const;
+const RANK_TIER: Record<Rank, { color: string; short: string }> = {
+  "Полковник":          { color: "#fbbf24", short: "П-К"  },
+  "Подполковник":       { color: "#f59e0b", short: "П-Л"  },
+  "Майор":              { color: "#f97316", short: "МАЙ"  },
+  "Капитан":            { color: "#60a5fa", short: "КПТ"  },
+  "Старший лейтенант":  { color: "#93c5fd", short: "СТ-Л" },
+  "Лейтенант":          { color: "#bfdbfe", short: "ЛТ"   },
+  "Старший прапорщик":  { color: "#6ee7b7", short: "СТ-П" },
+  "Прапорщик":          { color: "#a7f3d0", short: "ПРП"  },
+  "Сержант":            { color: "#94a3b8", short: "СРЖ"  },
+  "Младший сержант":    { color: "#94a3b8", short: "МЛ-С" },
+  "Рядовой":            { color: "#64748b", short: "РДВ"  },
+};
 
-export default async function RolesPage() {
-  const allTasks = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
-  const today    = new Date().toLocaleDateString("ru-RU", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
+const MOCK_PERSONNEL: Person[] = [
+  {
+    id: "1", lastName: "Сидоров",   firstName: "Алексей",   patronymic: "Викторович",
+    rank: "Капитан",            role: "Командир роты",              code: "КВ-2",
+    status: "active",           phone: "+7-900-111-22-33",
+    tasks: 5,  tasksDone: 12,   specialty: "Кибербезопасность",
+  },
+  {
+    id: "2", lastName: "Петров",    firstName: "Дмитрий",   patronymic: "Сергеевич",
+    rank: "Старший лейтенант",  role: "Заместитель командира роты", code: "ЗКВ-2",
+    status: "active",           phone: "+7-900-222-33-44",
+    tasks: 7,  tasksDone: 9,    specialty: "Системное программирование",
+  },
+  {
+    id: "3", lastName: "Козлов",    firstName: "Иван",      patronymic: "Петрович",
+    rank: "Прапорщик",          role: "Помощник по снабжению",      code: "ПС",
+    status: "active",
+    tasks: 2,  tasksDone: 6,    specialty: "Материально-техническое обеспечение",
+  },
+  {
+    id: "4", lastName: "Новиков",   firstName: "Кирилл",    patronymic: "Андреевич",
+    rank: "Рядовой",            role: "Специалист НИЛ-1",           code: "НИЛ-1",
+    status: "active",
+    tasks: 3,  tasksDone: 4,    specialty: "Машинное обучение",
+  },
+  {
+    id: "5", lastName: "Фёдоров",   firstName: "Никита",    patronymic: "Олегович",
+    rank: "Рядовой",            role: "Специалист НИЛ-1",           code: "НИЛ-1",
+    status: "on-leave",
+    tasks: 0,  tasksDone: 7,    specialty: "Компьютерное зрение",
+  },
+  {
+    id: "6", lastName: "Морозов",   firstName: "Артём",     patronymic: "Евгеньевич",
+    rank: "Рядовой",            role: "Специалист НИЛ-2",           code: "НИЛ-2",
+    status: "active",
+    tasks: 1,  tasksDone: 3,    specialty: "Криптография",
+  },
+  {
+    id: "7", lastName: "Волков",    firstName: "Максим",    patronymic: "Ильич",
+    rank: "Сержант",            role: "Командир отделения",         code: "КО",
+    status: "sick",
+    tasks: 0,  tasksDone: 5,    specialty: "Сетевые технологии",
+  },
+  {
+    id: "8", lastName: "Лебедев",   firstName: "Роман",     patronymic: "Дмитриевич",
+    rank: "Рядовой",            role: "Специалист НИЛ-2",           code: "НИЛ-2",
+    status: "detached",
+    tasks: 0,  tasksDone: 2,    specialty: "Анализ данных",
+  },
+  {
+    id: "9", lastName: "Соколов",   firstName: "Егор",      patronymic: "Александрович",
+    rank: "Младший сержант",    role: "Специалист НИЛ-3",           code: "НИЛ-3",
+    status: "active",
+    tasks: 2,  tasksDone: 1,    specialty: "Встраиваемые системы",
+  },
+  {
+    id: "10", lastName: "Попов",    firstName: "Владислав", patronymic: "Николаевич",
+    rank: "Рядовой",            role: "Специалист НИЛ-3",           code: "НИЛ-3",
+    status: "active",
+    tasks: 1,  tasksDone: 0,    specialty: "Радиоэлектронная борьба",
+  },
+];
 
-  const roleStats = Object.entries(ROLES).map(([key, role]) => {
-    const roleTasks: (typeof allTasks)[number][] = allTasks.filter((t: typeof allTasks[number]): t is typeof allTasks[number] => t.responsible === key);
-    const done: number = roleTasks.filter(t => t.status === "done").length;
-    const critical     = roleTasks.filter(t => t.priority === "critical" && t.status !== "done").length;
-    const progress     = roleTasks.length > 0 ? Math.round((done / roleTasks.length) * 100) : 0;
+// ── Главный компонент ──────────────────────────────────────────────────
 
-    // Распределение по категориям
-    const catBreakdown = Object.keys(CATEGORIES).map(cat => ({
-      cat,
-      count: roleTasks.filter(t => t.category === cat).length,
-    })).filter(c => c.count > 0).sort((a, b) => b.count - a.count);
+export default function RolesPage() {
+  const [search,       setSearch      ] = useState("");
+  const [filterStatus, setFilterStatus] = useState<Status | "all">("all");
+  const [selected,     setSelected    ] = useState<Person | null>(null);
+  const [viewMode,     setViewMode    ] = useState<"grid" | "list">("grid");
 
-    // Ближайшие незавершённые задачи
-    const upcoming = roleTasks
-      .filter(t => t.status !== "done")
-      .sort((a, b) => a.month - b.month || a.dateFrom - b.dateFrom)
-      .slice(0, 3);
+  const personnel = useMemo(() => {
+    let list = [...MOCK_PERSONNEL];
+    if (filterStatus !== "all") list = list.filter(p => p.status === filterStatus);
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(p =>
+        p.lastName.toLowerCase().includes(q)   ||
+        p.firstName.toLowerCase().includes(q)  ||
+        p.role.toLowerCase().includes(q)       ||
+        p.code.toLowerCase().includes(q)       ||
+        (p.specialty ?? "").toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [search, filterStatus]);
 
-    return { key, ...role, roleTasks, done, critical, progress, catBreakdown, upcoming };
-  });
+  const stats = useMemo(() => ({
+    total:     MOCK_PERSONNEL.length,
+    active:    MOCK_PERSONNEL.filter(p => p.status === "active").length,
+    onLeave:   MOCK_PERSONNEL.filter(p => p.status === "on-leave").length,
+    sick:      MOCK_PERSONNEL.filter(p => p.status === "sick").length,
+    detached:  MOCK_PERSONNEL.filter(p => p.status === "detached").length,
+    tasksBusy: MOCK_PERSONNEL.filter(p => p.tasks > 0).length,
+  }), []);
 
   return (
-    <div className="min-h-screen bg-bg-deep text-text-primary" style={{ fontFamily: "'Exo 2', sans-serif" }}>
-      <div className="flex h-screen overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
 
-        {/* Sidebar */}
-        <nav className="w-55 min-w-55 bg-bg-panel border-r border-border flex flex-col">
-          <div className="px-4 pt-5 pb-4 border-b border-border">
-            <p className="text-[9px] text-accent-blue tracking-[3px] uppercase mb-1.5 opacity-70" style={{ fontFamily: "'Share Tech Mono', monospace" }}>// СИСТЕМА УПРАВЛЕНИЯ</p>
-            <h1 className="text-[18px] font-bold tracking-wide" style={{ fontFamily: "'Rajdhani', sans-serif" }}>ЦСУ ПД</h1>
-            <p className="text-[10px] text-[#f59e0b] mt-1 tracking-wide" style={{ fontFamily: "'Share Tech Mono', monospace" }}>НАУЧНАЯ РОТА · В/Ч</p>
+      {/* ── HEADER ──────────────────────────────────────── */}
+      <div className="px-6 pt-5 pb-4 border-b border-white/10 space-y-4">
+
+        {/* Статистика */}
+        <div className="grid grid-cols-6 gap-3">
+          {[
+            { label: "ВСЕГО Л/С",  value: stats.total,    color: "#60a5fa" },
+            { label: "В СТРОЮ",    value: stats.active,   color: "#10b981" },
+            { label: "В ОТПУСКЕ", value: stats.onLeave,  color: "#3b82f6" },
+            { label: "НА Б/Л",    value: stats.sick,     color: "#f59e0b" },
+            { label: "ОТКОМАНД.", value: stats.detached, color: "#a78bfa" },
+            { label: "ПРИ ЗАДАЧ", value: stats.tasksBusy,color: "#f97316" },
+          ].map(s => (
+            <div key={s.label}
+              className="glass rounded-xl px-4 py-3 border border-white/8 flex items-center gap-3"
+            >
+              <span className="text-[26px] font-bold font-mono" style={{ color: s.color }}>{s.value}</span>
+              <span className="text-[9px] text-white/35 tracking-[1.5px] uppercase font-mono leading-tight">{s.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Фильтры */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30">⌕</span>
+            <input
+              type="text"
+              placeholder="Поиск по л/с..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-8 pr-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-[13px] text-white placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 w-[220px]"
+            />
           </div>
-          <div className="flex-1 py-3">
-            <p className="text-[9px] text-text-dim tracking-[2px] px-4 py-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Навигация</p>
-            {[
-              { href: "/",         icon: "◈", label: "Дашборд"      },
-              { href: "/tasks",    icon: "≡", label: "Задачи"        },
-              { href: "/timeline", icon: "◫", label: "Хронология"    },
-              { href: "/roles",    icon: "◉", label: "Личный состав", active: true },
-            ].map(item => (
-              <a key={item.href} href={item.href}
-                className={`flex items-center gap-2.5 px-4 py-2.25 border-l-2 text-[13px] font-medium transition-all
-                  ${(item as any).active
-                    ? "border-accent-blue bg-[rgba(96,165,250,0.08)] text-accent-blue"
-                    : "border-transparent text-text-secondary hover:bg-bg-hover hover:text-text-primary"}`}
+
+          <div className="flex gap-1">
+            {([["all","ВСЕ"], ["active","В СТРОЮ"], ["on-leave","ОТПУСК"], ["sick","Б/Л"], ["detached","ОТКОМАНД."]] as const).map(([val, label]) => (
+              <button key={val}
+                onClick={() => setFilterStatus(val as Status | "all")}
+                className={[
+                  "px-3 py-1.5 rounded-lg text-[11px] font-mono tracking-wide transition-all",
+                  filterStatus === val
+                    ? val === "all"
+                      ? "bg-blue-500/20 border border-blue-500/40 text-blue-400"
+                      : `border text-white`
+                    : "text-white/40 hover:text-white/70 hover:bg-white/8 border border-transparent",
+                ].join(" ")}
+                style={filterStatus === val && val !== "all" ? {
+                  background: STATUS_META[val as Status].bg,
+                  borderColor: STATUS_META[val as Status].border,
+                  color: STATUS_META[val as Status].color,
+                } : {}}
               >
-                <span className="text-[15px] w-5 text-center">{item.icon}</span>
-                {item.label}
-              </a>
+                {label}
+              </button>
             ))}
+          </div>
 
-            {/* Быстрый переход к роли */}
-            <p className="text-[9px] text-text-dim tracking-[2px] px-4 pt-4 pb-2 uppercase" style={{ fontFamily: "'Share Tech Mono', monospace" }}>Роли</p>
-            {roleStats.map(r => (
-              <a key={r.key} href={`#role-${r.key}`}
-                className="flex items-center justify-between px-4 py-1.5 transition-all hover:bg-bg-hover"
+          <div className="flex gap-1 ml-auto">
+            {(["grid","list"] as const).map(v => (
+              <button key={v} onClick={() => setViewMode(v)}
+                className={[
+                  "px-3 py-1.5 rounded-lg text-[11px] font-mono tracking-wide transition-all",
+                  viewMode === v
+                    ? "bg-blue-500/20 border border-blue-500/40 text-blue-400"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/8",
+                ].join(" ")}
               >
-                <span className="text-[11px]" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>{r.key}</span>
-                <span className="text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{r.roleTasks.length} зад.</span>
-              </a>
+                {v === "grid" ? "⊞ КАРТОЧКИ" : "≡ ТАБЛИЦА"}
+              </button>
             ))}
-          </div>
-          <div className="px-4 py-3 border-t border-border space-y-1.5">
-            {[{ color: "#34d399", label: "СИСТЕМА АКТИВНА", delay: "0s" }, { color: "#f59e0b", label: "OFFLINE OK", delay: "1s" }].map(s => (
-              <div key={s.label} className="flex items-center gap-2 text-[10px] text-text-dim" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: s.color, animationDelay: s.delay }} />
-                {s.label}
-              </div>
-            ))}
-          </div>
-        </nav>
-
-        {/* Main */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="h-14 min-h-14 bg-bg-panel border-b border-border flex items-center px-6 gap-5">
-            <span className="text-[16px] font-bold tracking-wide uppercase" style={{ fontFamily: "'Rajdhani', sans-serif" }}>Личный состав</span>
-            <div className="w-px h-5 bg-border" />
-            <span className="text-[11px] text-text-secondary capitalize" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{today}</span>
-            <div className="ml-auto">
-              <span className="text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                {Object.keys(ROLES).length} должностей · {allTasks.length} задач
-              </span>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-y-auto p-6">
-
-            {/* Сводная таблица нагрузки */}
-            <div className="mb-6 bg-bg-card border border-border p-4">
-              <p className="text-[9px] text-text-dim tracking-[2px] uppercase mb-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                // СВОДНАЯ НАГРУЗКА ПО ДОЛЖНОСТЯМ
-              </p>
-              <div className="space-y-2">
-                {roleStats.sort((a, b) => b.roleTasks.length - a.roleTasks.length).map(r => (
-                  <div key={r.key} className="flex items-center gap-4">
-                    <span className="w-14 text-[11px] font-bold" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>
-                      {r.key}
-                    </span>
-                    <div className="flex-1 h-5 bg-bg-panel border border-border relative overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full transition-all duration-700"
-                        style={{ width: `${r.roleTasks.length > 0 ? (r.done / r.roleTasks.length) * 100 : 0}%`, background: `${r.color}30` }} />
-                      <div className="absolute left-0 top-0 h-full w-0.5" style={{ background: r.color }} />
-                      <span className="absolute left-3 top-0 bottom-0 flex items-center text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                        {r.done}/{r.roleTasks.length} задач
-                      </span>
-                      <span className="absolute right-3 top-0 bottom-0 flex items-center text-[11px] font-bold" style={{ fontFamily: "'Share Tech Mono', monospace", color: r.color }}>
-                        {r.progress}%
-                      </span>
-                    </div>
-                    {r.critical > 0 && (
-                      <span className="text-[10px] text-[#ef4444]" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                        ⚠ {r.critical}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Карточки ролей */}
-            <div className="grid grid-cols-2 gap-4">
-              {roleStats.map(r => (
-                <div key={r.key} id={`role-${r.key}`}
-                  className="bg-bg-card border border-border p-4 relative overflow-hidden"
-                  style={{ borderLeft: `3px solid ${r.color}` }}
-                >
-                  {/* Заголовок */}
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-[16px] font-bold shrink-0"
-                      style={{ background: `${r.color}15`, border: `2px solid ${r.color}40`, color: r.color, fontFamily: "'Rajdhani', sans-serif" }}>
-                      {r.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-[18px] font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", color: r.color }}>
-                        {r.key}
-                      </h3>
-                      <p className="text-[10px] text-text-secondary" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                        {r.full}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[28px] font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", color: r.color }}>
-                        {r.progress}%
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Прогресс-бар */}
-                  <div className="h-0.75 bg-bg-panel rounded-sm overflow-hidden mb-4">
-                    <div className="h-full rounded-sm transition-all duration-700" style={{ width: `${r.progress}%`, background: r.color }} />
-                  </div>
-
-                  {/* Счётчики */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {[
-                      { label: "ВСЕГО",     value: r.roleTasks.length, color: "#6b8ba8"  },
-                      { label: "ВЫПОЛНЕНО", value: r.done,             color: "#34d399"  },
-                      { label: "КРИТИЧНЫХ", value: r.critical,         color: "#ef4444"  },
-                    ].map(stat => (
-                      <div key={stat.label} className="bg-bg-panel border border-border p-2 text-center">
-                        <p className="text-[18px] font-bold" style={{ fontFamily: "'Rajdhani', sans-serif", color: stat.color }}>{stat.value}</p>
-                        <p className="text-[8px] text-text-dim tracking-wide" style={{ fontFamily: "'Share Tech Mono', monospace" }}>{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Категории */}
-                  {r.catBreakdown.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-[9px] text-text-dim tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                        Направления
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {r.catBreakdown.slice(0, 6).map(c => {
-                          const meta = CATEGORIES[c.cat];
-                          if (!meta) return null;
-                          return (
-                            <span key={c.cat} className="px-1.5 py-px text-[9px]"
-                              style={{ background: `${meta.color}15`, color: meta.color, border: `1px solid ${meta.color}40`, fontFamily: "'Share Tech Mono', monospace" }}>
-                              {meta.icon} {c.cat} ({c.count})
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ближайшие задачи */}
-                  {r.upcoming.length > 0 && (
-                    <div>
-                      <p className="text-[9px] text-text-dim tracking-widest uppercase mb-2" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                        Ближайшие задачи
-                      </p>
-                      <div className="space-y-1">
-                        {r.upcoming.map((task: typeof allTasks[number]) => {
-                          const priColor = PRIORITY_COLOR[task.priority as keyof typeof PRIORITY_COLOR];
-                          return (
-                            <div key={task.id} className="flex items-center gap-2 py-1.5 border-b border-border/50">
-                              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: priColor }} />
-                              <span className="text-[11px] text-text-primary flex-1 truncate">{task.title}</span>
-                              <span className="text-[9px] text-text-dim shrink-0" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                                {MONTHS_SHORT[task.month]} {task.dateFrom}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {r.roleTasks.length === 0 && (
-                    <p className="text-[11px] text-text-dim text-center py-4" style={{ fontFamily: "'Share Tech Mono', monospace" }}>
-                      // задачи не назначены
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
+
+      {/* ── CONTENT ─────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {viewMode === "grid"
+          ? <GridView   personnel={personnel} onSelect={setSelected} selected={selected} />
+          : <ListView   personnel={personnel} onSelect={setSelected} selected={selected} />
+        }
+      </div>
+
+      {/* ── PERSON MODAL ─────────────────────────────────── */}
+      {selected && (
+        <PersonModal person={selected} onClose={() => setSelected(null)} />
+      )}
+    </div>
+  );
+}
+
+// ── GridView ───────────────────────────────────────────────────────────
+
+function GridView({ personnel, onSelect, selected }: {
+  personnel: Person[]; onSelect: (p: Person) => void; selected: Person | null;
+}) {
+  if (personnel.length === 0) return <EmptyState />;
+
+  return (
+    <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      {personnel.map(person => {
+        const st   = STATUS_META[person.status];
+        const rank = RANK_TIER[person.rank];
+        const initials = person.lastName[0] + person.firstName[0];
+        const progress = person.tasksDone + person.tasks > 0
+          ? (person.tasksDone / (person.tasksDone + person.tasks)) * 100
+          : 0;
+        const isSelected = selected?.id === person.id;
+
+        return (
+          <div key={person.id}
+            onClick={() => onSelect(person)}
+            className={[
+              "glass-elevated rounded-2xl p-5 border cursor-pointer transition-all hover:scale-[1.01]",
+              isSelected
+                ? "border-blue-500/50 shadow-lg shadow-blue-500/10"
+                : person.status !== "active"
+                  ? "border-white/8 opacity-75"
+                  : "border-white/10 hover:border-white/20",
+            ].join(" ")}
+          >
+            {/* Аватар + статус */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="relative">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-[18px] font-bold text-white"
+                  style={{ background: `linear-gradient(135deg, ${rank.color}25, ${rank.color}10)`, border: `1px solid ${rank.color}30` }}
+                >
+                  {initials}
+                </div>
+                <span
+                  className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-slate-800"
+                  style={{ background: st.color }}
+                />
+              </div>
+              <span
+                className="text-[9px] px-2 py-1 rounded-lg font-mono tracking-wide"
+                style={{ color: st.color, background: st.bg, border: `1px solid ${st.border}` }}
+              >
+                {st.label}
+              </span>
+            </div>
+
+            {/* Имя */}
+            <div className="mb-3">
+              <p className="text-[15px] font-bold text-white leading-tight">
+                {person.lastName}
+              </p>
+              <p className="text-[12px] text-white/60">
+                {person.firstName} {person.patronymic}
+              </p>
+            </div>
+
+            {/* Звание + должность */}
+            <div className="space-y-1 mb-4">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] px-1.5 py-0.5 rounded font-mono"
+                  style={{ color: rank.color, background: `${rank.color}15`, border: `1px solid ${rank.color}25` }}
+                >
+                  {rank.short}
+                </span>
+                <span className="text-[11px] text-white/50">{person.rank}</span>
+              </div>
+              <p className="text-[11px] text-white/70 leading-tight">{person.role}</p>
+              {person.specialty && (
+                <p className="text-[10px] text-blue-400/60 font-mono">{person.specialty}</p>
+              )}
+            </div>
+
+            {/* Задачи прогресс */}
+            <div>
+              <div className="flex justify-between text-[10px] text-white/40 font-mono mb-1.5">
+                <span>ЗАДАЧИ</span>
+                <span className="text-white/60">{person.tasksDone} / {person.tasksDone + person.tasks}</span>
+              </div>
+              <div className="h-1 bg-white/8 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${progress}%`,
+                    background: progress === 100
+                      ? "#10b981"
+                      : progress > 50
+                        ? "#3b82f6"
+                        : "#f59e0b",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── ListView ───────────────────────────────────────────────────────────
+
+function ListView({ personnel, onSelect, selected }: {
+  personnel: Person[]; onSelect: (p: Person) => void; selected: Person | null;
+}) {
+  if (personnel.length === 0) return <EmptyState />;
+
+  return (
+    <div className="space-y-1">
+      {/* Заголовок */}
+      <div className="grid gap-3 px-4 py-2 text-[10px] text-white/30 tracking-[1.5px] uppercase font-mono"
+        style={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 100px 80px" }}
+      >
+        <span>ФИО / ДОЛЖНОСТЬ</span>
+        <span>ЗВАНИЕ</span>
+        <span>КОД</span>
+        <span>СПЕЦИАЛИЗАЦИЯ</span>
+        <span>СТАТУС</span>
+        <span>ЗАДАЧИ</span>
+      </div>
+
+      {personnel.map(person => {
+        const st     = STATUS_META[person.status];
+        const rank   = RANK_TIER[person.rank];
+        const isSelected = selected?.id === person.id;
+
+        return (
+          <div key={person.id}
+            onClick={() => onSelect(person)}
+            className={[
+              "grid gap-3 px-4 py-3 rounded-xl border cursor-pointer items-center transition-all",
+              isSelected
+                ? "border-blue-500/30 bg-blue-500/8"
+                : "border-white/8 glass hover:bg-white/5",
+              person.status !== "active" ? "opacity-70" : "",
+            ].join(" ")}
+            style={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 100px 80px" }}
+          >
+            {/* ФИО */}
+            <div>
+              <p className="text-[13px] font-semibold text-white">
+                {person.lastName} {person.firstName[0]}. {person.patronymic[0]}.
+              </p>
+              <p className="text-[11px] text-white/50">{person.role}</p>
+            </div>
+
+            {/* Звание */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] px-1.5 py-0.5 rounded font-mono"
+                style={{ color: rank.color, background: `${rank.color}15`, border: `1px solid ${rank.color}25` }}
+              >
+                {rank.short}
+              </span>
+              <span className="text-[11px] text-white/50 truncate">{person.rank}</span>
+            </div>
+
+            {/* Код */}
+            <span className="text-[12px] font-mono text-blue-400/80">{person.code}</span>
+
+            {/* Специализация */}
+            <span className="text-[11px] text-white/40 truncate">{person.specialty ?? "—"}</span>
+
+            {/* Статус */}
+            <span className="text-[10px] px-2 py-1 rounded-lg font-mono w-fit"
+              style={{ color: st.color, background: st.bg, border: `1px solid ${st.border}` }}
+            >
+              {st.label}
+            </span>
+
+            {/* Задачи */}
+            <span className="text-[12px] font-mono">
+              <span className="text-emerald-400">{person.tasksDone}</span>
+              <span className="text-white/25"> / </span>
+              <span className="text-white/60">{person.tasksDone + person.tasks}</span>
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── PersonModal ────────────────────────────────────────────────────────
+
+function PersonModal({ person, onClose }: { person: Person; onClose: () => void }) {
+  const st     = STATUS_META[person.status];
+  const rank   = RANK_TIER[person.rank];
+  const initials = person.lastName[0] + person.firstName[0];
+  const progress = person.tasksDone + person.tasks > 0
+    ? (person.tasksDone / (person.tasksDone + person.tasks)) * 100 : 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(10px)" }}
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div className="glass-elevated rounded-2xl border border-white/15 w-full max-w-md p-6 shadow-2xl">
+
+        {/* Шапка */}
+        <div className="flex items-start gap-4 mb-6">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-[24px] font-bold text-white shrink-0"
+            style={{ background: `linear-gradient(135deg, ${rank.color}30, ${rank.color}10)`, border: `1px solid ${rank.color}35` }}
+          >
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-white/30 tracking-[2px] uppercase font-mono mb-1">// ЛИЧНАЯ КАРТОЧКА</p>
+            <h3 className="text-[20px] font-bold text-white leading-tight">
+              {person.lastName}
+            </h3>
+            <p className="text-[14px] text-white/60">
+              {person.firstName} {person.patronymic}
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/15 text-white/50 hover:text-white hover:bg-white/8 transition-all text-[18px] shrink-0"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Статус */}
+        <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-xl"
+          style={{ background: st.bg, border: `1px solid ${st.border}` }}
+        >
+          <span className="w-2.5 h-2.5 rounded-full animate-pulse shrink-0" style={{ background: st.color }} />
+          <span className="text-[12px] font-semibold font-mono" style={{ color: st.color }}>{st.label}</span>
+        </div>
+
+        {/* Детали */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {[
+            { label: "ЗВАНИЕ",       value: person.rank,        color: rank.color },
+            { label: "ДОЛЖНОСТЬ",    value: person.role,        color: "#e2e8f0"  },
+            { label: "КОД",          value: person.code,        color: "#60a5fa"  },
+            { label: "СПЕЦИАЛИЗАЦИЯ",value: person.specialty ?? "—", color: "#93c5fd" },
+            ...(person.phone
+              ? [{ label: "ТЕЛЕФОН", value: person.phone, color: "#e2e8f0" }]
+              : []
+            ),
+          ].map(row => (
+            <div key={row.label} className="glass rounded-xl p-3 border border-white/8">
+              <p className="text-[9px] text-white/30 tracking-[1.5px] uppercase mb-1 font-mono">{row.label}</p>
+              <p className="text-[12px] font-semibold font-mono truncate" style={{ color: row.color }}>{row.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Задачи прогресс */}
+        <div className="glass rounded-xl p-4 border border-white/8 mb-5">
+          <div className="flex justify-between text-[10px] font-mono mb-2">
+            <span className="text-white/30 tracking-wide">// ВЫПОЛНЕНИЕ ЗАДАЧ</span>
+            <span className="text-white/70">
+              <span className="text-emerald-400">{person.tasksDone}</span>
+              <span className="text-white/30"> из </span>
+              <span>{person.tasksDone + person.tasks}</span>
+            </span>
+          </div>
+          <div className="h-2 bg-white/8 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${progress}%`,
+                background: progress === 100
+                  ? "#10b981"
+                  : `linear-gradient(to right, #3b82f6, #60a5fa)`,
+              }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-white/30 font-mono mt-1.5">
+            <span>{Math.round(progress)}% завершено</span>
+            {person.tasks > 0 && (
+              <span className="text-amber-400">{person.tasks} активных</span>
+            )}
+          </div>
+        </div>
+
+        {/* Кнопки */}
+        <div className="flex gap-2">
+          <button className="flex-1 py-2 rounded-xl border border-blue-500/35 text-blue-400 bg-blue-500/10 text-[12px] font-medium tracking-wide hover:bg-blue-500/20 transition-all font-mono">
+            ◫ ЗАДАЧИ Л/С
+          </button>
+          <button onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-white/15 text-white/50 text-[12px] hover:bg-white/8 transition-all"
+          >
+            ЗАКРЫТЬ
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Пустое состояние ──────────────────────────────────────────────────
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-white/30">
+      <span className="text-5xl mb-4 opacity-40">◉</span>
+      <p className="text-[13px] font-mono tracking-wide">// ЛИЧНЫЙ СОСТАВ НЕ НАЙДЕН</p>
+      <p className="text-[11px] mt-1">Попробуйте изменить фильтры</p>
     </div>
   );
 }
