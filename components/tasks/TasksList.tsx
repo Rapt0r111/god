@@ -300,6 +300,13 @@ function NotesSection({
     setSavedNotes(task.notes ?? "");
   }, [task.id, task.description, task.notes]);
 
+  useEffect(() => {
+    setDesc(initialDescription ?? "");
+    setNotes(initialNotes ?? "");
+    setSavedDesc(initialDescription ?? "");
+    setSavedNotes(initialNotes ?? "");
+  }, [initialDescription, initialNotes]);
+
   const saveField = (field: "description" | "notes", value: string) => {
     const original = field === "description" ? savedDesc : savedNotes;
     if (value === original) return;
