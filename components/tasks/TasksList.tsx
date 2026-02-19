@@ -143,10 +143,13 @@ function SubtaskRow({
 
   const handleToggle = () => {
     startTransition(async () => {
-      const next = isDone ? "pending" : "done";
-      onStatusChange(subtask.id, next);
-      if (isDone) await reopenSubtask(subtask.id);
-      else await completeSubtask(subtask.id);
+      if (isDone) {
+        onStatusChange(subtask.id, "pending");
+        await reopenSubtask(subtask.id);
+      } else {
+        onStatusChange(subtask.id, "done");
+        await completeSubtask(subtask.id);
+      }
     });
   };
 
@@ -159,7 +162,10 @@ function SubtaskRow({
     startTransition(async () => {
       const nextTitle = title.trim() || subtask.title;
       const nextDescription = desc || null;
-      await updateSubtask(subtask.id, { title: nextTitle, description: desc || undefined });
+      await updateSubtask(subtask.id, {
+        title:       nextTitle,
+        description: desc || undefined,
+      });
       onContentChange(subtask.id, { title: nextTitle, description: nextDescription });
       setEditing(false);
     });
@@ -285,20 +291,20 @@ function NotesSection({
   task: TaskData;
   onTaskPatch: (id: number, patch: Partial<TaskData>) => void;
 }) {
-  const [desc, setDesc] = useState(task.description ?? "");
-  const [notes, setNotes] = useState(task.notes ?? "");
-  const [savedDesc, setSavedDesc] = useState(task.description ?? "");
-  const [savedNotes, setSavedNotes] = useState(task.notes ?? "");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [, startTransition] = useTransition();
+  const [desc,    setDesc]    = useState(initialDescription ?? "");
+  const [notes,   setNotes]   = useState(initialNotes ?? "");
+  const [savedDesc, setSavedDesc] = useState(initialDescription ?? "");
+  const [savedNotes, setSavedNotes] = useState(initialNotes ?? "");
+  const [saving,  setSaving]  = useState(false);
+  const [saved,   setSaved]   = useState(false);
+  const [, startTransition]   = useTransition();
 
   useEffect(() => {
-    setDesc(task.description ?? "");
-    setNotes(task.notes ?? "");
-    setSavedDesc(task.description ?? "");
-    setSavedNotes(task.notes ?? "");
-  }, [task.id, task.description, task.notes]);
+    setDesc(initialDescription ?? "");
+    setNotes(initialNotes ?? "");
+    setSavedDesc(initialDescription ?? "");
+    setSavedNotes(initialNotes ?? "");
+  }, [initialDescription, initialNotes]);
 
   const saveField = (field: "description" | "notes", value: string) => {
     const original = field === "description" ? savedDesc : savedNotes;
@@ -306,15 +312,9 @@ function NotesSection({
 
     setSaving(true);
     startTransition(async () => {
-      await updateTaskNotes(task.id, { [field]: value });
-      if (field === "description") {
-        setSavedDesc(value);
-        onTaskPatch(task.id, { description: value || null });
-      }
-      if (field === "notes") {
-        setSavedNotes(value);
-        onTaskPatch(task.id, { notes: value || null });
-      }
+      await updateTaskNotes(taskId, { [field]: value });
+      if (field === "description") setSavedDesc(value);
+      if (field === "notes") setSavedNotes(value);
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 1200);
@@ -355,11 +355,22 @@ function TaskRow({
   const [isPending, startTransition] = useTransition();
   const isDone = task.status === "done";
 
-  const cat = CATEGORIES[task.category] ?? { icon: "•", color: "#6b8ba8" };
-  const priColor = PRIORITY_COLOR[task.priority] ?? "#6b8ba8";
-  const subsDone = task.subtasksList.filter((s) => s.status === "done").length;
-  const subsTotal = task.subtasksList.length;
-  const progress = subsTotal > 0 ? Math.round((subsDone / subsTotal) * 100) : 0;
+  useEffect(() => {
+    setStatus(task.status);
+    setSubs(task.subtasksList);
+  }, [task.status, task.subtasksList]);
+
+  const isDone      = status === "done";
+  const cat         = CATEGORIES[task.category] ?? { icon: "•", color: "#6b8ba8" };
+  const priColor    = PRIORITY_COLOR[task.priority] ?? "#6b8ba8";
+  const dateRange   = task.dateFrom === task.dateTo
+    ? `${task.dateFrom}`
+    : `${task.dateFrom}–${task.dateTo}`;
+
+  const subsDone    = subs.filter(s => s.status === "done").length;
+  const subsTotal   = subs.length;
+  const hasNotes    = !!(task.description || task.notes);
+  const progress    = subsTotal > 0 ? Math.round((subsDone / subsTotal) * 100) : null;
 
   const handleToggle = () => {
     startTransition(async () => {
@@ -377,6 +388,28 @@ function TaskRow({
         await completeTask(task.id);
       }
     });
+  };
+
+  const handleDeleteSubtask = (id: number) => {
+    startTransition(async () => {
+      await deleteSubtask(id);
+      setSubs(prev => prev.filter(s => s.id !== id));
+    });
+  };
+
+  const handleAddSubtask = (subtask: Subtask) => {
+    setSubs(prev => [...prev, subtask]);
+  };
+
+  const handleSubtaskStatusChange = (id: number, nextStatus: Subtask["status"]) => {
+    setSubs((prev) => prev.map((sub) => (sub.id === id ? { ...sub, status: nextStatus } : sub)));
+  };
+
+  const handleSubtaskContentChange = (
+    id: number,
+    data: { title?: string; description?: string | null },
+  ) => {
+    setSubs((prev) => prev.map((sub) => (sub.id === id ? { ...sub, ...data } : sub)));
   };
 
   return (
@@ -425,32 +458,36 @@ function TaskDetailsModal({
     });
   };
 
-  const handleSubtaskContentChange = (id: number, data: { title?: string; description?: string | null }) => {
-    onTaskPatch(task.id, {
-      subtasksList: task.subtasksList.map((s) => (s.id === id ? { ...s, ...data } : s)),
-    });
-  };
+          {/* Содержимое вкладки */}
+          <div className="px-4 py-3">
+            {activeTab === "subtasks" && (
+              <div>
+                {subs.length === 0 && (
+                  <p className="text-[11px] text-[#2a4060] py-2 text-center"
+                    style={{ fontFamily: "'Share Tech Mono', monospace" }}>
+                    // подзадачи не добавлены
+                  </p>
+                )}
+                {subs.map(sub => (
+                  <SubtaskRow
+                    key={sub.id}
+                    subtask={sub}
+                    onDelete={handleDeleteSubtask}
+                    onStatusChange={handleSubtaskStatusChange}
+                    onContentChange={handleSubtaskContentChange}
+                  />
+                ))}
+                <AddSubtaskInput taskId={task.id} onAdd={handleAddSubtask} />
+              </div>
+            )}
 
-  const handleDeleteSubtask = (id: number) => {
-    onTaskPatch(task.id, { subtasksList: task.subtasksList.filter((s) => s.id !== id) });
-    void deleteSubtask(id);
-  };
-
-  const handleAddSubtask = (subtask: Subtask) => {
-    onTaskPatch(task.id, { subtasksList: [...task.subtasksList, subtask] });
-  };
-
-  const cat = CATEGORIES[task.category] ?? { icon: "•", color: "#6b8ba8" };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden glass-elevated border border-white/15" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
-          <div>
-            <p className="text-sm text-white font-semibold">{task.title}</p>
-            <p className="text-[11px] text-white/50 font-mono">
-              {cat.icon} {task.category} · {task.responsible} · срок: {MONTHS_SHORT[task.month]} {task.dateFrom === task.dateTo ? task.dateFrom : `${task.dateFrom}-${task.dateTo}`}
-            </p>
+            {activeTab === "notes" && (
+              <NotesSection
+                taskId={task.id}
+                initialDescription={task.description}
+                initialNotes={task.notes}
+              />
+            )}
           </div>
           <button onClick={onClose} className="px-3 py-1 text-xs border border-white/20 text-white/70 hover:text-white">Закрыть</button>
         </div>
