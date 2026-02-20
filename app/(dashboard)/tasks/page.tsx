@@ -42,15 +42,34 @@ type ActiveFilters = {
   month: number;
   search: string;
   criticalOnly: boolean;
+  monthWindowAuto: boolean;
+  currentMonth: number;
 };
 
-function sortTasksForList<T extends { status: string; priority: string; month: number; dateTo: number; dateFrom: number }>(rows: T[]) {
+function getDueInDays(task: { month: number; dateTo: number }, currentMonth: number) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const dueYear = task.month < currentMonth - 1 ? year + 1 : year;
+  const dueDate = new Date(dueYear, task.month - 1, task.dateTo, 23, 59, 59, 999);
+  return Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function sortTasksForList<T extends { status: string; priority: string; month: number; dateTo: number; dateFrom: number }>(rows: T[], currentMonth: number) {
   const priorityWeight: Record<string, number> = { critical: 0, high: 1, normal: 2 };
 
   return [...rows].sort((a, b) => {
     const aDone = a.status === "done";
     const bDone = b.status === "done";
     if (aDone !== bDone) return aDone ? 1 : -1;
+
+    if (!aDone && !bDone) {
+      const aDue = getDueInDays(a, currentMonth);
+      const bDue = getDueInDays(b, currentMonth);
+      const aNearWeek = aDue <= 7;
+      const bNearWeek = bDue <= 7;
+      if (aNearWeek !== bNearWeek) return aNearWeek ? -1 : 1;
+      if (aNearWeek && bNearWeek && aDue !== bDue) return aDue - bDue;
+    }
 
     const pa = priorityWeight[a.priority] ?? 99;
     const pb = priorityWeight[b.priority] ?? 99;
@@ -67,6 +86,13 @@ function updateTaskList<T extends { category: string; priority: string; status: 
   activeFilters: ActiveFilters,
 ) {
   let list = [...source];
+
+  if (activeFilters.monthWindowAuto && !activeFilters.month) {
+    const prevMonth = activeFilters.currentMonth === 1 ? 12 : activeFilters.currentMonth - 1;
+    const nextMonth = activeFilters.currentMonth === 12 ? 1 : activeFilters.currentMonth + 1;
+    const allowed = new Set([prevMonth, activeFilters.currentMonth, nextMonth]);
+    list = list.filter((t) => allowed.has(t.month));
+  }
 
   if (activeFilters.criticalOnly) {
     list = list.filter((t) => t.priority === "critical" && t.status !== "done");
@@ -85,7 +111,7 @@ function updateTaskList<T extends { category: string; priority: string; status: 
     );
   }
 
-  return sortTasksForList(list);
+  return sortTasksForList(list, activeFilters.currentMonth);
 }
 
 
@@ -110,6 +136,8 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const filterMonth = sp.month ? parseInt(sp.month) : 0;
   const filterQ = sp.q ?? "";
   const criticalOnly = sp.criticalOnly === "1";
+  const currentMonth = new Date().getMonth() + 1;
+  const monthWindowAuto = !sp.month;
 
   // ── fetch all tasks (server-side) ──
   const sourceTasks = await db.query.tasks.findMany({
@@ -123,6 +151,8 @@ export default async function TasksPage({ searchParams }: PageProps) {
     month: filterMonth,
     search: filterQ,
     criticalOnly,
+    monthWindowAuto,
+    currentMonth,
   };
 
   const allTasks = updateTaskList(sourceTasks as any, activeFiltersState);
@@ -133,7 +163,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const critical = allTasks.filter(t => t.priority === "critical" && t.status !== "done").length;
 
   // Active filters count (for badge)
-  const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, criticalOnly ? "criticalOnly" : ""].filter(Boolean).length;
+  const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, criticalOnly ? "criticalOnly" : "", monthWindowAuto ? "monthWindowAuto" : ""].filter(Boolean).length;
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -163,6 +193,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
         filterQ={filterQ}
         activeFilters={activeFiltersCount}
         criticalOnly={criticalOnly}
+        monthWindowAuto={monthWindowAuto}
       />
 
       {/* ── Task list ── */}
@@ -181,9 +212,9 @@ function buildUrl(params: Record<string, string | number>) {
   return "/tasks?" + entries.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
 }
 
-function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, activeFilters, criticalOnly }: {
+function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, activeFilters, criticalOnly, monthWindowAuto }: {
   filterCat: string; filterPri: string; filterStat: string;
-  filterMonth: number; filterQ: string; activeFilters: number; criticalOnly: boolean;
+  filterMonth: number; filterQ: string; activeFilters: number; criticalOnly: boolean; monthWindowAuto: boolean;
 }) {
   const base = {
     category: filterCat,
@@ -237,6 +268,14 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
         </summary>
 
         <div className="mt-3 space-y-3">
+          {monthWindowAuto && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={{ color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }}>
+                Авто-период: предыдущий · текущий · следующий месяц
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Быстрый фильтр:</span>
             <a href={buildUrl({ ...base, criticalOnly: criticalOnly ? 0 : 1, priority: criticalOnly ? filterPri : "critical", status: criticalOnly ? filterStat : "" })}
