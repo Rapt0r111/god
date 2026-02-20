@@ -120,6 +120,15 @@ export async function deleteTask(id: number) {
   return { success: true };
 }
 
+
+export async function getTasksByResponsible(responsible: string) {
+  return db.query.tasks.findMany({
+    where: eq(tasks.responsible, responsible as any),
+    with: { subtasks: true },
+    orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
+  });
+}
+
 export async function getTimelineTasks() {
   return db.query.tasks.findMany({
     columns: {

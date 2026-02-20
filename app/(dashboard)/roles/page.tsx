@@ -1,7 +1,8 @@
 // src/app/roles/page.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getTasksByResponsible } from "@/actions/tasks";
 
 // ── Типы ──────────────────────────────────────────────────────────────
 
@@ -27,6 +28,18 @@ interface Person {
   tasks:      number;
   tasksDone:  number;
   specialty?: string;
+}
+
+interface AssignedTask {
+  id: number;
+  title: string;
+  status: "pending" | "in_progress" | "done" | "cancelled";
+  month: number;
+  dateFrom: number;
+  dateTo: number;
+  priority: "critical" | "high" | "normal";
+  category: string;
+  subtasks: Array<{ id: number; status: "pending" | "in_progress" | "done" | "cancelled" }>;
 }
 
 // ── Метаданные ─────────────────────────────────────────────────────────
@@ -565,6 +578,26 @@ function PersonModal({
   const total    = person.tasksDone + person.tasks;
   const progress = total > 0 ? (person.tasksDone / total) * 100 : 0;
 
+  const [tasks, setTasks] = useState<AssignedTask[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      setLoadingTasks(true);
+      const rows = await getTasksByResponsible(person.code);
+      if (!alive) return;
+      setTasks(rows as AssignedTask[]);
+      setSelectedTaskId(rows[0]?.id ?? null);
+      setLoadingTasks(false);
+    };
+    void load();
+    return () => { alive = false; };
+  }, [person.code]);
+
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-6"
@@ -572,189 +605,124 @@ function PersonModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-md rounded-2xl animate-scale-in"
+        className="w-full max-w-5xl rounded-2xl animate-scale-in"
         style={{
           background: "linear-gradient(145deg, rgba(13,24,41,0.98), rgba(7,13,26,0.95))",
           backdropFilter: "blur(40px)",
           border: "1px solid rgba(255,255,255,0.12)",
           boxShadow: "0 24px 80px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.08) inset",
-          padding: "24px",
+          padding: "20px",
         }}
       >
-        {/* Шапка */}
-        <div className="flex items-start gap-4 mb-5">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-[24px] font-bold shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${rank.color}30, ${rank.color}10)`,
-              border: `1px solid ${rank.color}30`,
-              color: "#e8f0fe",
-              boxShadow: `0 8px 24px ${rank.color}15`,
-            }}
-          >
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[24px] font-bold shrink-0"
+            style={{ background: `linear-gradient(135deg, ${rank.color}30, ${rank.color}10)`, border: `1px solid ${rank.color}30`, color: "#e8f0fe" }}>
             {initials}
           </div>
-
           <div className="flex-1 min-w-0">
-            <p
-              className="text-[9px] font-mono tracking-[2.5px] uppercase mb-1.5"
-              style={{ color: "rgba(255,255,255,0.2)" }}
-            >
-              // ЛИЧНАЯ КАРТОЧКА
+            <p className="text-[9px] font-mono tracking-[2.5px] uppercase mb-1.5" style={{ color: "rgba(255,255,255,0.2)" }}>
+              // ЛИЧНАЯ КАРТОЧКА И ЗАДАЧИ
             </p>
-            <h3
-              className="text-[20px] font-bold leading-tight mb-0.5"
-              style={{ color: "#e8f0fe" }}
-            >
-              {person.lastName}
-            </h3>
-            <p
-              className="text-[13px]"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
-              {person.firstName} {person.patronymic}
-            </p>
+            <h3 className="text-[20px] font-bold leading-tight mb-0.5" style={{ color: "#e8f0fe" }}>{person.lastName}</h3>
+            <p className="text-[13px]" style={{ color: "rgba(255,255,255,0.5)" }}>{person.firstName} {person.patronymic} · {person.code}</p>
           </div>
-
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[18px] transition-all shrink-0"
-            style={{
-              border: "1px solid rgba(255,255,255,0.1)",
-              background: "rgba(255,255,255,0.04)",
-              color: "rgba(255,255,255,0.4)",
-            }}
-            title="Закрыть"
-          >
-            ×
-          </button>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-[18px] transition-all shrink-0"
+            style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>×</button>
         </div>
 
-        {/* Статус */}
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-5"
-          style={{
-            background: st.bg,
-            border: `1px solid ${st.border}`,
-          }}
-        >
-          <span
-            className="w-2.5 h-2.5 rounded-full shrink-0 animate-pulse"
-            style={{ background: st.color, boxShadow: `0 0 8px ${st.color}60` }}
-          />
-          <span
-            className="text-[12px] font-mono font-semibold tracking-wider"
-            style={{ color: st.color }}
-          >
-            {st.label}
-          </span>
-        </div>
-
-        {/* Детали */}
-        <div className="grid grid-cols-2 gap-2.5 mb-5">
-          {[
-            { label: "ЗВАНИЕ",        value: person.rank,        color: rank.color  },
-            { label: "ДОЛЖНОСТЬ",     value: person.role,        color: "#e8f0fe"   },
-            { label: "КОД",           value: person.code,        color: "#93c5fd"   },
-            { label: "СПЕЦИАЛИЗАЦИЯ", value: person.specialty ?? "—", color: "#93c5fd" },
-            ...(person.phone ? [{ label: "ТЕЛЕФОН", value: person.phone, color: "#e8f0fe" }] : []),
-          ].map(row => (
-            <div
-              key={row.label}
-              className="rounded-xl p-3"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-            >
-              <p
-                className="text-[8px] font-mono tracking-[1.5px] uppercase mb-1.5"
-                style={{ color: "rgba(255,255,255,0.25)" }}
-              >
-                {row.label}
-              </p>
-              <p
-                className="text-[12px] font-semibold font-mono truncate"
-                style={{ color: row.color }}
-              >
-                {row.value}
-              </p>
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-4 space-y-3">
+            <div className="rounded-xl p-3" style={{ background: st.bg, border: `1px solid ${st.border}` }}>
+              <p className="text-[11px] font-mono" style={{ color: st.color }}>{st.label}</p>
+              <p className="text-[12px] mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>{person.role}</p>
             </div>
-          ))}
-        </div>
+            <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex justify-between text-[10px] font-mono mb-2">
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>Прогресс профиля</span>
+                <span style={{ color: "#93c5fd" }}>{Math.round(progress)}%</span>
+              </div>
+              <div className="h-2 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
+                <div className="h-2 rounded-full" style={{ width: `${progress}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
+              </div>
+            </div>
+            <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] font-mono mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>Задачи личного состава</p>
+              {loadingTasks ? (
+                <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Загрузка...</p>
+              ) : tasks.length === 0 ? (
+                <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Нет закреплённых задач</p>
+              ) : (
+                <div className="space-y-1.5 max-h-[320px] overflow-auto pr-1">
+                  {tasks.map((task) => {
+                    const totalSubs = task.subtasks.length;
+                    const doneSubs = task.subtasks.filter((s) => s.status === "done").length;
+                    const cardActive = selectedTaskId === task.id;
+                    return (
+                      <button key={task.id} onClick={() => setSelectedTaskId(task.id)}
+                        className="w-full text-left rounded-lg p-2"
+                        style={{
+                          border: cardActive ? "1px solid rgba(59,130,246,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                          background: cardActive ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.02)",
+                        }}>
+                        <p className="text-[11px] truncate" style={{ color: "#e8f0fe" }}>{task.title}</p>
+                        <p className="text-[9px] font-mono mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+                          {task.dateFrom}-{task.dateTo}/{task.month} · {task.status} · подзадач {doneSubs}/{totalSubs}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
 
-        {/* Прогресс задач */}
-        <div
-          className="rounded-xl p-4 mb-5"
-          style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
-          }}
-        >
-          <div className="flex justify-between text-[9px] font-mono mb-2">
-            <span style={{ color: "rgba(255,255,255,0.3)" }}>// ВЫПОЛНЕНИЕ ЗАДАЧ</span>
-            <span>
-              <span style={{ color: "#34d399" }}>{person.tasksDone}</span>
-              <span style={{ color: "rgba(255,255,255,0.25)" }}> из </span>
-              <span style={{ color: "rgba(255,255,255,0.6)" }}>{total}</span>
-            </span>
-          </div>
-          <div
-            className="h-2 rounded-full overflow-hidden mb-1.5"
-            style={{ background: "rgba(255,255,255,0.05)" }}
-          >
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${progress}%`,
-                background: progress === 100
-                  ? "linear-gradient(90deg, #10b981, #34d399)"
-                  : "linear-gradient(90deg, #3b82f6, #60a5fa)",
-                boxShadow: progress === 100 ? "0 0 8px rgba(16,185,129,0.4)" : "none",
-              }}
-            />
-          </div>
-          <div className="flex justify-between text-[9px] font-mono">
-            <span style={{ color: "rgba(255,255,255,0.25)" }}>{Math.round(progress)}% завершено</span>
-            {person.tasks > 0 && (
-              <span style={{ color: "#f59e0b" }}>{person.tasks} активных</span>
+          <div className="col-span-8 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            {!selectedTask ? (
+              <div className="h-full flex items-center justify-center text-[12px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+                Выберите задачу слева для просмотра деталей выполнения
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[15px] font-semibold" style={{ color: "#e8f0fe" }}>{selectedTask.title}</h4>
+                  <span className="text-[10px] font-mono px-2 py-1 rounded" style={{ color: "#93c5fd", border: "1px solid rgba(147,197,253,0.35)", background: "rgba(147,197,253,0.08)" }}>
+                    {selectedTask.category} · {selectedTask.priority}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <Info label="Статус" value={selectedTask.status} />
+                  <Info label="Срок" value={`${selectedTask.dateFrom}-${selectedTask.dateTo}/${selectedTask.month}`} />
+                  <Info label="Подзадачи" value={`${selectedTask.subtasks.filter((s) => s.status === "done").length}/${selectedTask.subtasks.length}`} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>Детализация выполнения</p>
+                  {selectedTask.subtasks.length === 0 ? (
+                    <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>По задаче нет подзадач</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {selectedTask.subtasks.map((sub, idx) => (
+                        <div key={sub.id} className="rounded-lg px-2.5 py-2 flex items-center justify-between" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                          <span className="text-[11px]" style={{ color: "#e8f0fe" }}>Подзадача #{idx + 1}</span>
+                          <span className="text-[10px] font-mono" style={{ color: sub.status === "done" ? "#34d399" : "rgba(255,255,255,0.45)" }}>{sub.status}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
-
-        {/* Кнопки */}
-        <div className="flex gap-2.5">
-          <button
-            className="flex-1 py-2.5 rounded-xl text-[11px] font-mono tracking-wider transition-all"
-            style={{
-              border: "1px solid rgba(59,130,246,0.3)",
-              background: "rgba(59,130,246,0.08)",
-              color: "#93c5fd",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(59,130,246,0.15)";
-              e.currentTarget.style.borderColor = "rgba(59,130,246,0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(59,130,246,0.08)";
-              e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)";
-            }}
-          >
-            ◫ ЗАДАЧИ Л/С
-          </button>
-          <button
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-[11px] font-mono transition-all"
-            style={{
-              border: "1px solid rgba(255,255,255,0.1)",
-              background: "rgba(255,255,255,0.04)",
-              color: "rgba(255,255,255,0.4)",
-            }}
-          >
-            ЗАКРЫТЬ
-          </button>
-        </div>
       </div>
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg p-2" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+      <p className="text-[9px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>{label}</p>
+      <p className="text-[11px]" style={{ color: "#e8f0fe" }}>{value}</p>
     </div>
   );
 }
