@@ -4,6 +4,7 @@ import { db }       from "@/lib/db";
 import { tasks, subtasks } from "@/lib/db/schema";
 import { eq }       from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { isTaskDashboardCritical } from "@/lib/tasks/critical";
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -27,17 +28,6 @@ export type SubtaskInsert = {
 
 // ── Dashboard ─────────────────────────────────────────────────────────
 
-const CRITICAL_DUE_SOON_DAYS = 2;
-
-function isTaskDashboardCritical(task: { month: number; dateTo: number; status: string }) {
-  if (task.status === "done" || task.status === "cancelled") return false;
-
-  const now = new Date();
-  const dueDate = new Date(now.getFullYear(), task.month - 1, task.dateTo, 23, 59, 59, 999);
-  const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-  return daysLeft <= CRITICAL_DUE_SOON_DAYS;
-}
 
 export async function getDashboardStats() {
   const all = await db.select().from(tasks);

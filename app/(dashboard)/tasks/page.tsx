@@ -1,8 +1,8 @@
 // app/(dashboard)/tasks/page.tsx
 import { db } from "@/lib/db";
-import { tasks } from "@/lib/db/schema";
 import { TasksList } from "@/components/tasks/TasksList";
 import { AddTaskButton } from "@/components/tasks/AddTaskButton";
+import { getTaskDueInDays, isTaskDashboardCritical } from "@/lib/tasks/critical";
 
 // ── helpers ──────────────────────────────────────────────────────────
 
@@ -46,15 +46,11 @@ type ActiveFilters = {
   currentMonth: number;
 };
 
-function getDueInDays(task: { month: number; dateTo: number }, currentMonth: number) {
-  const now = new Date();
-  const year = now.getFullYear();
-  const dueYear = task.month < currentMonth - 1 ? year + 1 : year;
-  const dueDate = new Date(dueYear, task.month - 1, task.dateTo, 23, 59, 59, 999);
-  return Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+function getDueInDays(task: { month: number; dateTo: number }) {
+  return getTaskDueInDays(task);
 }
 
-function sortTasksForList<T extends { status: string; priority: string; month: number; dateTo: number; dateFrom: number }>(rows: T[], currentMonth: number) {
+function sortTasksForList<T extends { status: string; priority: string; month: number; dateTo: number; dateFrom: number }>(rows: T[]) {
   const priorityWeight: Record<string, number> = { critical: 0, high: 1, normal: 2 };
 
   return [...rows].sort((a, b) => {
@@ -63,8 +59,8 @@ function sortTasksForList<T extends { status: string; priority: string; month: n
     if (aDone !== bDone) return aDone ? 1 : -1;
 
     if (!aDone && !bDone) {
-      const aDue = getDueInDays(a, currentMonth);
-      const bDue = getDueInDays(b, currentMonth);
+      const aDue = getDueInDays(a);
+      const bDue = getDueInDays(b);
       const aNearWeek = aDue <= 7;
       const bNearWeek = bDue <= 7;
       if (aNearWeek !== bNearWeek) return aNearWeek ? -1 : 1;
@@ -95,7 +91,7 @@ function updateTaskList<T extends { category: string; priority: string; status: 
   }
 
   if (activeFilters.criticalOnly) {
-    list = list.filter((t) => t.priority === "critical" && t.status !== "done");
+    list = list.filter((t) => isTaskDashboardCritical(t));
   }
 
   if (activeFilters.category) list = list.filter((t) => t.category === activeFilters.category);
@@ -111,7 +107,7 @@ function updateTaskList<T extends { category: string; priority: string; status: 
     );
   }
 
-  return sortTasksForList(list, activeFilters.currentMonth);
+  return sortTasksForList(list);
 }
 
 
@@ -125,6 +121,7 @@ interface PageProps {
     month?: string;
     q?: string;
     criticalOnly?: string;
+    autoMonthWindow?: string;
   }>;
 }
 
@@ -137,7 +134,8 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const filterQ = sp.q ?? "";
   const criticalOnly = sp.criticalOnly === "1";
   const currentMonth = new Date().getMonth() + 1;
-  const monthWindowAuto = !sp.month;
+  const autoMonthWindowDisabled = sp.autoMonthWindow === "0";
+  const monthWindowAuto = !sp.month && !autoMonthWindowDisabled;
 
   // ── fetch all tasks (server-side) ──
   const sourceTasks = await db.query.tasks.findMany({
@@ -223,6 +221,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
     month: filterMonth,
     q: filterQ,
     criticalOnly: criticalOnly ? 1 : 0,
+    autoMonthWindow: monthWindowAuto ? "" : "0",
   };
 
   return (
@@ -235,6 +234,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
           {filterStat && <input type="hidden" name="status" value={filterStat} />}
           {filterMonth > 0 && <input type="hidden" name="month" value={filterMonth} />}
           {criticalOnly && <input type="hidden" name="criticalOnly" value="1" />}
+          {!monthWindowAuto && <input type="hidden" name="autoMonthWindow" value="0" />}
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>⌕</span>
           <input name="q" defaultValue={filterQ} placeholder="Поиск задач..."
             className="flex-1 bg-transparent text-[12px] outline-none"
@@ -273,6 +273,13 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
               <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={{ color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }}>
                 Авто-период: предыдущий · текущий · следующий месяц
               </span>
+              <a
+                href={buildUrl({ ...base, autoMonthWindow: "0" })}
+                className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
+                style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.03)" }}
+              >
+                отключить
+              </a>
             </div>
           )}
 

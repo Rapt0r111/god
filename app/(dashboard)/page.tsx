@@ -1,6 +1,7 @@
 // app/(dashboard)/page.tsx
 import { db }    from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
+import { isTaskDashboardCritical } from "@/lib/tasks/critical";
 
 const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
 const CRITICAL_DUE_SOON_DAYS = 2;
@@ -63,7 +64,7 @@ export default async function DashboardPage() {
       {/* Critical alert banner */}
       {critical > 0 && (
         <a
-          href="/tasks?criticalOnly=1&priority=critical"
+          href="/tasks?criticalOnly=1&priority=critical&autoMonthWindow=0"
           className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer hover:brightness-110"
           style={{
             background: "rgba(239,68,68,0.08)",
