@@ -3,13 +3,24 @@ import { db }    from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
 
 const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
+const CRITICAL_DUE_SOON_DAYS = 2;
+
+function isTaskDashboardCritical(task: { month: number; dateTo: number; status: string }) {
+  if (task.status === "done" || task.status === "cancelled") return false;
+
+  const now = new Date();
+  const dueDate = new Date(now.getFullYear(), task.month - 1, task.dateTo, 23, 59, 59, 999);
+  const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  return daysLeft <= CRITICAL_DUE_SOON_DAYS;
+}
 
 async function getStats() {
   const allTasks = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
 
   const total    = allTasks.length;
   const done     = allTasks.filter((t) => t.status === "done").length;
-  const critical = allTasks.filter((t) => t.priority === "critical" && t.status !== "done").length;
+  const critical = allTasks.filter((t) => isTaskDashboardCritical(t)).length;
 
   const currentMonth  = new Date().getMonth() + 1;
   const thisMonth     = allTasks.filter((t) => t.month === currentMonth);
@@ -21,12 +32,12 @@ async function getStats() {
       month:    i + 1,
       total:    m.length,
       done:     m.filter((t) => t.status === "done").length,
-      critical: m.filter((t) => t.priority === "critical").length,
+      critical: m.filter((t) => isTaskDashboardCritical(t)).length,
     };
   });
 
   const criticalTasks = allTasks
-    .filter((t) => t.priority === "critical" && t.status !== "done")
+    .filter((t) => isTaskDashboardCritical(t))
     .slice(0, 6);
 
   return {
@@ -51,20 +62,25 @@ export default async function DashboardPage() {
     <div className="space-y-5">
       {/* Critical alert banner */}
       {critical > 0 && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl"
+        <a
+          href="/tasks?criticalOnly=1&priority=critical"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer hover:brightness-110"
           style={{
-            background: "rgba(239,68,68,0.06)",
-            border: "1px solid rgba(239,68,68,0.2)",
-            boxShadow: "0 2px 12px rgba(239,68,68,0.08)",
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.28)",
+            boxShadow: "0 4px 16px rgba(239,68,68,0.12)",
           }}
+          title="Показать только критичные невыполненные задачи"
         >
           <span style={{ color: "#ef4444", fontSize: 16 }}>⚠</span>
           <span className="text-[12px]" style={{ color: "#fca5a5" }}>
             <span className="font-semibold">ВНИМАНИЕ: </span>
             {critical} критичных задач требуют немедленного исполнения
           </span>
-        </div>
+          <span className="ml-auto text-[10px] font-mono" style={{ color: "rgba(252,165,165,0.8)" }}>
+            Открыть фильтр →
+          </span>
+        </a>
       )}
 
       {/* ── BENTO GRID ── */}
