@@ -96,10 +96,52 @@ export default function RolesPage() {
   const [selected, setSelected] = useState<Person | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const basePersonnel = useMemo(
-    () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
-    [],
+  const [personnelData, setPersonnelData] = useState<Person[]>(() =>
+    MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
   );
+
+
+  useEffect(() => {
+    let alive = true;
+
+    const loadTaskStats = async () => {
+      const rows = await Promise.all(
+        MOCK_PERSONNEL
+          .filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code))
+          .map(async (person) => {
+            const tasks = await getTasksByResponsible(person.code);
+            const totalTasks = tasks.length;
+            const doneTasks = tasks.filter((task) => task.status === "done").length;
+
+            return {
+              ...person,
+              tasksDone: doneTasks,
+              tasks: Math.max(totalTasks - doneTasks, 0),
+            };
+          }),
+      );
+
+      if (!alive) return;
+      setPersonnelData(rows);
+    };
+
+    void loadTaskStats();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    const updatedSelected = personnelData.find((person) => person.id === selected.id) ?? null;
+    if (updatedSelected) {
+      setSelected(updatedSelected);
+    }
+  }, [personnelData, selected]);
+
+  const basePersonnel = personnelData;
+
 
   const personnel = useMemo(() => {
     let list = [...basePersonnel];
@@ -123,7 +165,7 @@ export default function RolesPage() {
     onLeave: basePersonnel.filter(p => p.status === "on-leave").length,
     sick: basePersonnel.filter(p => p.status === "sick").length,
     detached: basePersonnel.filter(p => p.status === "detached").length,
-    tasksBusy: basePersonnel.filter(p => p.tasks > 0).length,
+    tasksBusy:basePersonnel.filter(p => p.tasks + p.tasksDone > 0).length,
   }), [basePersonnel]);
 
   const STAT_ITEMS = [
