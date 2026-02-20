@@ -18,7 +18,7 @@ interface SeedTask {
   month:       number;
   dateFrom:    number;
   dateTo:      number;
-  subtasksList?: string[];
+  subtasks?: string[];
 }
 
 const SEED_TASKS: SeedTask[] = [
@@ -32,7 +32,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Квартальная проверка ВНК ГУС за 4 квартал",
@@ -40,7 +40,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-2",
     month: 1, dateFrom: 15, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Проверить реализацию рекомендаций за 3 квартал",
       "Подготовить проект Акта",
       "Подготовить справку-доклад с указаниями и рекомендациями по результатам проверки",
@@ -52,7 +52,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Ознакомление с тг СС-ЗМОРФ через ВНК ГУС",
       "Отправка табличных сведений о деятельности научной роты",
       "Подготовка презентации для доклада",
@@ -82,7 +82,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить заверенные профили НИР в соответствии с Положением",
@@ -90,7 +90,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр",
@@ -98,7 +98,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение собеседований с ННИЦ для распределения м/п",
@@ -106,7 +106,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение собеседований с сотрудниками НИЦ для закрепления м/п",
@@ -114,7 +114,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 15, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ о закреплении научных руководителей",
@@ -122,7 +122,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка перечня направлений научной деятельности операторов для ГУС",
@@ -130,7 +130,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ на проведение Присяги",
@@ -138,7 +138,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ на проведение стрельб",
@@ -146,7 +146,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к стрельбам",
@@ -154,7 +154,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 27,
-    subtasksList: [
+    subtasks: [
       "Подготовить 7 выписок из приказа (123, 6, 5 каф., НР-2)",
       "Изучение материальной части",
       "Изучение требований безопасности",
@@ -170,7 +170,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава",
@@ -178,7 +178,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (январь)",
@@ -186,7 +186,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -197,7 +197,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед",
@@ -205,7 +205,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций на следующий месяц и проверка статей",
@@ -213,7 +213,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС",
@@ -221,7 +221,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов",
@@ -229,7 +229,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки",
@@ -237,7 +237,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение тетрадей ПДП",
@@ -245,7 +245,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати",
@@ -253,7 +253,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц",
@@ -261,7 +261,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты за месяц",
@@ -269,7 +269,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
@@ -277,7 +277,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Актуализация списка ВУЗов",
@@ -285,7 +285,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Занятие по требованиям руководящих документов, оформлению отчётов и статей",
@@ -293,7 +293,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Организация стрельб (во взаимодействии с 10 каф.)",
@@ -301,7 +301,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 1, dateFrom: 27, dateTo: 27,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к проведению Присяги",
@@ -309,7 +309,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-2",
     month: 1, dateFrom: 28, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Выписка из приказа о проведении Присяги",
       "Сценарий",
       "Списки посетителей",
@@ -327,7 +327,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КНР",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к передаче нарядов и ротных обязанностей между призывами",
@@ -335,7 +335,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Составление графика стажировок в наряде",
       "Актуализация и уточнение ротных обязанностей",
     ],
@@ -346,7 +346,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "USB-носители",
       "Электронные пропуска",
     ],
@@ -357,7 +357,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение беседы по трудоустройству",
@@ -365,7 +365,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -377,7 +377,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "ПС",
     month: 2, dateFrom: 3, dateTo: 16,
-    subtasksList: [
+    subtasks: [
       "Мероприятия по плану подготовки",
       "Мероприятия по перечню вопросов проверки",
       "Мероприятия по плану реализации рекомендаций",
@@ -389,7 +389,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка командировочных документов на агитацию",
@@ -397,7 +397,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-2",
     month: 2, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Командировочные удостоверения",
       "Удостоверения на право ознакомления",
       "Проекты соглашений",
@@ -413,7 +413,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 15, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Назначение ответственного в состав комиссии ЗГТ",
@@ -421,7 +421,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 1, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение инструктажа убывающих в командировку (февраль)",
@@ -429,7 +429,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 2, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Командировочное удостоверение",
       "Удостоверение ГОМУ",
       "Листы собеседования",
@@ -450,7 +450,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 2, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (февраль)",
@@ -458,7 +458,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка служебных карточек (февраль)",
@@ -466,7 +466,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед (февраль)",
@@ -474,7 +474,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций (февраль)",
@@ -482,7 +482,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС (февраль)",
@@ -490,7 +490,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов (февраль)",
@@ -498,7 +498,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки (февраль)",
@@ -506,7 +506,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (февраль)",
@@ -514,7 +514,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (февраль)",
@@ -522,7 +522,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (февраль)",
@@ -530,7 +530,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (февраль)",
@@ -538,7 +538,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 2, dateFrom: 20, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -550,7 +550,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 3, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Формирование базы анкет кандидатов",
@@ -558,7 +558,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 3, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Сбор сведений по результатам агитации",
       "Обработка писем на почте",
       "Обработка новых заявок",
@@ -572,7 +572,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 3, dateFrom: 20, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Формирование документов для ВНК и ДИМК (март)",
@@ -580,7 +580,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-2",
     month: 3, dateFrom: 25, dateTo: 25,
-    subtasksList: [
+    subtasks: [
       "Рейтинговый список",
       "Протокол",
       "Оценочная ведомость",
@@ -592,7 +592,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 3, dateFrom: 25, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Квартальная проверка в ЗГТ (март)",
@@ -600,7 +600,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Отправка плана увольнения в запас в ОМУ ЛВО",
@@ -608,7 +608,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение II этапа конкурса ГУС",
@@ -616,7 +616,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (март)",
@@ -624,7 +624,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 3, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (март)",
@@ -632,7 +632,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 3, dateFrom: 20, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -643,7 +643,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 3, dateFrom: 28, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -655,7 +655,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 4, dateFrom: 7, dateTo: 9,
-    subtasksList: [
+    subtasks: [
       "Проверить реализацию рекомендаций за 4 квартал",
       "Подготовить проект Акта",
       "Подготовить справку-доклад с указаниями по результатам проверки",
@@ -667,7 +667,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 4, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Публикация рейтингового списка первого этапа отбора",
@@ -675,7 +675,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 4, dateFrom: 15, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (апрель)",
@@ -683,7 +683,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 4, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка служебных карточек (апрель)",
@@ -691,7 +691,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 4, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед (апрель)",
@@ -699,7 +699,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 4, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций (апрель)",
@@ -707,7 +707,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС (апрель)",
@@ -715,7 +715,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов (апрель)",
@@ -723,7 +723,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки (апрель)",
@@ -731,7 +731,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (апрель)",
@@ -739,7 +739,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (апрель)",
@@ -747,7 +747,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (апрель)",
@@ -755,7 +755,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (апрель)",
@@ -763,7 +763,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подведение итогов конкурса ГУС",
@@ -771,7 +771,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 4, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -783,7 +783,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 5, dateFrom: 1, dateTo: 5,
-    subtasksList: [
+    subtasks: [
       "Ответственность",
       "Увольнения",
       "Шашлыки (по призывно)",
@@ -795,7 +795,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-1",
     month: 5, dateFrom: 1, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Подготовка частного плана мероприятий",
     ],
   },
@@ -805,7 +805,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка служебных карточек (май)",
@@ -813,7 +813,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед (май)",
@@ -821,7 +821,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций (май)",
@@ -829,7 +829,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС (май)",
@@ -837,7 +837,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов (май)",
@@ -845,7 +845,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки (май)",
@@ -853,7 +853,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (май)",
@@ -861,7 +861,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (май)",
@@ -869,7 +869,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (май)",
@@ -877,7 +877,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 5, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (май)",
@@ -885,7 +885,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 5, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -897,7 +897,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Квартальная проверка в моб. группе (июнь)",
@@ -905,7 +905,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мероприятия по частному плану подготовки к МВТФ «Армия» (июнь)",
@@ -913,7 +913,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (июнь)",
@@ -921,7 +921,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -932,7 +932,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (июнь)",
@@ -940,7 +940,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 6, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — июнь",
@@ -948,7 +948,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 6, dateFrom: 25, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
       "USB-носители",
       "Электронные пропуска",
@@ -964,7 +964,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 7, dateFrom: 7, dateTo: 9,
-    subtasksList: [
+    subtasks: [
       "Проверить реализацию рекомендаций за 1 квартал",
       "Подготовить проект Акта",
       "Подготовить справку-доклад по результатам проверки",
@@ -976,7 +976,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Снять с довольствия увольняемых в запас (июль)",
@@ -984,7 +984,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Сдать рапорта и выписки в СО",
       "Сдать 3 выписки об исключении (в ФЭС, прод. службу и в дело)",
     ],
@@ -995,7 +995,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
       "USB-носители",
       "Электронные пропуска",
@@ -1007,7 +1007,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "ПС",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Рапорт на автомобильный транспорт",
       "Фотографирование воинской команды",
       "Медицинский осмотр",
@@ -1038,7 +1038,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Телеграмма в ГОМУ",
       "Данные в ГОМУ",
       "Данные для ВНК ГУС",
@@ -1051,7 +1051,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "ПС",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Барьерный медицинский осмотр",
       "Профессионально-психологическое тестирование",
       "КПЗ по БВС (вводный, первичный, 12 тем ТБ, фотоотчет)",
@@ -1072,7 +1072,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение собеседований с НИЦ для закрепления м/п (июль)",
@@ -1080,7 +1080,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Рассылка в ВУЗы (89 субъектов) — июль",
@@ -1088,7 +1088,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить приказ на агитацию НР",
@@ -1096,7 +1096,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить план мероприятий по агитации (июль)",
@@ -1104,7 +1104,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить и направить в ДиД предложения в состав комиссии в ТП ЭРА",
@@ -1112,7 +1112,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Отправить заявку на выдачу удостоверений в ГУС (июль)",
@@ -1120,7 +1120,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Отправить план отбора в ГУС",
@@ -1128,7 +1128,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ на присягу прикомандированных",
@@ -1136,7 +1136,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная тренировка (июль)",
@@ -1144,7 +1144,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 7, dateFrom: 14, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Составить частный план мероприятий",
       "Рапорт на уточнение списков оповещения",
       "Уточнение документации ПУ",
@@ -1157,7 +1157,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (июль)",
@@ -1165,7 +1165,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -1176,7 +1176,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 7, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (июль)",
@@ -1184,7 +1184,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 7, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить приказ о проведении общевойсковой подготовки (июль)",
@@ -1192,7 +1192,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к проведению ОВП на 6 в/г",
@@ -1200,7 +1200,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 7, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписание",
       "Оружие",
       "Размещение",
@@ -1217,7 +1217,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 5,
-    subtasksList: [
+    subtasks: [
       "Подготовка командировочных документов",
     ],
   },
@@ -1227,7 +1227,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ о закреплении научных руководителей (август)",
@@ -1235,7 +1235,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка перечня направлений научной деятельности операторов для ГУС (август)",
@@ -1243,7 +1243,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка индивидуальных заданий и личных планов по ПДП на 1 семестр",
@@ -1251,7 +1251,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ на проведение стрельб (август)",
@@ -1259,7 +1259,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к стрельбам (август)",
@@ -1267,7 +1267,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Подготовить 7 выписок из приказа (123, 6, 5 каф., НР-2)",
       "Изучение материальной части",
       "Изучение требований безопасности",
@@ -1289,7 +1289,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Оружие, магазины, подсумки",
       "Учебные ПМ и учебные б/п (ПМ, АК)",
       "Ком. ящик (КЯ-83)",
@@ -1311,7 +1311,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Направить в ГУС перечень направлений НИ на молодое пополнение",
@@ -1319,7 +1319,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 8, dateFrom: 25, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Рассылка в ВУЗы (89 субъектов) — август",
@@ -1327,7 +1327,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка командировочных документов на агитацию (август)",
@@ -1335,7 +1335,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Командировочные удостоверения",
       "Удостоверения на право ознакомления",
       "Проекты соглашений",
@@ -1351,7 +1351,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Командировочное удостоверение",
       "Удостоверение ГОМУ",
       "Листы собеседования",
@@ -1371,7 +1371,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Еженедельный доклад в ГУС об агитации (август)",
@@ -1379,7 +1379,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (август)",
@@ -1387,7 +1387,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (август)",
@@ -1395,7 +1395,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -1406,7 +1406,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 8, dateFrom: 20, dateTo: 31,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к передаче нарядов и ротных обязанностей (август)",
@@ -1414,7 +1414,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 8, dateFrom: 1, dateTo: 31,
-    subtasksList: [
+    subtasks: [
       "Составление графика стажировок в наряде",
       "Актуализация и уточнение ротных обязанностей",
     ],
@@ -1425,7 +1425,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Выдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — август",
@@ -1433,7 +1433,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 24 шт.",
       "USB-носители",
       "Электронные пропуска",
@@ -1445,7 +1445,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Выписка из приказа о проведении Присяги",
       "Рапорт на получение оружия на тренировки и церемонию",
       "Сценарий",
@@ -1464,7 +1464,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КНР",
     month: 8, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -1476,7 +1476,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Квартальная проверка в моб. группе (сентябрь)",
@@ -1484,7 +1484,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Еженедельный доклад в ГУС об агитации (сентябрь)",
@@ -1492,7 +1492,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Формирование базы анкет кандидатов (сентябрь)",
@@ -1500,7 +1500,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
-    subtasksList: [
+    subtasks: [
       "Сбор сведений по результатам агитации",
       "Обработка писем на почте",
       "Обработка новых заявок",
@@ -1515,7 +1515,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Формирование документов для ВНК и ДИМК (сентябрь)",
@@ -1523,7 +1523,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 9, dateFrom: 20, dateTo: 25,
-    subtasksList: [
+    subtasks: [
       "Рейтинговый список",
       "Протокол",
       "Оценочная ведомость",
@@ -1535,7 +1535,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 25, dateTo: 28,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Передача ротных обязанностей и нарядов младшему призыву (сентябрь)",
@@ -1543,7 +1543,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Отправка плана увольнения в запас в ОМУ ЛВО (сентябрь)",
@@ -1551,7 +1551,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 9, dateFrom: 1, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка документов на увольнение (сентябрь)",
@@ -1559,7 +1559,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "ЗКВ-1",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Таблица очередности увольнения",
       "Маршруты следования",
       "Предписания",
@@ -1585,7 +1585,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 9, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение беседы по трудоустройству (сентябрь)",
@@ -1593,7 +1593,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (сентябрь)",
@@ -1601,7 +1601,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 9, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (сентябрь)",
@@ -1609,7 +1609,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -1620,7 +1620,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -1632,7 +1632,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КНР",
     month: 10, dateFrom: 6, dateTo: 8,
-    subtasksList: [
+    subtasks: [
       "Проверить реализацию рекомендаций за 2 квартал",
       "Подготовить проект Акта",
       "Подготовить справку-доклад по результатам проверки",
@@ -1644,7 +1644,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 10, dateFrom: 1, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (октябрь)",
@@ -1652,7 +1652,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (октябрь)",
@@ -1660,7 +1660,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -1671,7 +1671,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед (октябрь)",
@@ -1679,7 +1679,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций (октябрь)",
@@ -1687,7 +1687,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС (октябрь)",
@@ -1695,7 +1695,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов (октябрь)",
@@ -1703,7 +1703,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки (октябрь)",
@@ -1711,7 +1711,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение тетрадей ПДП (октябрь)",
@@ -1719,7 +1719,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (октябрь)",
@@ -1727,7 +1727,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (октябрь)",
@@ -1735,7 +1735,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (октябрь)",
@@ -1743,7 +1743,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (октябрь)",
@@ -1751,7 +1751,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
 
   // ══════════════════════════════════════════════
@@ -1763,7 +1763,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-1",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasksList: [
+    subtasks: [
       "Приказ на звания (по рапорту)",
       "Сценарий торжественного увольнения в запас",
       "Печать и оформление грамот, писем, фото, фотоальбома",
@@ -1775,7 +1775,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-1",
     month: 11, dateFrom: 1, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Рапорт на выдачу ВПД",
       "Таблица очередности увольнения для ВПД",
       "ВПД (по рапорту)",
@@ -1807,7 +1807,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение списков второго этапа с ГОМУ",
@@ -1815,7 +1815,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Приказ о приеме молодого пополнения (ноябрь)",
@@ -1823,7 +1823,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сбор сведений старших воинских команд с кафедр",
@@ -1831,7 +1831,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к круглому столу",
@@ -1839,7 +1839,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 11, dateFrom: 10, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Подготовка информационного письма",
       "Сбор материалов выступающих",
       "Рапорт на пропуск посетителей",
@@ -1859,7 +1859,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 15, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка командировочных документов (ноябрь)",
@@ -1867,7 +1867,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 11, dateFrom: 15, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Командировочные удостоверения",
       "Доверенности",
       "Письма о сокращении сопровождения",
@@ -1881,7 +1881,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 11, dateFrom: 15, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Проверка годовых отчетов",
       "Проверка презентаций",
       "Предварительное заслушивание",
@@ -1894,7 +1894,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 11, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Адреса",
       "Сроки отправки",
       "Сокращение команды (по письмам)",
@@ -1906,7 +1906,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 20, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Мобилизационная неделя (ноябрь)",
@@ -1914,7 +1914,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 11, dateFrom: 20, dateTo: 20,
-    subtasksList: [
+    subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
@@ -1925,7 +1925,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 11, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (ноябрь)",
@@ -1933,7 +1933,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (ноябрь)",
@@ -1941,7 +1941,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 11, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (ноябрь)",
@@ -1949,7 +1949,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 11, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (ноябрь)",
@@ -1957,7 +1957,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 11, dateFrom: 25, dateTo: 25,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Организация мероприятий по проведению круглого стола",
@@ -1965,7 +1965,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "КВ-1",
     month: 11, dateFrom: 28, dateTo: 28,
-    subtasksList: [
+    subtasks: [
       "Пропуск по спискам и встреча посетителей",
       "Организация кофе-брейка",
       "Подготовка мультимедиа",
@@ -1979,7 +1979,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 11, dateFrom: 29, dateTo: 29,
-    subtasksList: [
+    subtasks: [
       "Подготовка стола (со скатертью)",
       "Организация музыкального сопровождения",
       "Подготовка выписок из приказов, погон, значков, грамот, писем, фотографий",
@@ -1992,7 +1992,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КВ-1",
     month: 11, dateFrom: 30, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Пропуск по спискам и встреча посетителей",
       "Организация экскурсии для посетителей",
       "Организация чайной зоны",
@@ -2004,7 +2004,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 11, dateFrom: 30, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Подготовка командировочных документов",
       "Подготовка памяток",
       "Ведомость инструктажа",
@@ -2016,7 +2016,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 11, dateFrom: 30, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Доклад в ГОМУ о проведении инструктажа (ноябрь)",
@@ -2024,7 +2024,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 11, dateFrom: 30, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Подготовить именной список",
       "Подготовить ведомость инструктажа",
       "Подготовить телеграмму",
@@ -2040,7 +2040,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 5,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Распределение ответственности на праздники",
@@ -2048,7 +2048,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Снять с довольствия увольняемых в запас (декабрь)",
@@ -2056,7 +2056,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Сдать рапорта и выписки в СО и прод. службу",
       "Сдать 4 выписки об исключении (в ФЭС, в ОК, прод. службу и в дело)",
     ],
@@ -2067,7 +2067,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
       "USB-носители",
       "Электронные пропуска",
@@ -2079,7 +2079,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Техника",
       "КЭС",
       "ЗГТ",
@@ -2091,7 +2091,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 12, dateTo: 12,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка к сдаче на классность",
@@ -2099,7 +2099,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Рапорт на выплату за командование личным составом",
       "Рапорт на выплату за работу с ССГТ",
       "Рапорт на ежемесячную премию",
@@ -2112,7 +2112,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [
+    subtasks: [
       "Рапорта",
       "Копии книжек",
     ],
@@ -2123,7 +2123,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Квартальная проверка службе ЗГТ (декабрь)",
@@ -2131,7 +2131,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Прием молодого пополнения (декабрь)",
@@ -2139,7 +2139,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "critical",
     responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Рапорт на автомобильный транспорт",
       "Фотографирование воинской команды",
       "Медицинский осмотр",
@@ -2170,7 +2170,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить доклад в ГУС и ГОМУ о результатах набора МП (декабрь)",
@@ -2178,7 +2178,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Телеграмма в ГОМУ",
       "Данные в ГОМУ",
       "Данные для ВНК ГУС",
@@ -2191,7 +2191,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasksList: [
+    subtasks: [
       "Книга алфавитного учета",
       "Книга УЛС (Форма № 1)",
       "Именные списки взводов (Форма № 1-а)",
@@ -2206,7 +2206,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить приказ на агитацию НР и ВПО ВАС (декабрь)",
@@ -2214,7 +2214,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовить план мероприятий по агитации (декабрь)",
@@ -2222,7 +2222,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Отправить заявку на выдачу удостоверений в ГУС (декабрь)",
@@ -2230,7 +2230,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 20,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка личных планов постоянного состава (декабрь)",
@@ -2238,7 +2238,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка служебных карточек (декабрь)",
@@ -2246,7 +2246,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Сверка листов бесед (декабрь)",
@@ -2254,7 +2254,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Уточнение плана публикаций (декабрь)",
@@ -2262,7 +2262,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка ИРС (декабрь)",
@@ -2270,7 +2270,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка индивидуальных планов (декабрь)",
@@ -2278,7 +2278,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка боевой подготовки (декабрь)",
@@ -2286,7 +2286,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проверка стенной печати (декабрь)",
@@ -2294,7 +2294,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КНР",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Дисциплинарная практика за месяц (декабрь)",
@@ -2302,7 +2302,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Проведение подведения итогов роты (декабрь)",
@@ -2310,7 +2310,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Подготовка материала для публикации новостей (декабрь)",
@@ -2318,7 +2318,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Организация 2 этапа ПМП (декабрь)",
@@ -2326,7 +2326,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "high",
     responsible: "ПС",
     month: 12, dateFrom: 15, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Барьерный медицинский осмотр",
       "Профессионально-психологическое тестирование",
       "КПЗ по БВС (вводный, первичный, 12 тем ТБ, фотоотчет)",
@@ -2348,7 +2348,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 15, dateTo: 30,
-    subtasksList: [],
+    subtasks: [],
   },
   {
     title:       "Выдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — 30 декабря",
@@ -2356,7 +2356,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "КВ-1",
     month: 12, dateFrom: 30, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 24 шт.",
       "USB-носители",
       "Электронные пропуска",
@@ -2368,7 +2368,7 @@ const SEED_TASKS: SeedTask[] = [
     priority:    "normal",
     responsible: "ПС",
     month: 12, dateFrom: 15, dateTo: 30,
-    subtasksList: [
+    subtasks: [
       "Ёлка",
       "Стол (во взаимодействии со столовой)",
       "Сценарий программы",
@@ -2410,7 +2410,7 @@ async function seed() {
     // Вставляем подзадачи
     let subtaskCount = 0;
     for (let i = 0; i < SEED_TASKS.length; i++) {
-      const subs = SEED_TASKS[i].subtasksList ?? [];
+      const subs = SEED_TASKS[i].subtasks ?? [];
       if (subs.length === 0) continue;
 
       const taskId = inserted[i].id;

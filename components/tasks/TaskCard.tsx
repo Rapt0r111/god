@@ -30,7 +30,7 @@ const MONTHS = ["", "ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН",
                     "ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
 
 interface TaskCardProps {
-  task: Task & { subtasks?: string[] };
+  task: Task & { subtasks?: { id: number; title: string }[] };
 }
 
 export function TaskCard({ task }: TaskCardProps) {

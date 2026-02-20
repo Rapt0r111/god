@@ -1,30 +1,15 @@
-// src/lib/db/schema.ts
 import {
   pgTable, serial, text, integer, boolean,
   timestamp, pgEnum, jsonb, varchar, index
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // ─── Enums ───────────────────────────────────────
-export const priorityEnum = pgEnum("priority", [
-  "critical", "high", "normal"
-]);
-
-export const statusEnum = pgEnum("status", [
-  "pending", "in_progress", "done", "cancelled"
-]);
-
-export const categoryEnum = pgEnum("category", [
-  "Н", "А", "БП", "ПД", "ВПР", "У", "П",
-  "ЗиТ", "ЕМ", "НД", "МГ"
-]);
-
-export const frequencyEnum = pgEnum("frequency", [
-  "once", "weekly", "monthly", "quarterly", "yearly"
-]);
-
-export const roleEnum = pgEnum("role", [
-  "КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "ПС", "СР"
-]);
+export const priorityEnum = pgEnum("priority", ["critical", "high", "normal"]);
+export const statusEnum = pgEnum("status", ["pending", "in_progress", "done", "cancelled"]);
+export const categoryEnum = pgEnum("category", ["Н", "А", "БП", "ПД", "ВПР", "У", "П", "ЗиТ", "ЕМ", "НД", "МГ"]);
+export const frequencyEnum = pgEnum("frequency", ["once", "weekly", "monthly", "quarterly", "yearly"]);
+export const roleEnum = pgEnum("role", ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "ПС", "СР"]);
 
 // ─── Пользователи ────────────────────────────────
 export const users = pgTable("users", {
@@ -39,8 +24,8 @@ export const users = pgTable("users", {
 export const tasks = pgTable("tasks", {
   id:          serial("id").primaryKey(),
   title:       text("title").notNull(),
-  description: text("description"),          // Подробное описание
-  notes:       text("notes"),                // Примечания/заметки офицера
+  description: text("description"),
+  notes:       text("notes"),
   category:    categoryEnum("category").notNull(),
   priority:    priorityEnum("priority").notNull().default("normal"),
   status:      statusEnum("status").notNull().default("pending"),
@@ -60,14 +45,12 @@ export const tasks = pgTable("tasks", {
   index("tasks_responsible_idx").on(table.responsible),
 ]);
 
-// ─── Подзадачи (отдельная таблица) ───────────────
+// ─── Подзадачи ───────────────────────────────
 export const subtasks = pgTable("subtasks", {
   id:          serial("id").primaryKey(),
-  taskId:      integer("task_id")
-                 .references(() => tasks.id, { onDelete: "cascade" })
-                 .notNull(),
+  taskId:      integer("task_id").references(() => tasks.id, { onDelete: "cascade" }).notNull(),
   title:       text("title").notNull(),
-  description: text("description"),          // Описание подзадачи
+  description: text("description"),
   status:      statusEnum("status").notNull().default("pending"),
   order:       integer("order").notNull().default(0),
   completedAt: timestamp("completed_at"),
@@ -82,9 +65,7 @@ export const subtasks = pgTable("subtasks", {
 // ─── История изменений ────────────────────────────
 export const taskHistory = pgTable("task_history", {
   id:        serial("id").primaryKey(),
-  taskId:    integer("task_id")
-               .references(() => tasks.id, { onDelete: "cascade" })
-               .notNull(),
+  taskId:    integer("task_id").references(() => tasks.id, { onDelete: "cascade" }).notNull(),
   userId:    text("user_id").references(() => users.id),
   action:    text("action").notNull(),
   oldValue:  text("old_value"),
@@ -100,7 +81,21 @@ export type NewSubtask  = typeof subtasks.$inferInsert;
 export type TaskHistory = typeof taskHistory.$inferSelect;
 export type User        = typeof users.$inferSelect;
 
-// Задача с подзадачами (для UI)
 export type TaskWithSubtasks = Task & {
-  subtasksList: Subtask[];
+  subtasks: Subtask[];
 };
+
+// ─── ИСПРАВЛЕННЫЕ ОТНОШЕНИЯ ──────────────────────
+
+// 1. Отношения для задач
+export const tasksRelations = relations(tasks, ({ many }) => ({
+  // Называем СТРОГО именем таблицы (subtasks), а не subtasks!
+  subtasks: many(subtasks), 
+}));
+
+export const subtasksRelations = relations(subtasks, ({ one }) => ({
+  task: one(tasks, {
+    fields: [subtasks.taskId],
+    references: [tasks.id],
+  }),
+}));

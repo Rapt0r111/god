@@ -8,10 +8,10 @@ interface TopbarProps {
 }
 
 const VIEW_META: Record<string, { title: string; icon: string; desc: string }> = {
-  "/":         { title: "Оперативный центр",   icon: "◈", desc: "Dashboard" },
-  "/tasks":    { title: "Журнал задач",         icon: "≡", desc: "Tasks" },
+  "/":         { title: "Оперативный центр",      icon: "◈", desc: "Dashboard" },
+  "/tasks":    { title: "Журнал задач",            icon: "≡", desc: "Tasks" },
   "/timeline": { title: "Хронология мероприятий", icon: "◫", desc: "Timeline" },
-  "/roles":    { title: "Личный состав",        icon: "◉", desc: "Personnel" },
+  "/roles":    { title: "Личный состав",           icon: "◉", desc: "Personnel" },
 };
 
 function LiveClock() {
@@ -21,11 +21,7 @@ function LiveClock() {
     const update = () => {
       const now = new Date();
       const pad = (n: number) => String(n).padStart(2, "0");
-      setTime({
-        h: pad(now.getHours()),
-        m: pad(now.getMinutes()),
-        s: pad(now.getSeconds()),
-      });
+      setTime({ h: pad(now.getHours()), m: pad(now.getMinutes()), s: pad(now.getSeconds()) });
     };
     update();
     const id = setInterval(update, 1000);
@@ -37,7 +33,7 @@ function LiveClock() {
       <span className="text-[15px] font-bold tracking-widest" style={{ color: "#34d399" }}>
         {time.h}:{time.m}
       </span>
-      <span className="text-[11px] tabular-nums" style={{ color: "rgba(52,211,153,0.5)" }}>
+      <span className="text-[11px] tabular-nums" style={{ color: "rgba(52,211,153,0.45)" }}>
         :{time.s}
       </span>
     </div>
@@ -59,18 +55,18 @@ export function Topbar({ criticalCount }: TopbarProps) {
     <header
       className="h-14 min-h-14 flex items-center px-5 gap-4"
       style={{
-        background: "linear-gradient(90deg, rgba(7,13,26,0.98), rgba(10,18,32,0.95))",
+        background: "linear-gradient(90deg, rgba(7,13,26,0.99), rgba(10,18,32,0.97))",
         backdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
-        boxShadow: "0 2px 20px rgba(0,0,0,0.3)",
+        boxShadow: "0 2px 20px rgba(0,0,0,0.35)",
       }}
     >
-      {/* Назад */}
+      {/* Back button */}
       <button
         type="button"
         onClick={() => window.history.back()}
         disabled={pathname === "/"}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
         style={{
           border: "1px solid rgba(255,255,255,0.1)",
           background: "rgba(255,255,255,0.04)",
@@ -82,7 +78,7 @@ export function Topbar({ criticalCount }: TopbarProps) {
           if (!e.currentTarget.disabled) {
             e.currentTarget.style.background = "rgba(255,255,255,0.08)";
             e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-            e.currentTarget.style.color = "rgba(255,255,255,0.8)";
+            e.currentTarget.style.color = "rgba(255,255,255,0.9)";
           }
         }}
         onMouseLeave={(e) => {
@@ -94,18 +90,12 @@ export function Topbar({ criticalCount }: TopbarProps) {
         ← <span className="tracking-wider">НАЗАД</span>
       </button>
 
-      {/* Вертикальный разделитель */}
-      <div
-        className="w-px h-6 shrink-0"
-        style={{ background: "rgba(255,255,255,0.08)" }}
-      />
+      {/* Divider */}
+      <div className="w-px h-6 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
 
-      {/* Заголовок страницы */}
+      {/* Page title */}
       <div className="flex items-center gap-2.5">
-        <span
-          className="text-[14px] opacity-50"
-          style={{ color: "rgba(255,255,255,0.5)" }}
-        >
+        <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.5)" }}>
           {meta.icon}
         </span>
         <h2
@@ -117,20 +107,21 @@ export function Topbar({ criticalCount }: TopbarProps) {
         {meta.desc && (
           <span
             className="text-[9px] font-mono tracking-wider hidden lg:block"
-            style={{ color: "rgba(255,255,255,0.2)" }}
+            style={{ color: "rgba(255,255,255,0.18)" }}
           >
             // {meta.desc}
           </span>
         )}
       </div>
 
-      {/* Алерт критичных */}
+      {/* Critical alert */}
       {criticalCount > 0 && (
         <div
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
           style={{
-            background: "rgba(239,68,68,0.08)",
-            border: "1px solid rgba(239,68,68,0.2)",
+            background: "rgba(239,68,68,0.09)",
+            border: "1px solid rgba(239,68,68,0.22)",
+            boxShadow: "0 0 12px rgba(239,68,68,0.08)",
           }}
         >
           <span
@@ -146,22 +137,17 @@ export function Topbar({ criticalCount }: TopbarProps) {
         </div>
       )}
 
-      {/* Правая часть */}
+      {/* Right side */}
       <div className="ml-auto flex items-center gap-4">
-        {/* Дата */}
         <span
           className="text-[11px] capitalize hidden md:block"
-          style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-mono)" }}
+          style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-mono)" }}
         >
           {today}
         </span>
 
-        <div
-          className="w-px h-5 hidden md:block"
-          style={{ background: "rgba(255,255,255,0.08)" }}
-        />
+        <div className="w-px h-5 hidden md:block" style={{ background: "rgba(255,255,255,0.08)" }} />
 
-        {/* Живые часы */}
         <LiveClock />
       </div>
     </header>
