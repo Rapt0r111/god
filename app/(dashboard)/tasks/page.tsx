@@ -139,12 +139,9 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
 
   return (
     <div className="space-y-2.5">
-      {/* Search + clear */}
       <div className="flex items-center gap-2.5">
-        {/* Search (client form with GET) */}
         <form method="GET" action="/tasks" className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl"
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
-          {/* Hidden fields to preserve other filters */}
           {filterCat && <input type="hidden" name="category" value={filterCat} />}
           {filterPri && <input type="hidden" name="priority" value={filterPri} />}
           {filterStat && <input type="hidden" name="status" value={filterStat} />}
@@ -162,7 +159,6 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
           )}
         </form>
 
-        {/* Clear all filters */}
         {activeFilters > 0 && (
           <a href="/tasks"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-mono tracking-wide transition-all"
@@ -172,110 +168,104 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
         )}
       </div>
 
-      {/* Filter pills row */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Priority pills */}
-        <div className="flex gap-1">
-          {PRIORITIES.map(p => {
-            const active = filterPri === p.value;
-            const url = buildUrl({ ...base, priority: active ? "" : p.value });
-            return (
-              <a key={p.value} href={url}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
-                style={active ? {
-                  background: `${p.color}22`,
-                  border: `1px solid ${p.color}55`,
-                  color: p.color,
-                  boxShadow: `0 2px 10px ${p.color}18`,
-                } : {
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.35)",
-                }}>
-                {p.label}
-              </a>
-            );
-          })}
+      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }} open={activeFilters > 0}>
+        <summary className="cursor-pointer list-none flex items-center justify-between">
+          <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+            // ФИЛЬТРЫ ЗАДАЧ
+          </span>
+          <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
+            {activeFilters > 0 ? `Активно: ${activeFilters}` : "Скрыты"}
+          </span>
+        </summary>
+
+        <div className="mt-3 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Приоритет:</span>
+            <div className="flex gap-1 flex-wrap">
+              {PRIORITIES.map(p => {
+                const active = filterPri === p.value;
+                const url = buildUrl({ ...base, priority: active ? "" : p.value });
+                return (
+                  <a key={p.value} href={url}
+                    className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
+                    style={active ? {
+                      background: `${p.color}22`, border: `1px solid ${p.color}55`, color: p.color,
+                    } : {
+                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                    }}>
+                    {p.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Статус:</span>
+            <div className="flex gap-1 flex-wrap">
+              {STATUSES.map(s => {
+                const active = filterStat === s.value;
+                const url = buildUrl({ ...base, status: active ? "" : s.value });
+                return (
+                  <a key={s.value} href={url}
+                    className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
+                    style={active ? {
+                      background: `${s.color}18`, border: `1px solid ${s.color}45`, color: s.color,
+                    } : {
+                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                    }}>
+                    {s.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Месяц:</span>
+            <div className="flex gap-1 flex-wrap">
+              {MONTHS_SHORT.slice(1).map((m, i) => {
+                const monthNum = i + 1;
+                const active = filterMonth === monthNum;
+                const url = buildUrl({ ...base, month: active ? 0 : monthNum });
+                return (
+                  <a key={monthNum} href={url}
+                    className="w-8 py-1.5 rounded-lg text-[9px] font-mono font-semibold tracking-wide transition-all text-center"
+                    style={active ? {
+                      background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.5)", color: "#93c5fd",
+                    } : {
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.28)",
+                    }}>
+                    {m}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Категория:</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {CATEGORIES.map(cat => {
+                const active = filterCat === cat.code;
+                const url = buildUrl({ ...base, category: active ? "" : cat.code });
+                return (
+                  <a key={cat.code} href={url}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
+                    style={active ? {
+                      background: `${cat.color}18`, border: `1px solid ${cat.color}45`, color: cat.color,
+                    } : {
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)",
+                    }}>
+                    <span className="text-[11px]">{cat.icon}</span>
+                    {cat.code}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
         </div>
-
-        <div className="w-px h-4 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-        {/* Status pills */}
-        <div className="flex gap-1">
-          {STATUSES.map(s => {
-            const active = filterStat === s.value;
-            const url = buildUrl({ ...base, status: active ? "" : s.value });
-            return (
-              <a key={s.value} href={url}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
-                style={active ? {
-                  background: `${s.color}18`,
-                  border: `1px solid ${s.color}45`,
-                  color: s.color,
-                  boxShadow: `0 2px 10px ${s.color}12`,
-                } : {
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.35)",
-                }}>
-                {s.label}
-              </a>
-            );
-          })}
-        </div>
-
-        <div className="w-px h-4 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-        {/* Month pills - compact (just numbers) */}
-        <div className="flex gap-1">
-          {MONTHS_SHORT.slice(1).map((m, i) => {
-            const monthNum = i + 1;
-            const active = filterMonth === monthNum;
-            const url = buildUrl({ ...base, month: active ? 0 : monthNum });
-            return (
-              <a key={monthNum} href={url}
-                className="w-8 py-1.5 rounded-lg text-[9px] font-mono font-semibold tracking-wide transition-all text-center"
-                style={active ? {
-                  background: "rgba(59,130,246,0.2)",
-                  border: "1px solid rgba(59,130,246,0.5)",
-                  color: "#93c5fd",
-                  boxShadow: "0 2px 10px rgba(59,130,246,0.15)",
-                } : {
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  color: "rgba(255,255,255,0.28)",
-                }}>
-                {m}
-              </a>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Category chips */}
-      <div className="flex gap-1.5 flex-wrap">
-        {CATEGORIES.map(cat => {
-          const active = filterCat === cat.code;
-          const url = buildUrl({ ...base, category: active ? "" : cat.code });
-          return (
-            <a key={cat.code} href={url}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
-              style={active ? {
-                background: `${cat.color}18`,
-                border: `1px solid ${cat.color}45`,
-                color: cat.color,
-                boxShadow: `0 2px 12px ${cat.color}14`,
-              } : {
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                color: "rgba(255,255,255,0.3)",
-              }}>
-              <span className="text-[11px]">{cat.icon}</span>
-              {cat.code}
-            </a>
-          );
-        })}
-      </div>
+      </details>
     </div>
   );
 }

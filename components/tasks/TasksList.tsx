@@ -329,32 +329,34 @@ function TaskRow({ task, onOpen, onTaskPatch }: { task: TaskData; onOpen: (id: n
 
   return (
     <div
-      className="relative cursor-pointer transition-all duration-200 rounded-xl overflow-hidden group"
+      className="relative cursor-pointer transition-all duration-300 rounded-2xl overflow-hidden group hover:-translate-y-0.5"
       style={{
-        background: isDone ? "rgba(255,255,255,0.01)" : isCrit
-          ? "linear-gradient(135deg, rgba(239,68,68,0.05), rgba(255,255,255,0.02))"
-          : "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
-        border: isDone ? "1px solid rgba(255,255,255,0.05)" : isCrit
-          ? "1px solid rgba(239,68,68,0.18)"
-          : "1px solid rgba(255,255,255,0.08)",
-        opacity: isDone ? 0.55 : 1,
+        background: isDone ? "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015))" : isCrit
+          ? "linear-gradient(135deg, rgba(239,68,68,0.1), rgba(17,24,39,0.42))"
+          : "linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
+        border: isDone ? "1px solid rgba(255,255,255,0.1)" : isCrit
+          ? "1px solid rgba(239,68,68,0.35)"
+          : "1px solid rgba(255,255,255,0.16)",
+        boxShadow: isDone ? "0 8px 20px rgba(0,0,0,0.22)" : "0 12px 28px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.08) inset",
+        backdropFilter: "blur(14px)",
+        opacity: isDone ? 0.72 : 1,
       }}
       onClick={() => onOpen(task.id)}
     >
       {/* Priority bar */}
       <div className="absolute left-0 top-0 bottom-0" style={{ width: 3, background: isDone ? "rgba(255,255,255,0.08)" : priColor, boxShadow: isDone ? "none" : `0 0 8px ${priColor}50` }} />
 
-      <div className="flex items-center gap-3 px-4 py-3 pl-5">
+      <div className="flex items-center gap-3 px-5 py-4 pl-6">
         <CheckBox done={isDone} pending={isPending} onToggle={handleToggle} />
 
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium truncate mb-1.5"
-            style={{ color: isDone ? "rgba(255,255,255,0.3)" : "#e8f0fe", textDecoration: isDone ? "line-through" : "none", letterSpacing: "0.01em" }}>
+          <p className="text-[14px] font-semibold truncate mb-1.5"
+            style={{ color: isDone ? "rgba(255,255,255,0.5)" : "#f8fbff", textDecoration: isDone ? "line-through" : "none", letterSpacing: "0.01em" }}>
             {task.title}
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             {/* Date range */}
-            <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.62)" }}>
               <span style={{ opacity: 0.5 }}>📅</span>
               {MONTHS_SHORT[task.month]} {dateStr}
             </span>
@@ -464,16 +466,16 @@ function TaskDetailsModal({ task, onClose, onTaskPatch }: {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(14px)" }}
+      style={{ background: "rgba(2,6,16,0.62)", backdropFilter: "blur(8px) saturate(1.05)" }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl animate-scale-in"
+        className="w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl animate-scale-in"
         style={{
-          background: "linear-gradient(145deg, rgba(13,24,41,0.98), rgba(7,13,26,0.96))",
-          backdropFilter: "blur(40px)",
-          border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05) inset",
+          background: "linear-gradient(145deg, rgba(20,30,52,0.9), rgba(9,14,28,0.88))",
+          backdropFilter: "blur(26px)",
+          border: "1px solid rgba(255,255,255,0.16)",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.72), 0 1px 0 rgba(255,255,255,0.14) inset, 0 0 0 1px rgba(255,255,255,0.05)",
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -504,7 +506,7 @@ function TaskDetailsModal({ task, onClose, onTaskPatch }: {
             </div>
 
             <h3 className="text-[15px] font-semibold leading-snug"
-              style={{ color: isDone ? "rgba(255,255,255,0.4)" : "#e8f0fe", textDecoration: isDone ? "line-through" : "none" }}>
+              style={{ color: isDone ? "rgba(255,255,255,0.6)" : "#f8fbff", textDecoration: isDone ? "line-through" : "none" }}>
               {task.title}
             </h3>
           </div>
