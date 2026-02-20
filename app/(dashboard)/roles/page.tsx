@@ -9,24 +9,24 @@ import { getTasksByResponsible } from "@/actions/tasks";
 type Rank =
   | "Полковник" | "Подполковник" | "Майор"
   | "Капитан" | "Старший лейтенант" | "Лейтенант"
-  | "Прапорщик" | "Старший прапорщик"
+  | "Прапорщик" | "Старший прапорщик" | "Старший сержант"
   | "Сержант" | "Младший сержант" | "Рядовой";
 
 type Status = "active" | "on-leave" | "sick" | "detached";
 type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2";
 
 interface Person {
-  id:         string;
-  lastName:   string;
-  firstName:  string;
+  id: string;
+  lastName: string;
+  firstName: string;
   patronymic: string;
-  rank:       Rank;
-  role:       string;
-  code:       PersonnelCode;
-  status:     Status;
-  phone?:     string;
-  tasks:      number;
-  tasksDone:  number;
+  rank: Rank;
+  role: string;
+  code: PersonnelCode;
+  status: Status;
+  phone?: string;
+  tasks: number;
+  tasksDone: number;
   specialty?: string;
 }
 
@@ -50,33 +50,34 @@ interface AssignedTask {
 // ── Метаданные ─────────────────────────────────────────────────────────
 
 const STATUS_META: Record<Status, { label: string; color: string; bg: string; border: string }> = {
-  active:    { label: "В СТРОЮ",   color: "#10b981", bg: "rgba(16,185,129,0.1)",  border: "rgba(16,185,129,0.25)"  },
-  "on-leave":{ label: "ОТПУСК",   color: "#3b82f6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.25)"  },
-  sick:      { label: "Б/Л",      color: "#f59e0b", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.25)"  },
-  detached:  { label: "ОТКОМАНД.",color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.25)" },
+  active: { label: "В СТРОЮ", color: "#10b981", bg: "rgba(16,185,129,0.1)", border: "rgba(16,185,129,0.25)" },
+  "on-leave": { label: "ОТПУСК", color: "#3b82f6", bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)" },
+  sick: { label: "Б/Л", color: "#f59e0b", bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.25)" },
+  detached: { label: "ОТКОМАНД.", color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.25)" },
 };
 
 const RANK_TIER: Record<Rank, { color: string; short: string }> = {
-  "Полковник":         { color: "#fbbf24", short: "П-К"  },
-  "Подполковник":      { color: "#f59e0b", short: "П-Л"  },
-  "Майор":             { color: "#f97316", short: "МАЙ"  },
-  "Капитан":           { color: "#60a5fa", short: "КПТ"  },
+  "Полковник": { color: "#fbbf24", short: "П-К" },
+  "Подполковник": { color: "#f59e0b", short: "П-Л" },
+  "Майор": { color: "#f97316", short: "МАЙ" },
+  "Капитан": { color: "#60a5fa", short: "КПТ" },
   "Старший лейтенант": { color: "#93c5fd", short: "СТ-Л" },
-  "Лейтенант":         { color: "#bfdbfe", short: "ЛТ"   },
+  "Лейтенант": { color: "#bfdbfe", short: "ЛТ" },
   "Старший прапорщик": { color: "#6ee7b7", short: "СТ-П" },
-  "Прапорщик":         { color: "#a7f3d0", short: "ПРП"  },
-  "Сержант":           { color: "#94a3b8", short: "СРЖ"  },
-  "Младший сержант":   { color: "#94a3b8", short: "МЛ-С" },
-  "Рядовой":           { color: "#64748b", short: "РДВ"  },
+  "Прапорщик": { color: "#a7f3d0", short: "ПРП" },
+  "Старший сержант": { color: "#94a3b8", short: "С-Т СРЖ" },
+  "Сержант": { color: "#94a3b8", short: "СРЖ" },
+  "Младший сержант": { color: "#94a3b8", short: "МЛ-С" },
+  "Рядовой": { color: "#64748b", short: "РДВ" },
 };
 
 const MOCK_PERSONNEL: Person[] = [
-  { id:"1", lastName:"Штатная", firstName:"единица", patronymic:"КВ-2",  rank:"Капитан",           role:"Командир взвода",      code:"КВ-2",  status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
-  { id:"2", lastName:"Штатная", firstName:"единица", patronymic:"КВ-1",  rank:"Старший лейтенант", role:"Командир взвода",      code:"КВ-1",  status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
-  { id:"3", lastName:"Штатная", firstName:"единица", patronymic:"СР",    rank:"Сержант",           role:"Старший расчёта",     code:"СР",    status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
-  { id:"4", lastName:"Штатная", firstName:"единица", patronymic:"КНР",   rank:"Майор",             role:"Командир научной роты", code:"КНР",   status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
-  { id:"5", lastName:"Штатная", firstName:"единица", patronymic:"ЗКВ-1", rank:"Старший лейтенант", role:"Зам. командира",       code:"ЗКВ-1", status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
-  { id:"6", lastName:"Штатная", firstName:"единица", patronymic:"ЗКВ-2", rank:"Старший лейтенант", role:"Зам. командира",       code:"ЗКВ-2", status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id: "1", lastName: "Трепалин", firstName: "Павел Викторович", patronymic: "КВ-2", rank: "Старший лейтенант", role: "Командир 2 взвода", code: "КВ-2", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "2", lastName: "Халупа", firstName: "Алексей Иванович", patronymic: "КВ-1", rank: "Лейтенант", role: "Командир 1 взвода", code: "КВ-1", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "3", lastName: "Долгополов", firstName: "Андрей Андреевич", patronymic: "СР", rank: "Прапорщик", role: "Старшина роты", code: "СР", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "4", lastName: "Тарасенко", firstName: "Станислав Евгеньевич", patronymic: "КНР", rank: "Капитан", role: "Командир научной роты", code: "КНР", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "5", lastName: "Антипов", firstName: "Егор Викторович", patronymic: "ЗКВ-1", rank: "Сержант", role: "Зам. командира 1 взвода", code: "ЗКВ-1", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "6", lastName: "Ермаков", firstName: "Владимир Александрович", patronymic: "ЗКВ-2", rank: "Старший сержант", role: "Зам. командира 2 взвода", code: "ЗКВ-2", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
 ];
 
 // ── Главный компонент ──────────────────────────────────────────────────
@@ -90,10 +91,10 @@ const TASK_DETAILS_MOCK: Record<number, { notes: string }> = {
 };
 
 export default function RolesPage() {
-  const [search,       setSearch      ] = useState("");
+  const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<Status | "all">("all");
-  const [selected,     setSelected    ] = useState<Person | null>(null);
-  const [viewMode,     setViewMode    ] = useState<"grid" | "list">("grid");
+  const [selected, setSelected] = useState<Person | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const basePersonnel = useMemo(
     () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
@@ -106,10 +107,10 @@ export default function RolesPage() {
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(p =>
-        p.lastName.toLowerCase().includes(q)       ||
-        p.firstName.toLowerCase().includes(q)      ||
-        p.role.toLowerCase().includes(q)           ||
-        p.code.toLowerCase().includes(q)           ||
+        p.lastName.toLowerCase().includes(q) ||
+        p.firstName.toLowerCase().includes(q) ||
+        p.role.toLowerCase().includes(q) ||
+        p.code.toLowerCase().includes(q) ||
         (p.specialty ?? "").toLowerCase().includes(q)
       );
     }
@@ -117,21 +118,21 @@ export default function RolesPage() {
   }, [basePersonnel, search, filterStatus]);
 
   const stats = useMemo(() => ({
-    total:    basePersonnel.length,
-    active:   basePersonnel.filter(p => p.status === "active").length,
-    onLeave:  basePersonnel.filter(p => p.status === "on-leave").length,
-    sick:     basePersonnel.filter(p => p.status === "sick").length,
+    total: basePersonnel.length,
+    active: basePersonnel.filter(p => p.status === "active").length,
+    onLeave: basePersonnel.filter(p => p.status === "on-leave").length,
+    sick: basePersonnel.filter(p => p.status === "sick").length,
     detached: basePersonnel.filter(p => p.status === "detached").length,
-    tasksBusy:basePersonnel.filter(p => p.tasks > 0).length,
+    tasksBusy: basePersonnel.filter(p => p.tasks > 0).length,
   }), [basePersonnel]);
 
   const STAT_ITEMS = [
-    { label: "ВСЕГО Л/С",  value: stats.total,    color: "#93c5fd" },
-    { label: "В СТРОЮ",    value: stats.active,   color: "#10b981" },
-    { label: "ОТПУСК",     value: stats.onLeave,  color: "#3b82f6" },
-    { label: "Б/Л",        value: stats.sick,     color: "#f59e0b" },
-    { label: "ОТКОМАНД.",  value: stats.detached, color: "#a78bfa" },
-    { label: "ПРИ ЗАДАЧАХ",value: stats.tasksBusy,color: "#f97316" },
+    { label: "ВСЕГО Л/С", value: stats.total, color: "#93c5fd" },
+    { label: "В СТРОЮ", value: stats.active, color: "#10b981" },
+    { label: "ОТПУСК", value: stats.onLeave, color: "#3b82f6" },
+    { label: "Б/Л", value: stats.sick, color: "#f59e0b" },
+    { label: "ОТКОМАНД.", value: stats.detached, color: "#a78bfa" },
+    { label: "ПРИ ЗАДАЧАХ", value: stats.tasksBusy, color: "#f97316" },
   ];
 
   return (
@@ -201,11 +202,11 @@ export default function RolesPage() {
           {/* Фильтры статуса */}
           <div className="flex gap-1">
             {([
-              ["all",       "ВСЕ"],
-              ["active",    "В СТРОЮ"],
-              ["on-leave",  "ОТПУСК"],
-              ["sick",      "Б/Л"],
-              ["detached",  "ОТКОМАНД."],
+              ["all", "ВСЕ"],
+              ["active", "В СТРОЮ"],
+              ["on-leave", "ОТПУСК"],
+              ["sick", "Б/Л"],
+              ["detached", "ОТКОМАНД."],
             ] as const).map(([val, label]) => {
               const isActive = filterStatus === val;
               const meta = val !== "all" ? STATUS_META[val as Status] : null;
@@ -261,8 +262,8 @@ export default function RolesPage() {
       {/* ── CONTENT ── */}
       <div className="flex-1 overflow-y-auto p-5">
         {viewMode === "grid"
-          ? <GridView   personnel={personnel} onSelect={setSelected} selected={selected} />
-          : <ListView   personnel={personnel} onSelect={setSelected} selected={selected} />
+          ? <GridView personnel={personnel} onSelect={setSelected} selected={selected} />
+          : <ListView personnel={personnel} onSelect={setSelected} selected={selected} />
         }
       </div>
 
@@ -282,21 +283,21 @@ function GridView({
   selected,
 }: {
   personnel: Person[];
-  onSelect:  (p: Person) => void;
-  selected:  Person | null;
+  onSelect: (p: Person) => void;
+  selected: Person | null;
 }) {
   if (personnel.length === 0) return <EmptyState />;
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3.5">
       {personnel.map(person => {
-        const st       = STATUS_META[person.status];
-        const rank     = RANK_TIER[person.rank];
+        const st = STATUS_META[person.status];
+        const rank = RANK_TIER[person.rank];
         const initials = person.lastName[0] + person.firstName[0];
-        const total    = person.tasksDone + person.tasks;
+        const total = person.tasksDone + person.tasks;
         const progress = total > 0 ? (person.tasksDone / total) * 100 : 0;
         const isSelected = selected?.id === person.id;
-        const isActive   = person.status === "active";
+        const isActive = person.status === "active";
 
         return (
           <div
@@ -449,8 +450,8 @@ function ListView({
   selected,
 }: {
   personnel: Person[];
-  onSelect:  (p: Person) => void;
-  selected:  Person | null;
+  onSelect: (p: Person) => void;
+  selected: Person | null;
 }) {
   if (personnel.length === 0) return <EmptyState />;
 
@@ -473,10 +474,10 @@ function ListView({
       </div>
 
       {personnel.map(person => {
-        const st         = STATUS_META[person.status];
-        const rank       = RANK_TIER[person.rank];
+        const st = STATUS_META[person.status];
+        const rank = RANK_TIER[person.rank];
         const isSelected = selected?.id === person.id;
-        const isActive   = person.status === "active";
+        const isActive = person.status === "active";
 
         return (
           <div
@@ -580,13 +581,13 @@ function PersonModal({
   person,
   onClose,
 }: {
-  person:  Person;
+  person: Person;
   onClose: () => void;
 }) {
-  const st       = STATUS_META[person.status];
-  const rank     = RANK_TIER[person.rank];
+  const st = STATUS_META[person.status];
+  const rank = RANK_TIER[person.rank];
   const initials = person.lastName[0] + person.firstName[0];
-  const total    = person.tasksDone + person.tasks;
+  const total = person.tasksDone + person.tasks;
   const progress = total > 0 ? (person.tasksDone / total) * 100 : 0;
 
   const STATUS_LABEL: Record<AssignedTask["status"], string> = {
