@@ -27,9 +27,21 @@ export type SubtaskInsert = {
 
 // ── Dashboard ─────────────────────────────────────────────────────────
 
+const CRITICAL_DUE_SOON_DAYS = 2;
+
+function isTaskDashboardCritical(task: { month: number; dateTo: number; status: string }) {
+  if (task.status === "done" || task.status === "cancelled") return false;
+
+  const now = new Date();
+  const dueDate = new Date(now.getFullYear(), task.month - 1, task.dateTo, 23, 59, 59, 999);
+  const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  return daysLeft <= CRITICAL_DUE_SOON_DAYS;
+}
+
 export async function getDashboardStats() {
   const all = await db.select().from(tasks);
-  const critical = all.filter(t => t.priority === "critical" && t.status !== "done").length;
+  const critical = all.filter((t) => isTaskDashboardCritical(t)).length;
   const done     = all.filter(t => t.status === "done").length;
   const total    = all.length;
   return { critical, done, total };
@@ -52,6 +64,7 @@ export async function createTask(data: TaskInsert) {
       status:      data.status ?? "pending",
     }).returning();
     revalidatePath("/tasks");
+    revalidatePath("/timeline");
     revalidatePath("/dashboard");
     revalidatePath("/");
     return { success: true, task: created };
@@ -69,6 +82,7 @@ export async function completeTask(id: number) {
     .set({ status: "done" })
     .where(eq(subtasks.taskId, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
 }
@@ -81,6 +95,7 @@ export async function reopenTask(id: number) {
     .set({ status: "pending" })
     .where(eq(subtasks.taskId, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
 }
@@ -99,9 +114,27 @@ export async function deleteTask(id: number) {
   await db.delete(subtasks).where(eq(subtasks.taskId, id));
   await db.delete(tasks).where(eq(tasks.id, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
   return { success: true };
+}
+
+export async function getTimelineTasks() {
+  return db.query.tasks.findMany({
+    columns: {
+      id: true,
+      title: true,
+      category: true,
+      month: true,
+      dateFrom: true,
+      dateTo: true,
+      responsible: true,
+      status: true,
+      priority: true,
+    },
+    orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
+  });
 }
 
 // ── Subtask CRUD ──────────────────────────────────────────────────────
