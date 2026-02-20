@@ -12,6 +12,7 @@ type Rank =
   | "Сержант" | "Младший сержант" | "Рядовой";
 
 type Status = "active" | "on-leave" | "sick" | "detached";
+type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2";
 
 interface Person {
   id:         string;
@@ -20,7 +21,7 @@ interface Person {
   patronymic: string;
   rank:       Rank;
   role:       string;
-  code:       string;
+  code:       PersonnelCode;
   status:     Status;
   phone?:     string;
   tasks:      number;
@@ -71,7 +72,7 @@ const MOCK_PERSONNEL: Person[] = [
 
 // ── Главный компонент ──────────────────────────────────────────────────
 
-const ALLOWED_PERSONNEL_CODES = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"] as const;
+const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"];
 
 export default function RolesPage() {
   const [search,       setSearch      ] = useState("");
@@ -80,7 +81,7 @@ export default function RolesPage() {
   const [viewMode,     setViewMode    ] = useState<"grid" | "list">("grid");
 
   const basePersonnel = useMemo(
-    () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code as (typeof ALLOWED_PERSONNEL_CODES)[number])),
+    () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
     [],
   );
 
