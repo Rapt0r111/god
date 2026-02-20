@@ -20,7 +20,7 @@ type TimelineTask = {
 
 const MONTHS = ["", "ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
 const DAYS_IN_MONTH = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-const ALLOWED_PERSONNEL = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"] as const;
+const ALLOWED_PERSONNEL = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2", "КО-2"] as const;
 
 const PRIORITY_COLOR: Record<Priority, string> = {
   critical: "#ef4444",

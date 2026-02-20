@@ -390,11 +390,11 @@ function GaugeSvg({ value, color }: { value: number; color: string }) {
           style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
         <circle cx={cx} cy={cy} r="6" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
         <circle cx={cx} cy={cy} r="3" fill="#070d1a" />
-        <text x={cx} y={cy + 26} textAnchor="middle" fill={color}
+        <text x={cx} y={cy + 46} textAnchor="middle" fill={color}
           style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 30, fontWeight: 700 }}>
           {value}%
         </text>
-        <text x={cx} y={cy + 42} textAnchor="middle" fill="rgba(255,255,255,0.2)"
+        <text x={cx} y={cy + 62} textAnchor="middle" fill="rgba(255,255,255,0.2)"
           style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 8, letterSpacing: "2px" }}>
           ГОТОВНОСТЬ
         </text>

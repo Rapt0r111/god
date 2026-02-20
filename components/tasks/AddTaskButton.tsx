@@ -18,7 +18,7 @@ const CATEGORIES = [
   { code: "МГ",  icon: "⚡", label: "Мобготовность", color: "#ef4444" },
 ] as const;
 
-const PERSONNEL = ["КВ-2","КВ-1","ЗКВ-2","ЗКВ-1","СР","КНР"] as const;
+const PERSONNEL = ["КВ-2","КВ-1","ЗКВ-2","ЗКВ-1","СР","КНР", "КО-2"] as const;
 
 const PRIORITIES = [
   { value: "normal",   label: "Нормальный",  color: "#10b981" },

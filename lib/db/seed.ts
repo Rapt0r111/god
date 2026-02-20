@@ -1,56 +1,73 @@
-// src/lib/db/seed.ts
-// Запуск: bun --env-file=.env.local run src/lib/db/seed.ts
-// Полные данные из Годового плана (PDF)
+// lib/db/seed_full.ts
+// ПОЛНЫЙ ГОДОВОЙ ПЛАН — Январь–Декабрь
+// Запуск: bun --env-file=.env.local run lib/db/seed_full.ts
+//
+// Правила разбора PDF:
+//  КВ-1,2  → две отдельные задачи (КВ-1 + КВ-2)
+//  ЗКВ-1,2 → две отдельные задачи (ЗКВ-1 + ЗКВ-2)
+//  КВ      → КВ-1 и КВ-2 (оба) — две задачи
+//  КО-2    → КО-2 (значение: "КО-2" в поле responsible)
+//  ПС      → все: КНР, КВ-1, КВ-2, ЗКВ-1, ЗКВ-2, СР, КО-2 — семь задач
+//  КНР     → КНР
+//  СР      → СР
 
-import { db }    from "./index";
+import { db } from "./index";
 import { tasks, subtasks } from "./schema";
-import { eq } from "drizzle-orm";
 
-type Category   = "Н"|"А"|"БП"|"ПД"|"ВПР"|"У"|"П"|"ЗиТ"|"ЕМ"|"НД"|"МГ";
-type Priority   = "critical"|"high"|"normal";
-type Responsible= "КНР"|"КВ-1"|"КВ-2"|"ЗКВ-1"|"ЗКВ-2"|"ПС"|"СР";
+type Category = "Н" | "А" | "БП" | "ПД" | "ВПР" | "У" | "П" | "ЗиТ" | "ЕМ" | "НД" | "МГ";
+type Priority = "critical" | "high" | "normal";
+type DbResponsible = "КНР" | "КВ-1" | "КВ-2" | "ЗКВ-1" | "ЗКВ-2" | "СР" | "КО-2";
+
+// 2. Тип для исходных данных (может включать ПС для удобства генерации)
+type InputResponsible = DbResponsible | "ПС";
 
 interface SeedTask {
-  title:       string;
-  category:    Category;
-  priority:    Priority;
-  responsible: Responsible;
-  month:       number;
-  dateFrom:    number;
-  dateTo:      number;
+  title: string;
+  category: Category;
+  priority: Priority;
+  responsible: InputResponsible; // Здесь может быть ПС
+  month: number;
+  dateFrom: number;
+  dateTo: number;
   subtasks?: string[];
 }
 
-const SEED_TASKS: SeedTask[] = [
+// Хелпер: ПС → задача для каждого из 7 ответственных
+function ps(base: Omit<SeedTask, "responsible">): SeedTask[] {
+  const responsibles: DbResponsible[] = ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "СР", "КО-2"];
+  return responsibles.map(r => ({
+    ...base,
+    responsible: r as InputResponsible // Приводим к типу Input
+  }));
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// ЯНВАРЬ (month = 1)
+// ─────────────────────────────────────────────────────────────────────────────
 
-  // ══════════════════════════════════════════════
-  // ЯНВАРЬ (month=1)
-  // ══════════════════════════════════════════════
+const JANUARY: SeedTask[] = [
+  // 10-15 А  КВ-2
   {
-    title:       "Отправить заявки на удостоверения в ГОМУ",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Отправить заявки на удостоверения в ГОМУ",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasks: [],
   },
+
+  // 15-20 ПД  КВ-2
   {
-    title:       "Квартальная проверка ВНК ГУС за 4 квартал",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КВ-2",
+    title: "Квартальная проверка ВНК ГУС за 4 квартал",
+    category: "ПД", priority: "high", responsible: "КВ-2",
     month: 1, dateFrom: 15, dateTo: 20,
     subtasks: [
       "Проверить реализацию рекомендаций за 3 квартал",
       "Подготовить проект Акта",
-      "Подготовить справку-доклад с указаниями и рекомендациями по результатам проверки",
+      "Подготовить справку-доклад с полученными указаниями и рекомендациями по результатам проверки",
     ],
   },
+
+  // 10-30 ПД  КВ-2
   {
-    title:       "Подготовка к итоговой проверке деятельности",
-    category:    "ПД",
-    priority:    "critical",
-    responsible: "КВ-2",
+    title: "Подготовка к итоговой проверке деятельности",
+    category: "ПД", priority: "critical", responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 30,
     subtasks: [
       "Ознакомление с тг СС-ЗМОРФ через ВНК ГУС",
@@ -66,93 +83,100 @@ const SEED_TASKS: SeedTask[] = [
       "Подготовка индивидуальных планов (старших и младших)",
       "Подготовка к демонстрации проектов роты (проект, презентация, доклад, плакат)",
       "Запросить у организаций инновационные экспонаты",
-      "Предварительное заслушивание докладов на точках развертывания",
+      "Предварительное заслушивание докладов на точках развёртывания",
       "Подготовить предложения на МВТФ «Армия»",
       "Провести проверку внутреннего порядка в роте",
-      "Подготовить документы по учету личного состава",
+      "Подготовить документы по учёту личного состава",
       "Подготовить личные документы операторов (ВБ, дипломы)",
       "Провести инвентаризацию документов в канцелярии",
       "Подготовить план мероприятий по агитации, заверенный у НВАС",
       "Подготовить план реализации рекомендаций предыдущей проверки",
     ],
   },
+
+  // 10-15 Н  КНР
   {
-    title:       "Отправить перечень направлений подготовки и профили НИР в ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Отправить перечень направлений подготовки (специальностей) и профили НИР в ГУС",
+    category: "Н", priority: "normal", responsible: "КНР",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовить заверенные профили НИР в соответствии с Положением",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовить заверенные профили НИР в соответствии с Положением",
+    category: "Н", priority: "normal", responsible: "КНР",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasks: [],
   },
+
+  // 10-20 БП  КВ-1, КВ-2
   {
-    title:       "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр",
+    category: "БП", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проведение собеседований с ННИЦ для распределения м/п",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр",
+    category: "БП", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 10, dateTo: 20,
+  },
+
+  // 10-15 Н  КВ (оба)
+  {
+    title: "Проведение собеседований с ННИЦ для распределения м/п",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Проведение собеседований с сотрудниками НИЦ для закрепления м/п",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проведение собеседований с ННИЦ для распределения м/п",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 10, dateTo: 15,
+  },
+
+  // 15-20 Н  КВ (оба)
+  {
+    title: "Проведение собеседований с сотрудниками НИЦ для закрепления м/п",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 15, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Приказ о закреплении научных руководителей",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Проведение собеседований с сотрудниками НИЦ для закрепления м/п",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 15, dateTo: 20,
+  },
+
+  // 10-20 Н  КВ-1
+  {
+    title: "Приказ о закреплении научных руководителей",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Подготовка перечня направлений научной деятельности операторов для ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовка перечня направлений научной деятельности операторов для ГУС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasks: [],
   },
+
+  // 10-20 БП  КВ-2
   {
-    title:       "Приказ на проведение Присяги",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Приказ на проведение Присяги",
+    category: "БП", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 10, dateTo: 20,
-    subtasks: [],
   },
+
+  // 10-25 БП  КВ-1, КВ-2
   {
-    title:       "Приказ на проведение стрельб",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Приказ на проведение стрельб",
+    category: "БП", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 25,
-    subtasks: [],
   },
   {
-    title:       "Подготовка к стрельбам",
-    category:    "БП",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Приказ на проведение стрельб",
+    category: "БП", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 10, dateTo: 25,
+  },
+
+  // 10-27 БП  КВ-1, КВ-2
+  {
+    title: "Подготовка к стрельбам",
+    category: "БП", priority: "high", responsible: "КВ-1",
     month: 1, dateFrom: 10, dateTo: 27,
     subtasks: [
       "Подготовить 7 выписок из приказа (123, 6, 5 каф., НР-2)",
@@ -160,154 +184,199 @@ const SEED_TASKS: SeedTask[] = [
       "Изучение требований безопасности",
       "Изучение упражнений и нормативов",
       "Практическая тренировка в выполнении нормативов",
-      "Зачет на допуск к практическим стрельбам",
+      "Зачёт на допуск к практическим стрельбам",
       "Получить имущество по накладным согласно приказу",
     ],
   },
   {
-    title:       "Мобилизационная тренировка",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
+    title: "Подготовка к стрельбам",
+    category: "БП", priority: "high", responsible: "КВ-2",
+    month: 1, dateFrom: 10, dateTo: 27,
+    subtasks: [
+      "Подготовить 7 выписок из приказа (123, 6, 5 каф., НР-2)",
+      "Изучение материальной части",
+      "Изучение требований безопасности",
+      "Изучение упражнений и нормативов",
+      "Практическая тренировка в выполнении нормативов",
+      "Зачёт на допуск к практическим стрельбам",
+      "Получить имущество по накладным согласно приказу",
+    ],
   },
+
+  // 20 МГ  КНР (мобилизационная тренировка — глава роты отвечает)
   {
-    title:       "Сверка личных планов постоянного состава",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Мобилизационная тренировка (январь)",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
+
+  // 20 ЕМ  КВ-2
   {
-    title:       "Мобилизационная неделя (январь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 20, dateTo: 20,
+  },
+
+  // 20  Мобилизационная неделя  КНР
+  {
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 1, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
   },
+
+  // 20  ЗКВ-2
   {
-    title:       "Сверка служебных карточек",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Сверка листов бесед",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
+
+  // 20  КВ-2
   {
-    title:       "Уточнение плана публикаций на следующий месяц и проверка статей",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Подготовка ИРС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
+
+  // 20  КВ (оба)
   {
-    title:       "Проверка индивидуальных планов",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проверка боевой подготовки",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Уточнение тетрадей ПДП",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка стенной печати",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Дисциплинарная практика за месяц",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Проведение подведения итогов роты за месяц",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Актуализация списка ВУЗов",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 1, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Занятие по требованиям руководящих документов, оформлению отчётов и статей",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 20, dateTo: 20,
-    subtasks: [],
+  },
+
+  // 25  ЗКВ-1, ЗКВ-2
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 1, dateFrom: 25, dateTo: 25,
   },
   {
-    title:       "Организация стрельб (во взаимодействии с 10 каф.)",
-    category:    "БП",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  КВ-2
+  {
+    title: "Уточнение тетрадей ПДП",
+    category: "БП", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  КВ-2, ЗКВ-2
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  ЗКВ-2
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  ПС → все
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 1, dateFrom: 25, dateTo: 25,
+  }),
+
+  // 25  КВ-2, ЗКВ-2
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
+    category: "ВПР", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  КВ-2
+  {
+    title: "Актуализация списка ВУЗов",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Подготовка соглашений",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  ЗКВ-1
+  {
+    title: "Сверка ПЭК, УПК, ВБ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-1",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  КНР
+  {
+    title: "Ежемесячная ведомость получения денежного довольствия",
+    category: "ЕМ", priority: "normal", responsible: "КНР",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 25  ЗКВ-2
+  {
+    title: "Утверждение графика ответственных",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 25, dateTo: 25,
+  },
+
+  // 20.01 Н  КВ-2
+  {
+    title: "Проведение занятия по требованиям руководящих документов, оформлению отчётов, научных статей и свидетельств о регистрации",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 20, dateTo: 20,
+  },
+
+  // 27.01 БП  КВ-1, КВ-2
+  {
+    title: "Организация стрельб (во взаимодействии с 10 каф.)",
+    category: "БП", priority: "high", responsible: "КВ-1",
     month: 1, dateFrom: 27, dateTo: 27,
-    subtasks: [],
   },
   {
-    title:       "Подготовка к проведению Присяги",
-    category:    "ВПР",
-    priority:    "high",
-    responsible: "КВ-2",
+    title: "Организация стрельб (во взаимодействии с 10 каф.)",
+    category: "БП", priority: "high", responsible: "КВ-2",
+    month: 1, dateFrom: 27, dateTo: 27,
+  },
+
+  // 28-30 ВПР  КВ-2
+  {
+    title: "Подготовка к проведению Присяги",
+    category: "ВПР", priority: "high", responsible: "КВ-2",
     month: 1, dateFrom: 28, dateTo: 30,
     subtasks: [
       "Выписка из приказа о проведении Присяги",
@@ -321,19 +390,18 @@ const SEED_TASKS: SeedTask[] = [
       "Генеральная репетиция",
     ],
   },
+
+  // 31 ВПР  КНР
   {
-    title:       "Торжественная церемония приведения к Присяге",
-    category:    "ВПР",
-    priority:    "critical",
-    responsible: "КНР",
+    title: "Проведение торжественной церемонии приведения к Присяге (январь)",
+    category: "ВПР", priority: "critical", responsible: "КНР",
     month: 1, dateFrom: 31, dateTo: 31,
-    subtasks: [],
   },
+
+  // 31 ПД  СР, КВ-2
   {
-    title:       "Подготовка к передаче нарядов и ротных обязанностей между призывами",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Подготовка к передаче нарядов и ротных обязанностей между призывами",
+    category: "ПД", priority: "normal", responsible: "СР",
     month: 1, dateFrom: 31, dateTo: 31,
     subtasks: [
       "Составление графика стажировок в наряде",
@@ -341,61 +409,93 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Выдача по учету в журнале МНИ (USB, электронные пропуска)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка к передаче нарядов и ротных обязанностей между призывами",
+    category: "ПД", priority: "normal", responsible: "КВ-2",
     month: 1, dateFrom: 31, dateTo: 31,
     subtasks: [
-      "USB-носители",
-      "Электронные пропуска",
+      "Составление графика стажировок в наряде",
+      "Актуализация и уточнение ротных обязанностей",
     ],
-  },
-  {
-    title:       "Активация пропусков в ЦОИ",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 1, dateFrom: 31, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Проведение беседы по трудоустройству",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 1, dateFrom: 31, dateTo: 31,
-    subtasks: [],
   },
 
-  // ══════════════════════════════════════════════
-  // ФЕВРАЛЬ (month=2)
-  // ══════════════════════════════════════════════
+  // 31 ЗиТ  КВ-2
   {
-    title:       "Итоговая проверка деятельности МОРФ",
-    category:    "ПД",
-    priority:    "critical",
-    responsible: "ПС",
+    title: "Выдача по учёту в журнале МНИ с составлением актов (USB, пропуска)",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 31, dateTo: 31,
+    subtasks: ["USB-носители", "Электронные пропуска"],
+  },
+
+  // 31 ЗиТ  КВ-1
+  {
+    title: "Активация пропусков в ЦОИ",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-1",
+    month: 1, dateFrom: 31, dateTo: 31,
+  },
+
+  // 31 Н  КВ-2
+  {
+    title: "Проведение беседы по трудоустройству",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 31, dateTo: 31,
+  },
+
+  // Еженедельные / постоянные  ЗКВ-2
+  {
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Анализ электронной почты",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 1, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 1, dateFrom: 1, dateTo: 31,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ФЕВРАЛЬ (month = 2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FEBRUARY: SeedTask[] = [
+  // 03-16 ПС → все
+  ...ps({
+    title: "Итоговая проверка деятельности МО РФ",
+    category: "ПД", priority: "critical",
     month: 2, dateFrom: 3, dateTo: 16,
     subtasks: [
-      "Мероприятия по плану подготовки",
-      "Мероприятия по перечню вопросов проверки",
-      "Мероприятия по плану реализации рекомендаций",
+      "Мероприятия в соответствии с планом подготовки",
+      "Мероприятия в соответствии с перечнем вопросов проверки",
+      "Мероприятия в соответствии с планом реализации рекомендаций",
     ],
-  },
+  }),
+
+  // 1-15 Н  КВ-1
   {
-    title:       "Приказ на конкурс ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Приказ на конкурс ГУС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 2, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
+
+  // 01-20 А  КВ-2
   {
-    title:       "Подготовка командировочных документов на агитацию",
-    category:    "А",
-    priority:    "high",
-    responsible: "КВ-2",
+    title: "Подготовка командировочных документов на агитацию (февраль)",
+    category: "А", priority: "high", responsible: "КВ-2",
     month: 2, dateFrom: 1, dateTo: 20,
     subtasks: [
       "Командировочные удостоверения",
@@ -407,27 +507,37 @@ const SEED_TASKS: SeedTask[] = [
       "Взаимодействие с УМО по ВПО ВАС",
     ],
   },
+
+  // 15-30 Н  КВ-1
   {
-    title:       "Проведение 1 этапа конкурса ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Проведение 1 этапа конкурса ГУС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 2, dateFrom: 15, dateTo: 28,
-    subtasks: [],
   },
+
+  // КВ-1
   {
-    title:       "Назначение ответственного в состав комиссии ЗГТ",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Назначение ответственного в состав комиссии по ЗГТ (по согласованию с НС ЗГТ)",
+    category: "ПД", priority: "normal", responsible: "КВ-1",
     month: 2, dateFrom: 1, dateTo: 28,
-    subtasks: [],
   },
+
+  // КНР (ответственный не указан в PDF → КНР)
   {
-    title:       "Проведение инструктажа убывающих в командировку (февраль)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Подготовка к праздничным дням (февраль)",
+    category: "ПД", priority: "normal", responsible: "КНР",
+    month: 2, dateFrom: 1, dateTo: 20,
+    subtasks: [
+      "Осмотр помещений",
+      "Рапорт о готовности",
+      "График ответственных",
+    ],
+  },
+
+  // 20.02 А  КНР, КВ-2
+  {
+    title: "Проведение инструктажа убывающих в командировку (агитация, февраль)",
+    category: "А", priority: "high", responsible: "КНР",
     month: 2, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Командировочное удостоверение",
@@ -445,119 +555,117 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Убытие в командировку на агитацию и ВПО",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
-    month: 2, dateFrom: 25, dateTo: 25,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка личных планов постоянного состава (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка служебных карточек (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка листов бесед (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Уточнение плана публикаций (февраль)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка ИРС (февраль)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка индивидуальных планов (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка боевой подготовки (февраль)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка стенной печати (февраль)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Дисциплинарная практика за месяц (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Проведение подведения итогов роты (февраль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка материала для публикации новостей (февраль)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 2, dateFrom: 20, dateTo: 28,
-    subtasks: [],
+    title: "Проведение инструктажа убывающих в командировку (агитация, февраль)",
+    category: "А", priority: "high", responsible: "КВ-2",
+    month: 2, dateFrom: 20, dateTo: 20,
+    subtasks: [
+      "Командировочное удостоверение",
+      "Удостоверение ГОМУ",
+      "Листы собеседования",
+      "Соглашения о ПД",
+      "Образец заявления",
+      "Проект соглашения",
+      "Перечень ВУЗов",
+      "Таблица кандидатов",
+      "Форма еженедельного доклада",
+      "Брошюры НР ВАС",
+      "Плакаты НР ВАС",
+      "Визитки НР ВАС",
+    ],
   },
 
-  // ══════════════════════════════════════════════
-  // МАРТ (month=3)
-  // ══════════════════════════════════════════════
+  // 25.02 А  КНР
   {
-    title:       "Еженедельный доклад в ГУС о результатах агитации (по четвергам)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 3, dateFrom: 1, dateTo: 31,
-    subtasks: [],
+    title: "Убытие в командировку на агитацию и ВПО",
+    category: "А", priority: "high", responsible: "КНР",
+    month: 2, dateFrom: 25, dateTo: 25,
+  },
+
+  // ЕМ (февраль)
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
   },
   {
-    title:       "Формирование базы анкет кандидатов",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 3, dateFrom: 1, dateTo: 31,
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 2, dateFrom: 20, dateTo: 28,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-1",
+    month: 2, dateFrom: 20, dateTo: 28,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// МАРТ (month = 3)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MARCH: SeedTask[] = [
+  // 25.02–25.03 А  КВ-2
+  {
+    title: "Еженедельный доклад в ГУС о результатах проведения агитации (по четвергам)",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 1, dateTo: 25,
+  },
+
+  // А  КВ-2
+  {
+    title: "Формирование базы анкет кандидатов",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 1, dateTo: 25,
     subtasks: [
       "Сбор сведений по результатам агитации",
       "Обработка писем на почте",
@@ -566,19 +674,18 @@ const SEED_TASKS: SeedTask[] = [
       "Мониторинг Telegram",
     ],
   },
+
+  // 20-25 А  КВ-2
   {
-    title:       "Личное ознакомление с анкетами кандидатов, собеседование по телефону",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Личное ознакомление с анкетами кандидатов, проведение собеседования по телефону",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 3, dateFrom: 20, dateTo: 25,
-    subtasks: [],
   },
+
+  // 25.03 А  КВ-2
   {
-    title:       "Формирование документов для ВНК и ДИМК (март)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КВ-2",
+    title: "Формирование документов для ВНК и ДИМК",
+    category: "А", priority: "high", responsible: "КВ-2",
     month: 3, dateFrom: 25, dateTo: 25,
     subtasks: [
       "Рейтинговый список",
@@ -586,51 +693,44 @@ const SEED_TASKS: SeedTask[] = [
       "Оценочная ведомость",
     ],
   },
+
+  // 25-28 А  КВ-2
   {
-    title:       "Согласование документов и отправка в ВНК и ДИМК (март)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Согласование документов и отправка в ВНК и ДИМК",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 3, dateFrom: 25, dateTo: 28,
-    subtasks: [],
   },
+
+  // ЗиТ  КВ-1 (ответственный не указан явно → КВ-1 по аналогии с таблицей ответственных)
   {
-    title:       "Квартальная проверка в ЗГТ (март)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Квартальная проверка в ЗГТ",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 31,
-    subtasks: [],
   },
+
+  // 1-10 У  КВ-1
   {
-    title:       "Отправка плана увольнения в запас в ОМУ ЛВО",
-    category:    "У",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Отправка плана увольнения в запас в ОМУ ЛВО",
+    category: "У", priority: "normal", responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
+
+  // 1-15 Н  КВ-1
   {
-    title:       "Проведение II этапа конкурса ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Проведение II этапа конкурса ГУС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 3, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
+
+  // ЕМ (март)
   {
-    title:       "Сверка личных планов постоянного состава (март)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 3, dateFrom: 20, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Мобилизационная неделя (март)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 3, dateFrom: 20, dateTo: 31,
     subtasks: [
       "Расписаться в ГрОМР",
@@ -638,405 +738,506 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Передача ротных обязанностей и нарядов младшему призыву",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 3, dateFrom: 28, dateTo: 28,
-    subtasks: [],
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 3, dateFrom: 20, dateTo: 31,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 3, dateFrom: 20, dateTo: 31,
   },
 
-  // ══════════════════════════════════════════════
-  // АПРЕЛЬ (month=4)
-  // ══════════════════════════════════════════════
+  // 28.02 ПД  ПС → все (передача обязанностей — общая для всех)
+  ...ps({
+    title: "Передача ротных обязанностей и нарядов младшему призыву",
+    category: "ПД", priority: "normal",
+    month: 3, dateFrom: 1, dateTo: 1,
+  }),
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// АПРЕЛЬ (month = 4)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const APRIL: SeedTask[] = [
+  // 7-09 ПД  КНР
   {
-    title:       "Квартальная проверка ВНК ГУС за 1 квартал",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Квартальная проверка ВНК ГУС за 1 квартал",
+    category: "ПД", priority: "high", responsible: "КНР",
     month: 4, dateFrom: 7, dateTo: 9,
     subtasks: [
       "Проверить реализацию рекомендаций за 4 квартал",
       "Подготовить проект Акта",
-      "Подготовить справку-доклад с указаниями по результатам проверки",
+      "Подготовить справку-доклад с полученными указаниями и рекомендациями по результатам проверки",
     ],
   },
+
+  // КВ-1
   {
-    title:       "Участие в конкурсе НЦУО",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Участие в конкурсе НЦУО",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 4, dateFrom: 1, dateTo: 30,
-    subtasks: [],
-  },
-  {
-    title:       "Публикация рейтингового списка первого этапа отбора",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 4, dateFrom: 15, dateTo: 15,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка личных планов постоянного состава (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 4, dateFrom: 20, dateTo: 20,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка служебных карточек (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 4, dateFrom: 20, dateTo: 20,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка листов бесед (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 4, dateFrom: 20, dateTo: 20,
-    subtasks: [],
-  },
-  {
-    title:       "Уточнение плана публикаций (апрель)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка ИРС (апрель)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка индивидуальных планов (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка боевой подготовки (апрель)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка стенной печати (апрель)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Дисциплинарная практика за месяц (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Проведение подведения итогов роты (апрель)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка материала для публикации новостей (апрель)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
-  },
-  {
-    title:       "Подведение итогов конкурса ГУС",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 4, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
 
-  // ══════════════════════════════════════════════
-  // МАЙ (month=5)
-  // ══════════════════════════════════════════════
+  // 15.04  КВ-2
   {
-    title:       "Планирование и организация майских праздников",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Публикация рейтингового списка первого этапа отбора",
+    category: "П", priority: "normal", responsible: "КВ-2",
+    month: 4, dateFrom: 15, dateTo: 15,
+  },
+
+  // ЕМ (апрель) — 20.04
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 4, dateFrom: 20, dateTo: 20,
+  },
+  {
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 4, dateFrom: 20, dateTo: 20,
+  },
+  {
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 4, dateFrom: 20, dateTo: 20,
+  },
+
+  // 18.04  КВ-1
+  {
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+
+  // КВ-1, КВ-2
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+
+  // ЗКВ-1, ЗКВ-2
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+
+  // КНР
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+
+  // ПС → все
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 4, dateFrom: 18, dateTo: 18,
+  }),
+
+  // КВ-1
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+  {
+    title: "Подведение итогов конкурса ГУС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 4, dateFrom: 18, dateTo: 18,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// МАЙ (month = 5)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MAY: SeedTask[] = [
+  // 1-5  КВ-1
+  {
+    title: "Планирование и организация майских праздников",
+    category: "ПД", priority: "normal", responsible: "КВ-1",
     month: 5, dateFrom: 1, dateTo: 5,
     subtasks: [
-      "Ответственность",
-      "Увольнения",
+      "Определение ответственности",
+      "Организация увольнений",
       "Шашлыки (по призывно)",
     ],
   },
+
+  // 1-15  КВ-1, ЗКВ-1
   {
-    title:       "Указания по МВТФ «Армия»",
-    category:    "ПД",
-    priority:    "critical",
-    responsible: "КВ-1",
+    title: "Указания по МВТФ «Армия» — подготовка частного плана мероприятий",
+    category: "НД", priority: "normal", responsible: "КВ-1",
     month: 5, dateFrom: 1, dateTo: 15,
-    subtasks: [
-      "Подготовка частного плана мероприятий",
-    ],
   },
   {
-    title:       "Сверка личных планов постоянного состава (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка служебных карточек (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Сверка листов бесед (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Уточнение плана публикаций (май)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка ИРС (май)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка индивидуальных планов (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка боевой подготовки (май)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Проверка стенной печати (май)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Дисциплинарная практика за месяц (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Проведение подведения итогов роты (май)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 5, dateFrom: 20, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовка материала для публикации новостей (май)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 5, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Указания по МВТФ «Армия» — подготовка частного плана мероприятий",
+    category: "НД", priority: "normal", responsible: "ЗКВ-1",
+    month: 5, dateFrom: 1, dateTo: 15,
   },
 
-  // ══════════════════════════════════════════════
-  // ИЮНЬ (month=6)
-  // ══════════════════════════════════════════════
+  // ЕМ (май) — ответственные из аналогичных блоков
   {
-    title:       "Квартальная проверка в ЗГТ (июнь)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 6, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
   },
   {
-    title:       "Квартальная проверка в моб. группе (июнь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 6, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
   },
   {
-    title:       "Мероприятия по частному плану подготовки к МВТФ «Армия» (июнь)",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КВ-1",
-    month: 6, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
   },
   {
-    title:       "Мобилизационная неделя (июнь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 5, dateFrom: 20, dateTo: 31,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 5, dateFrom: 20, dateTo: 31,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-1",
+    month: 5, dateFrom: 25, dateTo: 25,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ИЮНЬ (month = 6)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const JUNE: SeedTask[] = [
+  // Квартальные проверки — КВ-1 (ЗГТ), КНР (моб. группа)
+  {
+    title: "Квартальная проверка в ЗГТ",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-1",
     month: 6, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Квартальная проверка в моб. группе",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 6, dateFrom: 1, dateTo: 30,
+  },
+
+  // Мероприятия по частному плану МВТФ «Армия»  КВ-1, ЗКВ-1
+  {
+    title: "Мероприятия по частному плану подготовки к МВТФ «Армия» (июнь)",
+    category: "НД", priority: "normal", responsible: "КВ-1",
+    month: 6, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Мероприятия по частному плану подготовки к МВТФ «Армия» (июнь)",
+    category: "НД", priority: "normal", responsible: "ЗКВ-1",
+    month: 6, dateFrom: 1, dateTo: 30,
+  },
+
+  // ЕМ (июнь)
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 6, dateFrom: 20, dateTo: 30,
     subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
   },
   {
-    title:       "Сверка личных планов постоянного состава (июнь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 6, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
   },
   {
-    title:       "Проведение подведения итогов роты (июнь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 6, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
   },
   {
-    title:       "Сдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — июнь",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 6, dateFrom: 20, dateTo: 30,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 6, dateFrom: 20, dateTo: 30,
+  },
+
+  // 25-30 ЗиТ  ЗКВ-2
+  {
+    title: "Сдача по учёту в журнале МНИ с составлением актов (ПЭВМ, USB, пропуска) — июнь",
+    category: "ЗиТ", priority: "normal", responsible: "ЗКВ-2",
     month: 6, dateFrom: 25, dateTo: 30,
     subtasks: [
-      "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
+      "ПЭВМ (в комплекте: сумка, мышь, ЗУ)",
       "USB-носители",
       "Электронные пропуска",
     ],
   },
+];
 
-  // ══════════════════════════════════════════════
-  // ИЮЛЬ (month=7)
-  // ══════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// ИЮЛЬ (month = 7)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const JULY: SeedTask[] = [
+  // 07-09 ПД  (квартальная проверка ВНК ГУС за 2 квартал) — ответственный в PDF не указан → КНР
   {
-    title:       "Квартальная проверка ВНК ГУС за 2 квартал",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Квартальная проверка ВНК ГУС за 2 квартал",
+    category: "ПД", priority: "high", responsible: "КНР",
     month: 7, dateFrom: 7, dateTo: 9,
     subtasks: [
       "Проверить реализацию рекомендаций за 1 квартал",
       "Подготовить проект Акта",
-      "Подготовить справку-доклад по результатам проверки",
+      "Подготовить справку-доклад с полученными указаниями и рекомендациями по результатам проверки",
     ],
   },
+
+  // МВТФ  КВ-1 (Н)
   {
-    title:       "Мероприятия по частному плану подготовки к МВТФ «Армия» (июль)",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Мероприятия по частному плану подготовки к МВТФ «Армия» (июль)",
+    category: "НД", priority: "normal", responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
   },
+
+  // 01-10 У  КВ-1
   {
-    title:       "Снять с довольствия увольняемых в запас (июль)",
-    category:    "У",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Снять с довольствия увольняемых в запас (июль)",
+    category: "У", priority: "high", responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 10,
     subtasks: [
       "Сдать рапорта и выписки в СО",
       "Сдать 3 выписки об исключении (в ФЭС, прод. службу и в дело)",
     ],
   },
+
+  // ЗиТ  ЗКВ-2
   {
-    title:       "Сдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — июль",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Сдача по учёту в журнале МНИ с составлением актов (ПЭВМ, USB, пропуска) — июль",
+    category: "ЗиТ", priority: "normal", responsible: "ЗКВ-2",
     month: 7, dateFrom: 1, dateTo: 31,
     subtasks: [
-      "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
+      "ПЭВМ (в комплекте: сумка, мышь, ЗУ)",
       "USB-носители",
       "Электронные пропуска",
     ],
   },
+
+  // Приём молодого пополнения  КНР (общая ответственность)
   {
-    title:       "Прием молодого пополнения (июль)",
-    category:    "П",
-    priority:    "critical",
-    responsible: "ПС",
+    title: "Приём молодого пополнения (июль)",
+    category: "П", priority: "critical", responsible: "КНР",
     month: 7, dateFrom: 1, dateTo: 31,
     subtasks: [
       "Рапорт на автомобильный транспорт",
       "Фотографирование воинской команды",
       "Медицинский осмотр",
-      "Копии паспорта и военного билета",
-      "Подготовить военные билеты и паспорта (бирки, жетоны)",
-      "Собрать ВУ, загран. паспорта, дипломы, ПЭК, УПК, карты МО",
-      "Занести ПЭК в журнал учета",
+      "Сделать копии паспорта и военного билета",
+      "Собрать и подготовить военные билеты и паспорта (бирки, жетоны)",
+      "Собрать ВУ, загран. паспорта, дипломы (копии), ПЭК, УПК, карты МО, карты ПО, именные списки, маршрутные листы, акты проверки воинских команд, билеты",
+      "Занести ПЭК в журнал учёта",
       "Подготовить рапорт на сдачу документов",
-      "Проверить вещевое имущество",
-      "Проверить наличие банковских карт",
-      "Заполнить заявления для Алушты",
-      "Сдать в строевой отдел рапорт на все виды довольствия",
-      "Сдать в прод. службу 2 рапорта на котловое довольствие",
-      "Подготовить 4 выписки о включении в ВАС",
-      "Определить место хранения личных вещей",
-      "Выдать постельное белье",
+      "Проверить вещевое имущество (раздаточная ведомость, вещевой аттестат, акт приёма)",
+      "Проверить наличие банковских карт у прибывших",
+      "Заполнить заявления для Алушты и сдать в отдел кадров",
+      "Сдать в строевой отдел рапорт на все виды довольствия, копии УПК и ВБ",
+      "Сдать в продовольственную службу 2 рапорта на котловое довольствие и продовольственные аттестаты",
+      "Подготовить 4 выписки о включении в ВАС (ОК, прод.сл., вещ.сл., в дело)",
+      "Определить место хранения личных вещей и спальные места",
+      "Выдать постельное бельё",
       "Провести инструктаж",
       "Организовать питание и помывку",
-      "Провести первичную беседу",
+      "Спланировать мероприятия (эссе, анкеты, ОВУ)",
+      "Провести первичную беседу с заполнением сведений для углублённого собеседования",
       "Установить связь с родителями (создать родительский чат)",
       "Составить рапорт о назначении на должность",
+      "Сделать и заверить записи о включении в списки ВАС и должности",
       "Получить в лазарете профилактические лекарства",
     ],
   },
+
+  // ПМП  ЗКВ-2
   {
-    title:       "Подготовить доклад в ГУС и ГОМУ о результатах набора МП (июль)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Назначить дату барьерного осмотра",
+    category: "ПД", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Начать дезинфекцию помещений (июль)",
+    category: "ПД", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Отправить 2-е экз. именных списков в ВК субъектов (июль)",
+    category: "П", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+
+  // Доклад в ГУС и ГОМУ о результатах набора  КНР
+  {
+    title: "Подготовить доклад в ГУС и ГОМУ о результатах набора МП (июль)",
+    category: "П", priority: "high", responsible: "КНР",
     month: 7, dateFrom: 1, dateTo: 31,
     subtasks: [
       "Телеграмма в ГОМУ",
@@ -1045,104 +1246,102 @@ const SEED_TASKS: SeedTask[] = [
       "Письмо-доклад для НГУС",
     ],
   },
+
+  // УЛС  КВ-2
   {
-    title:       "Организация 2 этапа ПМП (июль)",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "ПС",
+    title: "Внести данные по увольнению и призыву в документацию УЛС (июль)",
+    category: "У", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 31,
     subtasks: [
-      "Барьерный медицинский осмотр",
-      "Профессионально-психологическое тестирование",
-      "КПЗ по БВС (вводный, первичный, 12 тем ТБ, фотоотчет)",
-      "Спланировать изоляцию",
+      "Книга алфавитного учёта",
+      "Книга УЛС (Форма № 1)",
+      "Именные списки взводов (Форма №1-а)",
+      "Книга ШДУ (Форма № 4)",
+      "ШДК",
+      "ШДС",
+    ],
+  },
+
+  // Донесение  КВ-1
+  {
+    title: "Донесение 47 ОМУ о составе численности л/с (июль)",
+    category: "ПД", priority: "normal", responsible: "КВ-1",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+
+  // Организация 2 этапа ПМП  КНР
+  {
+    title: "Организация 2 этапа ПМП (июль)",
+    category: "ПД", priority: "high", responsible: "КНР",
+    month: 7, dateFrom: 1, dateTo: 31,
+    subtasks: [
+      "Провести барьерный медицинский осмотр",
+      "Провести проф-псих тестирование",
+      "Провести КПЗ по БВС во взаимодействии с 4 кафедрой",
+      "Спланировать изоляцию (на решение командира роты)",
       "Подготовить расписание",
-      "Провести профессиональные собеседования (16)",
-      "Предварительное распределение научных руководителей",
+      "Подготовить материалы занятий",
+      "Подготовить доклады и презентации по науке старших",
+      "Провести проф. собеседования (16)",
+      "Предварительное распределение научных руководителей и направлений",
       "Разработка Боевого листа на призыв",
       "Подготовить ведомость допуска в бассейн",
       "Фотографирование личного состава",
       "Подготовка анкет на оформление 3 формы допуска",
       "Подготовка подписок о неразглашении",
+      "Подать рапорт о назначении на должности",
+      "Подать данные приказов об назначении в ДП ЗГТ",
+      "Заполнить электронную книгу алфавитного учёта",
+      "Оформить служебные карточки",
+      "Согласовать выдачу банковских карт",
     ],
   },
+
+  // Рассылка в ВУЗы  КВ-1
   {
-    title:       "Проведение собеседований с ННИЦ для распределения м/п (июль)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Рассылка в ВУЗы (89 субъектов) — июль",
+    category: "А", priority: "normal", responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
   },
+
+  // 1-15 А  КВ-2
   {
-    title:       "Проведение собеседований с НИЦ для закрепления м/п (июль)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Рассылка в ВУЗы (89 субъектов) — июль",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
-  },
-  {
-    title:       "Подготовить приказ на агитацию НР",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовить приказ на агитацию НР",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовить план мероприятий по агитации (июль)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовить план мероприятий по агитации, заверенный у НВАС",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовить и направить в ДиД предложения в состав комиссии в ТП ЭРА",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовить и направить в ДиД предложения в состав комиссии в ТП ЭРА",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Отправить заявку на выдачу удостоверений в ГУС (июль)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Отправить заявку на выдачу удостоверений в ГУС (pdf, doc)",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Отправить план отбора в ГУС",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Отправить план отбора в ГУС (pdf, doc)",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
+
+  // 1-15 ВПР  КВ-1
   {
-    title:       "Приказ на присягу прикомандированных",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Приказ на присягу прикомандированных",
+    category: "ВПР", priority: "normal", responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
+
+  // 14-20 МГ  КНР
   {
-    title:       "Мобилизационная тренировка (июль)",
-    category:    "МГ",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Мобилизационная тренировка (июль)",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 7, dateFrom: 14, dateTo: 20,
     subtasks: [
       "Составить частный план мероприятий",
@@ -1151,54 +1350,126 @@ const SEED_TASKS: SeedTask[] = [
       "Смена суточного наряда",
     ],
   },
+
+  // 1-31 БП  КВ-1, КВ-2
   {
-    title:       "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр (июль)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр (июль)",
+    category: "БП", priority: "normal", responsible: "КВ-1",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Мобилизационная неделя (июль)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Подготовка индивидуальных заданий и личных планов по ПДП на 2 семестр (июль)",
+    category: "БП", priority: "normal", responsible: "КВ-2",
     month: 7, dateFrom: 1, dateTo: 31,
+  },
+
+  // ЕМ (июль) — стандартный блок
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 7, dateFrom: 20, dateTo: 31,
     subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
   },
   {
-    title:       "Сверка личных планов постоянного состава (июль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 7, dateFrom: 20, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Проведение подведения итогов роты (июль)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 7, dateFrom: 20, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Подготовить приказ о проведении общевойсковой подготовки (июль)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 7, dateFrom: 20, dateTo: 31,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 7, dateFrom: 1, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Подготовка к проведению ОВП на 6 в/г",
-    category:    "БП",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+
+  // Приказ по ОВП  КВ-1
+  {
+    title: "Подготовить приказ о проведении общевойсковой подготовки",
+    category: "БП", priority: "normal", responsible: "КВ-1",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+
+  // 20.07 БП  ЗКВ-2
+  {
+    title: "Подготовка к проведению ОВП на 6 в/г",
+    category: "БП", priority: "high", responsible: "ЗКВ-2",
     month: 7, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Расписание",
@@ -1208,64 +1479,78 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
 
-  // ══════════════════════════════════════════════
-  // АВГУСТ (month=8)
-  // ══════════════════════════════════════════════
+  // Н  КВ (оба) — собеседования
   {
-    title:       "МВТФ «Армия»",
-    category:    "Н",
-    priority:    "critical",
-    responsible: "КВ-2",
+    title: "Проведение собеседований с ННИЦ для распределения м/п (июль)",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Проведение собеседований с ННИЦ для распределения м/п (июль)",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Проведение собеседований с сотрудниками НИЦ для закрепления м/п (июль)",
+    category: "Н", priority: "normal", responsible: "КВ-1",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Проведение собеседований с сотрудниками НИЦ для закрепления м/п (июль)",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 7, dateFrom: 1, dateTo: 31,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// АВГУСТ (month = 8)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const AUGUST: SeedTask[] = [
+  // 1-5 Н  МВТФ «Армия»  КВ-2
+  {
+    title: "МВТФ «Армия» — подготовка командировочных документов",
+    category: "Н", priority: "high", responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 5,
-    subtasks: [
-      "Подготовка командировочных документов",
-    ],
   },
+
+  // 1-30 БП  общевойсковая подготовка  ЗКВ-2
   {
-    title:       "Мероприятия по плану общевойсковой подготовки",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Мероприятия по плану общевойсковой подготовки (август)",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
-    subtasks: [],
   },
+
+  // 1-20 Н  КВ-2
   {
-    title:       "Приказ о закреплении научных руководителей (август)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Приказ о закреплении научных руководителей (август)",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Подготовка перечня направлений научной деятельности операторов для ГУС (август)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка перечня направлений научной деятельности операторов для ГУС (.doc)",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
+
+  // 1-10 ПД  КВ-2
   {
-    title:       "Подготовка индивидуальных заданий и личных планов по ПДП на 1 семестр",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка индивидуальных заданий и личных планов по ПДП на 1 семестр",
+    category: "БП", priority: "normal", responsible: "КВ-2",
     month: 8, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
+
+  // 1-10 БП  ЗКВ-2
   {
-    title:       "Приказ на проведение стрельб (август)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Приказ на проведение стрельб (август)",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
+
+  // 1-20 БП  ЗКВ-2
   {
-    title:       "Подготовка к стрельбам (август)",
-    category:    "БП",
-    priority:    "high",
-    responsible: "ЗКВ-2",
+    title: "Подготовка к стрельбам (август)",
+    category: "БП", priority: "high", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
     subtasks: [
       "Подготовить 7 выписок из приказа (123, 6, 5 каф., НР-2)",
@@ -1273,21 +1558,21 @@ const SEED_TASKS: SeedTask[] = [
       "Изучение требований безопасности",
       "Изучение упражнений и нормативов",
       "Практическая тренировка в выполнении нормативов",
-      "Зачет на допуск к практическим стрельбам",
-      "Получить имущество по накладным",
+      "Зачёт на допуск к практическим стрельбам",
+      "Получить имущество по накладным согласно приказу",
       "Заявка на оружие и б/п (по рапорту)",
-      "Расчет-обоснование",
+      "Расчёт-обоснование",
       "Ведомости закрепления (передачи) оружия",
       "Предписание",
       "Транспорт",
-      "Прием пищи",
+      "Приём пищи",
     ],
   },
+
+  // 20 БП  ЗКВ-2
   {
-    title:       "Организация стрельб (август, 10 каф.)",
-    category:    "БП",
-    priority:    "high",
-    responsible: "ЗКВ-2",
+    title: "Организация стрельб (август, во взаимодействии с 10 каф.)",
+    category: "БП", priority: "high", responsible: "ЗКВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Оружие, магазины, подсумки",
@@ -1296,60 +1581,62 @@ const SEED_TASKS: SeedTask[] = [
       "Станок прицельный (ПС-51)",
       "Шлема, бронежилеты",
       "Ящик для б/п с замком и печатью",
-      "Ведомости ТБ (форма 9а, форма 4/арт)",
-      "Ведомость допуска л/с к стрельбам",
-      "Ведомости учета результатов стрельб",
+      "Ведомости ТБ",
+      "Форма 9а (раздатка), форма 4/арт",
+      "Ведомость допуска л/с к стрельбам с АК и ПМ",
+      "Ведомости учёта результатов стрельб",
       "Ведомости сдачи нормативов (1,2,13,14,16)",
-      "Секундомеры, маркеры, флажки, манишки",
-      "Противогазы, ремни, планшеты",
-      "Учебно-тренировочные карты и план-конспекты",
+      "Маркеры, степлер со скобами",
+      "Повязки, флажки, манишки (2 комплекта)",
+      "Секундомеры, противогазы, ремни, планшеты",
+      "Таблички (1,2,13,14,16)",
+      "Плащ-палатки",
+      "Учебно-тренировочная карта и план-конспекты (1,2,13,14,16)",
+      "Наблюдатели",
     ],
   },
+
+  // 20 БП  ЗКВ-2
   {
-    title:       "Занятия по метанию гранаты (БХ танков, упражнения 6, 7)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Занятия по метанию гранаты (БХ танков, упражнение 6, 7)",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
+
+  // 25-28 Н  КВ-1
   {
-    title:       "Направить в ГУС перечень направлений НИ на молодое пополнение",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Направить в ГУС перечень направлений научных исследований на молодое пополнение",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 8, dateFrom: 25, dateTo: 28,
-    subtasks: [],
   },
+
+  // 1-20 Н  КВ-1
   {
-    title:       "Рассылка в ВУЗы (89 субъектов) — август",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Рассылка в ВУЗы (89 субъектов) — август",
+    category: "А", priority: "normal", responsible: "КВ-1",
     month: 8, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
+
+  // 1-20 А  КНР
   {
-    title:       "Подготовка командировочных документов на агитацию (август)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Подготовка командировочных документов на агитацию (август)",
+    category: "А", priority: "high", responsible: "КНР",
     month: 8, dateFrom: 1, dateTo: 20,
     subtasks: [
-      "Командировочные удостоверения",
+      "Командировочные удостоверения (рапорта согласовать с НФЭС)",
       "Удостоверения на право ознакомления",
       "Проекты соглашений",
       "Перечень ВУЗов субъектов",
       "Письма в ВУЗы для взаимодействия",
-      "Печать памяток и агитационных материалов (×200)",
+      "Печать памяток и агитационных материалов (×200) по рапорту",
       "Взаимодействие с УМО по ВПО ВАС",
     ],
   },
+
+  // 20 А  КНР, КВ-2
   {
-    title:       "Проведение инструктажа убывающих в командировку (август)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Проведение инструктажа убывающих в командировку (агитация, август)",
+    category: "А", priority: "high", responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Командировочное удостоверение",
@@ -1357,6 +1644,7 @@ const SEED_TASKS: SeedTask[] = [
       "Листы собеседования",
       "Соглашения о ПД",
       "Образец заявления",
+      "Проект соглашения",
       "Перечень ВУЗов",
       "Таблица кандидатов",
       "Форма еженедельного доклада",
@@ -1366,84 +1654,167 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Убытие в командировку на агитацию и ВПО (август)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Проведение инструктажа убывающих в командировку (агитация, август)",
+    category: "А", priority: "high", responsible: "КВ-2",
     month: 8, dateFrom: 20, dateTo: 20,
-    subtasks: [],
+    subtasks: [
+      "Командировочное удостоверение",
+      "Удостоверение ГОМУ",
+      "Листы собеседования",
+      "Соглашения о ПД",
+      "Образец заявления",
+      "Проект соглашения",
+      "Перечень ВУЗов",
+      "Таблица кандидатов",
+      "Форма еженедельного доклада",
+      "Брошюры НР ВАС",
+      "Плакаты НР ВАС",
+      "Визитки НР ВАС",
+    ],
   },
+
+  // 20 А  КНР
   {
-    title:       "Еженедельный доклад в ГУС об агитации (август)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Убытие в командировку на агитацию и ВПО (август)",
+    category: "А", priority: "high", responsible: "КНР",
+    month: 8, dateFrom: 20, dateTo: 20,
+  },
+
+  // 20-31 А  КНР
+  {
+    title: "Еженедельный доклад в ГУС о результатах проведения агитации (август)",
+    category: "А", priority: "normal", responsible: "КНР",
     month: 8, dateFrom: 20, dateTo: 31,
-    subtasks: [],
+  },
+
+  // ЕМ (август)
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 8, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Сверка личных планов постоянного состава (август)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 8, dateFrom: 20, dateTo: 20,
-    subtasks: [],
-  },
-  {
-    title:       "Мобилизационная неделя (август)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
-    month: 8, dateFrom: 20, dateTo: 20,
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 8, dateFrom: 20, dateTo: 31,
     subtasks: [
       "Расписаться в ГрОМР",
       "Подготовить рапорт (сдать в ГрОМР в четверг)",
     ],
   },
   {
-    title:       "Проведение подведения итогов роты (август)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 20, dateTo: 31,
-    subtasks: [],
   },
   {
-    title:       "Подготовка к передаче нарядов и ротных обязанностей (август)",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 8, dateFrom: 20, dateTo: 31,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 20, dateTo: 31,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 8, dateFrom: 1, dateTo: 31,
+  },
+
+  // 1-31 ПД  ПС → все
+  ...ps({
+    title: "Подготовка к передаче нарядов и ротных обязанностей между призывами (август)",
+    category: "ПД", priority: "normal",
     month: 8, dateFrom: 1, dateTo: 31,
     subtasks: [
       "Составление графика стажировок в наряде",
       "Актуализация и уточнение ротных обязанностей",
     ],
-  },
+  }),
+
+  // 1-30 ЗиТ  ЗКВ-2
   {
-    title:       "Активация пропусков в ЦОИ (август)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Активация пропусков в ЦОИ (август)",
+    category: "ЗиТ", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
-    subtasks: [],
   },
   {
-    title:       "Выдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — август",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Выдача по учёту в журнале МНИ с составлением актов (ПЭВМ, USB, пропуска) — август",
+    category: "ЗиТ", priority: "normal", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 30,
     subtasks: [
-      "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 24 шт.",
+      "ПЭВМ (в комплекте: сумка, мышь, ЗУ)",
       "USB-носители",
       "Электронные пропуска",
     ],
   },
+
+  // 1-20 ВПР  ЗКВ-2, ЗКВ-1
   {
-    title:       "Подготовка к проведению Присяги (август)",
-    category:    "ВПР",
-    priority:    "high",
-    responsible: "ЗКВ-2",
+    title: "Подготовка к проведению Присяги (август)",
+    category: "ВПР", priority: "high", responsible: "ЗКВ-2",
     month: 8, dateFrom: 1, dateTo: 20,
     subtasks: [
       "Выписка из приказа о проведении Присяги",
@@ -1459,46 +1830,59 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Проведение торжественной церемонии Присяги (авг/сент)",
-    category:    "ВПР",
-    priority:    "critical",
-    responsible: "КНР",
-    month: 8, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Подготовка к проведению Присяги (август)",
+    category: "ВПР", priority: "high", responsible: "ЗКВ-1",
+    month: 8, dateFrom: 1, dateTo: 20,
+    subtasks: [
+      "Выписка из приказа о проведении Присяги",
+      "Рапорт на получение оружия на тренировки и церемонию",
+      "Сценарий",
+      "Списки посетителей",
+      "Списки и расписки для суточного увольнения",
+      "Справки о прохождении службы",
+      "Подготовка к встрече родителей (порядок, чай, презентация)",
+      "Практическая подготовка МП",
+      "Тренировка",
+      "Генеральная репетиция",
+    ],
   },
 
-  // ══════════════════════════════════════════════
-  // СЕНТЯБРЬ (month=9)
-  // ══════════════════════════════════════════════
+  // 25-5 ВПР  КНР
   {
-    title:       "Квартальная проверка ЗГТ (сентябрь)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 9, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Проведение торжественной церемонии приведения к Присяге (август/сентябрь)",
+    category: "ВПР", priority: "critical", responsible: "КНР",
+    month: 8, dateFrom: 25, dateTo: 31,
   },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// СЕНТЯБРЬ (month = 9)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SEPTEMBER: SeedTask[] = [
+  // 1-30 ЗиТ  КВ-1
   {
-    title:       "Квартальная проверка в моб. группе (сентябрь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Квартальная проверка ЗГТ (сентябрь)",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-1",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasks: [],
   },
+
+  // 1-30 МГ  КНР
   {
-    title:       "Еженедельный доклад в ГУС об агитации (сентябрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Квартальная проверка в моб. группе (сентябрь)",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+
+  // 1-25 А  КНР
+  {
+    title: "Еженедельный доклад в ГУС о результатах проведения агитации (сентябрь)",
+    category: "А", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
-    subtasks: [],
   },
   {
-    title:       "Формирование базы анкет кандидатов (сентябрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Формирование базы анкет кандидатов (сентябрь)",
+    category: "А", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
     subtasks: [
       "Сбор сведений по результатам агитации",
@@ -1506,22 +1890,21 @@ const SEED_TASKS: SeedTask[] = [
       "Обработка новых заявок",
       "Опрос кандидатов с предыдущего призыва",
       "Мониторинг Telegram",
-      "Ежедневная публикация новостей (в соответствии с Планом)",
+      "Ежедневная публикация новостей (в соответствии с Планом публикации канала)",
     ],
   },
+
+  // А  КНР
   {
-    title:       "Личное ознакомление с анкетами кандидатов (сентябрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Личное ознакомление с анкетами кандидатов, собеседование по телефону (сентябрь)",
+    category: "А", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 25,
-    subtasks: [],
   },
+
+  // 20-25 А  КНР
   {
-    title:       "Формирование документов для ВНК и ДИМК (сентябрь)",
-    category:    "А",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Формирование документов для ВНК и ДИМК (сентябрь)",
+    category: "А", priority: "high", responsible: "КНР",
     month: 9, dateFrom: 20, dateTo: 25,
     subtasks: [
       "Рейтинговый список",
@@ -1529,85 +1912,80 @@ const SEED_TASKS: SeedTask[] = [
       "Оценочная ведомость",
     ],
   },
+
+  // 25-28 А  КНР
   {
-    title:       "Согласование документов и отправка в ВНК и ДИМК (сентябрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Согласование документов и отправка в ВНК и ДИМК (сентябрь)",
+    category: "А", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 25, dateTo: 28,
-    subtasks: [],
   },
-  {
-    title:       "Передача ротных обязанностей и нарядов младшему призыву (сентябрь)",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ПС",
+
+  // 1-30 ПД  ПС → все
+  ...ps({
+    title: "Передача ротных обязанностей и нарядов младшему призыву (сентябрь)",
+    category: "ПД", priority: "normal",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasks: [],
-  },
+  }),
+
+  // 1-15 У  ЗКВ-1
   {
-    title:       "Отправка плана увольнения в запас в ОМУ ЛВО (сентябрь)",
-    category:    "У",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Отправка плана увольнения в запас в ОМУ ЛВО (сентябрь)",
+    category: "У", priority: "normal", responsible: "ЗКВ-1",
     month: 9, dateFrom: 1, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовка документов на увольнение (сентябрь)",
-    category:    "У",
-    priority:    "critical",
-    responsible: "ЗКВ-1",
+    title: "Подготовка документов на увольнение (сентябрь)",
+    category: "У", priority: "high", responsible: "ЗКВ-1",
     month: 9, dateFrom: 1, dateTo: 30,
     subtasks: [
-      "Таблица очередности увольнения",
+      "Таблица очерёдности увольнения",
       "Маршруты следования",
       "Предписания",
       "Список допусков",
       "Инструктаж о неразглашении в ЗГТ",
       "Заключения в ЗГ",
       "Список с приказами об исключении в ДП ЗГТ",
+      "Таблица очерёдности увольнения в СО",
       "Рапорта на исключение из ВАС в СО",
       "Рапорта на снятие с довольствия в СО",
       "Выписки из приказа в СО",
       "Ведомость выдачи ВПД с маршрутами",
       "Ведомость инструктажа л/с",
+      "Журнал инструктажа л/с",
+      "Журнал выдачи ПЭК",
       "Записи в ВБ, УПК",
+      "Согласовать виды транспорта в отделе ВПД",
       "Рапорт на ВПД с таблицей увольнения",
       "Справки о прохождении службы",
-      "Грамоты, письма, дембельский альбом",
+      "Фото, грамоты, письма",
+      "Дембельский альбом",
       "Таблица трудоустройства",
     ],
   },
+
+  // 1-10 Н  КВ-2
   {
-    title:       "Проведение занятия по требованиям РД, оформлению отчётов и статей (сентябрь)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проведение занятия по требованиям РД, оформлению отчётов, научных статей и свидетельств о регистрации (сентябрь)",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 9, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
+
+  // 1-30 Н  КНР
   {
-    title:       "Проведение беседы по трудоустройству (сентябрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Проведение беседы по трудоустройству (сентябрь)",
+    category: "Н", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 30,
-    subtasks: [],
   },
+
+  // ЕМ (сентябрь)
   {
-    title:       "Сверка личных планов постоянного состава (сентябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 9, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Мобилизационная неделя (сентябрь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 9, dateFrom: 1, dateTo: 20,
     subtasks: [
       "Расписаться в ГрОМР",
@@ -1615,50 +1993,150 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Проведение подведения итогов роты (сентябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 9, dateFrom: 1, dateTo: 30,
-    subtasks: [],
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
   },
-
-  // ══════════════════════════════════════════════
-  // ОКТЯБРЬ (month=10)
-  // ══════════════════════════════════════════════
   {
-    title:       "Квартальная проверка ВНК ГУС за 3 квартал",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "КНР",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 9, dateFrom: 1, dateTo: 20,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Анализ электронной почты",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Актуализация списка ВУЗов",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Подготовка соглашений",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Сверка ПЭК, УПК, ВБ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-1",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Ежемесячная ведомость получения денежного довольствия",
+    category: "ЕМ", priority: "normal", responsible: "КНР",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Утверждение графика ответственных",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 9, dateFrom: 1, dateTo: 30,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ОКТЯБРЬ (month = 10)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const OCTOBER: SeedTask[] = [
+  // 06-08 ПД  (квартальная проверка ВНК ГУС за 3 квартал) — ответственный явно не указан → КНР
+  {
+    title: "Квартальная проверка ВНК ГУС за 3 квартал",
+    category: "ПД", priority: "high", responsible: "КНР",
     month: 10, dateFrom: 6, dateTo: 8,
     subtasks: [
       "Проверить реализацию рекомендаций за 2 квартал",
       "Подготовить проект Акта",
-      "Подготовить справку-доклад по результатам проверки",
+      "Подготовить справку-доклад с полученными указаниями и рекомендациями по результатам проверки",
     ],
   },
+
+  // 1-25 П  ЗКВ-1
   {
-    title:       "Отправка писем в ВК на кандидатов 1 этапа",
-    category:    "П",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Отправка писем в ВК на кандидатов 1 этапа",
+    category: "П", priority: "normal", responsible: "ЗКВ-1",
     month: 10, dateFrom: 1, dateTo: 25,
-    subtasks: [],
   },
+
+  // ЕМ (октябрь)
   {
-    title:       "Сверка личных планов постоянного состава (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Мобилизационная неделя (октябрь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 10, dateFrom: 1, dateTo: 20,
     subtasks: [
       "Расписаться в ГрОМР",
@@ -1666,178 +2144,208 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Сверка служебных карточек (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Сверка листов бесед (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Уточнение плана публикаций (октябрь)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Подготовка ИРС (октябрь)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проверка индивидуальных планов (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проверка боевой подготовки (октябрь)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Уточнение тетрадей ПДП (октябрь)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проверка стенной печати (октябрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Дисциплинарная практика за месяц (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Уточнение тетрадей ПДП",
+    category: "БП", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Проведение подведения итогов роты (октябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Подготовка материала для публикации новостей (октябрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
-    subtasks: [],
   },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 10, dateFrom: 1, dateTo: 20,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 10, dateFrom: 1, dateTo: 20,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Анализ электронной почты",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Актуализация списка ВУЗов",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Подготовка соглашений",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Сверка ПЭК, УПК, ВБ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-1",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Ежемесячная ведомость получения денежного довольствия",
+    category: "ЕМ", priority: "normal", responsible: "КНР",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+  {
+    title: "Утверждение графика ответственных",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 31,
+  },
+];
 
-  // ══════════════════════════════════════════════
-  // НОЯБРЬ (month=11)
-  // ══════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// НОЯБРЬ (month = 11)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const NOVEMBER: SeedTask[] = [
+  // 01.11 У  КО-2
   {
-    title:       "Приказ об увольнении (последняя суббота)",
-    category:    "У",
-    priority:    "critical",
-    responsible: "КВ-1",
-    month: 11, dateFrom: 1, dateTo: 1,
-    subtasks: [
-      "Приказ на звания (по рапорту)",
-      "Сценарий торжественного увольнения в запас",
-      "Печать и оформление грамот, писем, фото, фотоальбома",
-    ],
+    title: "Приказ об увольнении в запас (последняя суббота ноября)",
+    category: "У", priority: "critical", responsible: "КО-2",
+    month: 11, dateFrom: 1, dateTo: 30,
   },
   {
-    title:       "Оформление документов на увольнение (ноябрь)",
-    category:    "У",
-    priority:    "critical",
-    responsible: "КВ-1",
+    title: "Приказ на звания (по рапорту)",
+    category: "У", priority: "normal", responsible: "КО-2",
+    month: 11, dateFrom: 1, dateTo: 1,
+  },
+  {
+    title: "Сценарий торжественного увольнения в запас",
+    category: "У", priority: "normal", responsible: "КО-2",
+    month: 11, dateFrom: 1, dateTo: 1,
+  },
+  {
+    title: "Печать и оформление грамот, писем, фото, фотоальбома",
+    category: "У", priority: "normal", responsible: "КО-2",
+    month: 11, dateFrom: 1, dateTo: 1,
+  },
+  {
+    title: "Оформление документов на увольнение (ноябрь)",
+    category: "У", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 1, dateTo: 30,
     subtasks: [
       "Рапорт на выдачу ВПД",
-      "Таблица очередности увольнения для ВПД",
+      "Таблица очерёдности увольнения для ВПД",
       "ВПД (по рапорту)",
       "Выдать ВПД под подпись в ведомости",
       "Организовать покупку билетов",
       "Снять копии с билетов, сдать в отдел ВПД",
       "Список военных комиссариатов",
-      "Таблицу очередности фактического убытия",
-      "План защиты годовых отчетов",
+      "Таблица очерёдности фактического убытия",
+      "План защиты годовых отчётов",
       "Данные о допусках",
       "Предписания",
       "Ведомость инструктажа",
+      "Журнал инструктажа",
       "Справки о прохождении службы для увольняемых",
       "Рапорта о снятии с довольствия",
       "Рапорта об исключении из ВАС",
       "Выписки из приказов",
       "Ведомость о неразглашении ССГТ",
-      "Заключения об осведомленности",
-      "Заполнить и заверить записи в ВБ и УПК",
-      "Квитки об отсутствии задолженностей в библиотеке",
+      "Заключения об осведомлённости",
+      "Заполнить и заверить записи в ВБ и УПК (согласовать ВУС с НСО)",
+      "Подготовить квитки об отсутствии задолженностей в библиотеке",
       "Акты о сдаче ПЭВМ, USB и пропусков",
-      "Рапорта о приеме документов",
+      "Рапорта о приёме документов",
+      "Подготовить к выдаче личные документы",
       "Осмотр сумок перед убытием",
+      "Подать данные приказов об исключении из ВАС в ДП ЗГТ",
     ],
   },
+
+  // 01.11 П  КВ-2
   {
-    title:       "Обзвон кандидатов на предмет прохождения призыва",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Обзвон кандидатов на предмет прохождения призыва",
+    category: "П", priority: "normal", responsible: "КВ-2",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasks: [],
   },
   {
-    title:       "Уточнение списков второго этапа с ГОМУ",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Уточнение списков второго этапа с ГОМУ",
+    category: "П", priority: "normal", responsible: "КВ-2",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasks: [],
   },
   {
-    title:       "Приказ о приеме молодого пополнения (ноябрь)",
-    category:    "П",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Приказ о приёме молодого пополнения (учесть ВПО ВАС и ФЭС)",
+    category: "П", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasks: [],
   },
   {
-    title:       "Сбор сведений старших воинских команд с кафедр",
-    category:    "П",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Сбор сведений старших воинских команд с кафедр",
+    category: "П", priority: "normal", responsible: "ЗКВ-1",
     month: 11, dateFrom: 1, dateTo: 1,
-    subtasks: [],
   },
+
+  // 10.11 НД  КВ-1
   {
-    title:       "Подготовка к круглому столу",
-    category:    "НД",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Подготовка к круглому столу (ноябрь)",
+    category: "НД", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 10, dateTo: 10,
     subtasks: [
       "Подготовка информационного письма",
@@ -1853,19 +2361,16 @@ const SEED_TASKS: SeedTask[] = [
       "Подготовка чайной зоны",
     ],
   },
+
+  // 15.11 П  КВ-2
   {
-    title:       "Публикация результатов 2-го этапа отбора",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Публикация результатов 2-го этапа отбора",
+    category: "П", priority: "normal", responsible: "КВ-2",
     month: 11, dateFrom: 15, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовка командировочных документов (ноябрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Подготовка командировочных документов (ноябрь)",
+    category: "П", priority: "normal", responsible: "ЗКВ-1",
     month: 11, dateFrom: 15, dateTo: 15,
     subtasks: [
       "Командировочные удостоверения",
@@ -1875,24 +2380,24 @@ const SEED_TASKS: SeedTask[] = [
       "ВПД",
     ],
   },
+
+  // 15.11 НД  КВ-1
   {
-    title:       "Подготовка к защите годовых отчетов",
-    category:    "НД",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Подготовка к защите годовых отчётов (ноябрь)",
+    category: "НД", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 15, dateTo: 15,
     subtasks: [
-      "Проверка годовых отчетов",
+      "Проверка годовых отчётов",
       "Проверка презентаций",
       "Предварительное заслушивание",
-      "Сбор электронных версий годовых отчетов и презентаций",
+      "Сбор электронных версий годовых отчётов и презентаций",
     ],
   },
+
+  // 20.11 П  ЗКВ-1
   {
-    title:       "Уточнение информации о ходе призыва кандидатов (ноябрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Уточнение информации с СП о ходе призыва кандидатов",
+    category: "П", priority: "normal", responsible: "ЗКВ-1",
     month: 11, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Адреса",
@@ -1900,19 +2405,16 @@ const SEED_TASKS: SeedTask[] = [
       "Сокращение команды (по письмам)",
     ],
   },
+
+  // ЕМ (ноябрь)
   {
-    title:       "Сверка личных планов постоянного состава (ноябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 11, dateFrom: 20, dateTo: 20,
-    subtasks: [],
   },
   {
-    title:       "Мобилизационная неделя (ноябрь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Мобилизационная неделя",
+    category: "МГ", priority: "normal", responsible: "КНР",
     month: 11, dateFrom: 20, dateTo: 20,
     subtasks: [
       "Расписаться в ГрОМР",
@@ -1920,50 +2422,125 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Проверка боевой подготовки (ноябрь)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
-    month: 11, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Проверка стенной печати (ноябрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 11, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Дисциплинарная практика за месяц (ноябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
-    month: 11, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Проведение подведения итогов роты (ноябрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
-    month: 11, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Подготовка материала для публикации новостей (ноябрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 11, dateFrom: 25, dateTo: 25,
-    subtasks: [],
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    month: 11, dateFrom: 20, dateTo: 20,
   },
   {
-    title:       "Организация мероприятий по проведению круглого стола",
-    category:    "НД",
-    priority:    "high",
-    responsible: "КВ-1",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 20, dateTo: 20,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Уточнение тетрадей ПДП",
+    category: "БП", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 11, dateFrom: 25, dateTo: 25,
+  }),
+  {
+    title: "Подготовка материала для публикации новостей на сайте ВАС, МО РФ",
+    category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Ежемесячное доведение приказа № 85дсп",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельный рапорт в ЗГТ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельная проверка САВЗ (с записью в журнал)",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Еженедельный рапорт о ГДП",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Анализ электронной почты",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Актуализация списка ВУЗов",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+  {
+    title: "Подготовка соглашений",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Сверка ПЭК, УПК, ВБ",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-1",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Ежемесячная ведомость получения денежного довольствия",
+    category: "ЕМ", priority: "normal", responsible: "КНР",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Утверждение графика ответственных",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+
+  // 28.11 НД  КВ-1
+  {
+    title: "Организация мероприятий по проведению круглого стола (ноябрь)",
+    category: "НД", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 28, dateTo: 28,
     subtasks: [
       "Пропуск по спискам и встреча посетителей",
@@ -1973,11 +2550,11 @@ const SEED_TASKS: SeedTask[] = [
       "Пригласить сотрудников НИЦ",
     ],
   },
+
+  // 29.11 У  КВ-1, КО-2
   {
-    title:       "Проведение тренировки торжественного увольнения",
-    category:    "У",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Проведение тренировки торжественного увольнения",
+    category: "У", priority: "normal", responsible: "КВ-1",
     month: 11, dateFrom: 29, dateTo: 29,
     subtasks: [
       "Подготовка стола (со скатертью)",
@@ -1987,10 +2564,21 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Проведение торжественного увольнения в запас",
-    category:    "У",
-    priority:    "critical",
-    responsible: "КВ-1",
+    title: "Проведение тренировки торжественного увольнения",
+    category: "У", priority: "normal", responsible: "КО-2",
+    month: 11, dateFrom: 29, dateTo: 29,
+    subtasks: [
+      "Подготовка стола (со скатертью)",
+      "Организация музыкального сопровождения",
+      "Подготовка выписок из приказов, погон, значков, грамот, писем, фотографий",
+      "Согласовать список посетителей (с паспортными данными)",
+    ],
+  },
+
+  // 30.11 У  КВ-1, СР
+  {
+    title: "Проведение торжественного увольнения",
+    category: "У", priority: "critical", responsible: "КВ-1",
     month: 11, dateFrom: 30, dateTo: 30,
     subtasks: [
       "Пропуск по спискам и встреча посетителей",
@@ -1999,10 +2587,20 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Инструктаж старших воинских команд (ноябрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Проведение торжественного увольнения",
+    category: "У", priority: "critical", responsible: "СР",
+    month: 11, dateFrom: 30, dateTo: 30,
+    subtasks: [
+      "Пропуск по спискам и встреча посетителей",
+      "Организация экскурсии для посетителей",
+      "Организация чайной зоны",
+    ],
+  },
+
+  // 30.11 П  КНР, КВ
+  {
+    title: "Инструктаж старших воинских команд (ноябрь)",
+    category: "П", priority: "high", responsible: "КНР",
     month: 11, dateFrom: 30, dateTo: 30,
     subtasks: [
       "Подготовка командировочных документов",
@@ -2011,18 +2609,40 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Отправка в командировку (ноябрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Инструктаж старших воинских команд (ноябрь)",
+    category: "П", priority: "high", responsible: "КВ-1",
     month: 11, dateFrom: 30, dateTo: 30,
-    subtasks: [],
+    subtasks: [
+      "Подготовка командировочных документов",
+      "Подготовка памяток",
+      "Ведомость инструктажа",
+    ],
   },
   {
-    title:       "Доклад в ГОМУ о проведении инструктажа (ноябрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Инструктаж старших воинских команд (ноябрь)",
+    category: "П", priority: "high", responsible: "КВ-2",
+    month: 11, dateFrom: 30, dateTo: 30,
+    subtasks: [
+      "Подготовка командировочных документов",
+      "Подготовка памяток",
+      "Ведомость инструктажа",
+    ],
+  },
+
+  // 30.11  КНР
+  {
+    title: "Отправка в командировку (ноябрь)",
+    category: "П", priority: "normal", responsible: "КНР",
+    month: 11, dateFrom: 30, dateTo: 30,
+  },
+  {
+    title: "Сбор данных о билетах (в обе стороны) для ДА и ННИЦ",
+    category: "П", priority: "normal", responsible: "КНР",
+    month: 11, dateFrom: 1, dateTo: 30,
+  },
+  {
+    title: "Доклад в ГОМУ о проведении инструктажа (ноябрь)",
+    category: "П", priority: "normal", responsible: "КНР",
     month: 11, dateFrom: 30, dateTo: 30,
     subtasks: [
       "Подготовить именной список",
@@ -2030,54 +2650,52 @@ const SEED_TASKS: SeedTask[] = [
       "Подготовить телеграмму",
     ],
   },
+];
 
-  // ══════════════════════════════════════════════
-  // ДЕКАБРЬ (month=12)
-  // ══════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// ДЕКАБРЬ (month = 12)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DECEMBER: SeedTask[] = [
+  // 01-05  КНР
   {
-    title:       "Подготовка графика отпусков на следующий год",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Подготовка графика отпусков на следующий год",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 5,
-    subtasks: [],
   },
   {
-    title:       "Распределение ответственности на праздники",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Распределение ответственности на праздники (декабрь)",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
+
+  // 01-10  КВ-2
   {
-    title:       "Снять с довольствия увольняемых в запас (декабрь)",
-    category:    "У",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Снять с довольствия увольняемых в запас (декабрь)",
+    category: "У", priority: "high", responsible: "КВ-2",
     month: 12, dateFrom: 1, dateTo: 10,
     subtasks: [
       "Сдать рапорта и выписки в СО и прод. службу",
       "Сдать 4 выписки об исключении (в ФЭС, в ОК, прод. службу и в дело)",
     ],
   },
+
+  // ЗКВ-2
   {
-    title:       "Сдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — декабрь",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сдача по учёту в журнале МНИ с составлением актов (ПЭВМ, USB, пропуска) — декабрь",
+    category: "ЗиТ", priority: "normal", responsible: "ЗКВ-2",
     month: 12, dateFrom: 1, dateTo: 10,
     subtasks: [
-      "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 16 шт.",
+      "ПЭВМ (в комплекте: сумка, мышь, ЗУ)",
       "USB-носители",
       "Электронные пропуска",
     ],
   },
+
+  // 01-10  КНР, СР
   {
-    title:       "Подготовка к инвентаризации",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Подготовка к инвентаризации (декабрь)",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
     subtasks: [
       "Техника",
@@ -2086,97 +2704,136 @@ const SEED_TASKS: SeedTask[] = [
     ],
   },
   {
-    title:       "Ознакомление с 2С (кабинет 5125б)",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Подготовка к инвентаризации (декабрь)",
+    category: "ПД", priority: "normal", responsible: "СР",
+    month: 12, dateFrom: 1, dateTo: 10,
+    subtasks: [
+      "Техника",
+      "КЭС",
+      "ЗГТ",
+    ],
+  },
+
+  // 12.12  КНР, КВ
+  {
+    title: "Ознакомление с 2С (кабинет 5125б)",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 12, dateTo: 12,
-    subtasks: [],
   },
   {
-    title:       "Подготовка к сдаче на классность",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Ознакомление с 2С (кабинет 5125б)",
+    category: "ПД", priority: "normal", responsible: "КВ-1",
+    month: 12, dateFrom: 12, dateTo: 12,
+  },
+  {
+    title: "Ознакомление с 2С (кабинет 5125б)",
+    category: "ПД", priority: "normal", responsible: "КВ-2",
+    month: 12, dateFrom: 12, dateTo: 12,
+  },
+
+  // 1-10  разные
+  {
+    title: "Подготовка к сдаче на классность",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasks: [
-      "Рапорт на выплату за командование личным составом",
-      "Рапорт на выплату за работу с ССГТ",
-      "Рапорт на ежемесячную премию",
-      "Рапорт на годовую премию (1010)",
-    ],
   },
   {
-    title:       "Подготовка документов по ФП (декабрь)",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Рапорт на выплату за командование личным составом",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasks: [
-      "Рапорта",
-      "Копии книжек",
-    ],
   },
   {
-    title:       "Квартальная проверка в моб. группе (декабрь)",
-    category:    "МГ",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Рапорт на выплату за работу с ССГТ",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
   {
-    title:       "Квартальная проверка службе ЗГТ (декабрь)",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Рапорт на ежемесячную премию",
+    category: "ПД", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 10,
-    subtasks: [],
   },
   {
-    title:       "Прием молодого пополнения (декабрь)",
-    category:    "П",
-    priority:    "critical",
-    responsible: "КНР",
+    title: "Рапорт на годовую премию (1010)",
+    category: "ПД", priority: "normal", responsible: "КНР",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+
+  // 1-10 ЗКВ, КО  — документы по ФП
+  {
+    title: "Подготовка документов по физической подготовке (рапорта, копии книжек)",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+  {
+    title: "Подготовка документов по физической подготовке (рапорта, копии книжек)",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+  {
+    title: "Подготовка документов по физической подготовке (рапорта, копии книжек)",
+    category: "БП", priority: "normal", responsible: "КО-2",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+
+  // 1-10  КНР
+  {
+    title: "Квартальная проверка в моб. группе (декабрь)",
+    category: "МГ", priority: "normal", responsible: "КНР",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+  {
+    title: "Квартальная проверка службе ЗГТ (декабрь)",
+    category: "ЗиТ", priority: "normal", responsible: "КНР",
+    month: 12, dateFrom: 1, dateTo: 10,
+  },
+
+  // 1-15 П  КНР, СР — приём молодого пополнения
+  {
+    title: "Приём молодого пополнения (декабрь)",
+    category: "П", priority: "critical", responsible: "КНР",
     month: 12, dateFrom: 1, dateTo: 15,
     subtasks: [
       "Рапорт на автомобильный транспорт",
       "Фотографирование воинской команды",
       "Медицинский осмотр",
-      "Копии паспорта и военного билета",
-      "Подготовить военные билеты и паспорта (бирки, жетоны)",
-      "Собрать ВУ, загран. паспорта, дипломы, ПЭК, УПК",
-      "Занести ПЭК в журнал учета",
+      "Сделать копии паспорта и военного билета",
+      "Собрать и подготовить военные билеты и паспорта (бирки, жетоны)",
+      "Собрать ВУ, загран. паспорта, дипломы (копии), ПЭК, УПК, карты МО, карты ПО, именные списки, маршрутные листы, акты проверки воинских команд, билеты",
+      "Занести ПЭК в журнал учёта",
       "Подготовить рапорт на сдачу документов",
-      "Проверить вещевое имущество",
-      "Проверить наличие банковских карт",
-      "Заполнить заявления для Алушты",
-      "Сдать в строевой отдел рапорт на все виды довольствия",
-      "Сдать в прод. службу 2 рапорта на котловое довольствие",
-      "Подготовить 4 выписки о включении в ВАС",
-      "Определить спальные места и место хранения вещей",
-      "Выдать постельное белье",
+      "Проверить вещевое имущество (раздаточная ведомость, вещевой аттестат, акт приёма)",
+      "Проверить наличие банковских карт у прибывших",
+      "Заполнить заявления для Алушты и сдать в отдел кадров",
+      "Сдать в строевой отдел рапорт на все виды довольствия, копии УПК и ВБ",
+      "Сдать в продовольственную службу 2 рапорта на котловое довольствие и продовольственные аттестаты",
+      "Подготовить 4 выписки о включении в ВАС (ОК, прод.сл., вещ.сл., в дело)",
+      "Определить место хранения личных вещей и спальные места",
+      "Выдать постельное бельё",
       "Провести инструктаж",
       "Организовать питание и помывку",
+      "Спланировать мероприятия (эссе, анкеты, ОВУ)",
       "Провести первичную беседу",
       "Установить связь с родителями",
       "Составить рапорт о назначении на должность",
+      "Сделать и заверить записи о включении в списки ВАС и должности",
       "Получить в лазарете профилактические лекарства",
     ],
   },
   {
-    title:       "Отправить 2-е экз. именных списков в ВК субъектов (декабрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Приём молодого пополнения (декабрь)",
+    category: "П", priority: "critical", responsible: "СР",
+    month: 12, dateFrom: 1, dateTo: 15,
+  },
+
+  // 15.12  КВ-2
+  {
+    title: "Отправить 2-е экз. именных списков в ВК субъектов (декабрь)",
+    category: "П", priority: "normal", responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовить доклад в ГУС и ГОМУ о результатах набора МП (декабрь)",
-    category:    "П",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовить доклад в ГУС и ГОМУ о результатах набора МП (декабрь)",
+    category: "П", priority: "high", responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
     subtasks: [
       "Телеграмма в ГОМУ",
@@ -2185,188 +2842,169 @@ const SEED_TASKS: SeedTask[] = [
       "Письмо-доклад для НГУС",
     ],
   },
+
+  // 15.12  КВ-2
   {
-    title:       "Внести данные по увольнению и призыву в документацию УЛС",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Внести данные по увольнению и призыву в документацию УЛС (декабрь)",
+    category: "У", priority: "normal", responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
     subtasks: [
-      "Книга алфавитного учета",
+      "Книга алфавитного учёта",
       "Книга УЛС (Форма № 1)",
-      "Именные списки взводов (Форма № 1-а)",
+      "Именные списки взводов (Форма №1-а)",
       "Книга ШДУ (Форма № 4)",
       "ШДК",
       "ШДС",
     ],
   },
+
+  // 15.12  КВ-1
   {
-    title:       "Донесение 47 ОМУ о составе численности л/с",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Донесение 47 ОМУ о составе численности л/с (декабрь)",
+    category: "ПД", priority: "normal", responsible: "КВ-1",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasks: [],
   },
+
+  // 15.12  КВ-2
   {
-    title:       "Подготовить приказ на агитацию НР и ВПО ВАС (декабрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Подготовить приказ на агитацию НР и ВПО ВАС (декабрь)",
+    category: "А", priority: "normal", responsible: "КВ-2",
     month: 12, dateFrom: 15, dateTo: 15,
-    subtasks: [],
   },
   {
-    title:       "Подготовить план мероприятий по агитации (декабрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 12, dateFrom: 15, dateTo: 20,
-    subtasks: [],
+    title: "Подготовить план мероприятий по агитации, заверенный у НВАС (декабрь)",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 12, dateFrom: 15, dateTo: 15,
   },
   {
-    title:       "Отправить заявку на выдачу удостоверений в ГУС (декабрь)",
-    category:    "А",
-    priority:    "normal",
-    responsible: "КВ-2",
-    month: 12, dateFrom: 15, dateTo: 20,
-    subtasks: [],
+    title: "Подготовить предложения в состав комиссии в Технополис ЭРА",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 12, dateFrom: 15, dateTo: 15,
   },
   {
-    title:       "Сверка личных планов постоянного состава (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Отправить заявку на выдачу удостоверений в ГУС (pdf, doc) — декабрь",
+    category: "А", priority: "normal", responsible: "КВ-2",
+    month: 12, dateFrom: 15, dateTo: 15,
+  },
+
+  // ЕМ (декабрь) — 18.12
+  {
+    title: "Сверка личных планов постоянного состава",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Сверка служебных карточек (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка служебных карточек",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Сверка листов бесед (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Сверка листов бесед",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Уточнение плана публикаций (декабрь)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Уточнение плана публикаций на следующий месяц и проверка статей",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Подготовка ИРС (декабрь)",
-    category:    "Н",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Подготовка ИРС",
+    category: "Н", priority: "normal", responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Проверка индивидуальных планов (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "КВ-2",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Проверка боевой подготовки (декабрь)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "ЗКВ-1",
+    title: "Проверка индивидуальных планов",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Проверка стенной печати (декабрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КНР",
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-1",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Дисциплинарная практика за месяц (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ЗКВ-2",
+    title: "Проверка боевой подготовки",
+    category: "БП", priority: "normal", responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Проведение подведения итогов роты (декабрь)",
-    category:    "ЕМ",
-    priority:    "normal",
-    responsible: "ПС",
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "КНР",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
   {
-    title:       "Подготовка материала для публикации новостей (декабрь)",
-    category:    "ВПР",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Дисциплинарная практика за месяц",
+    category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 12, dateFrom: 18, dateTo: 18,
-    subtasks: [],
   },
+  ...ps({
+    title: "Проведение подведения итогов роты за месяц",
+    category: "ЕМ", priority: "normal",
+    month: 12, dateFrom: 18, dateTo: 18,
+  }),
   {
-    title:       "Организация 2 этапа ПМП (декабрь)",
-    category:    "ПД",
-    priority:    "high",
-    responsible: "ПС",
+    title: "Подготовка материала для публикации новостей на сайте ВАС",
+    category: "ВПР", priority: "normal", responsible: "КВ-1",
+    month: 12, dateFrom: 18, dateTo: 18,
+  },
+
+  // 15-30  ПС → все — 2 этап ПМП
+  ...ps({
+    title: "Организация 2 этапа ПМП (декабрь)",
+    category: "ПД", priority: "high",
     month: 12, dateFrom: 15, dateTo: 30,
     subtasks: [
-      "Барьерный медицинский осмотр",
-      "Профессионально-психологическое тестирование",
-      "КПЗ по БВС (вводный, первичный, 12 тем ТБ, фотоотчет)",
-      "Спланировать изоляцию",
+      "Провести барьерный медицинский осмотр",
+      "Провести проф-псих тестирование",
+      "Провести КПЗ по БВС во взаимодействии с 4 кафедрой",
+      "Спланировать изоляцию (на решение командира роты)",
       "Подготовить расписание",
       "Подготовить материалы занятий",
-      "Провести профессиональные собеседования (16)",
-      "Предварительное распределение научных руководителей",
+      "Подготовить доклады и презентации по науке старших",
+      "Провести проф. собеседования (16)",
+      "Предварительное распределение научных руководителей и направлений",
       "Разработка Боевого листа на призыв",
       "Подготовить ведомость допуска в бассейн",
       "Фотографирование личного состава",
       "Подготовка анкет на оформление 3 формы допуска",
       "Подготовка подписок о неразглашении",
+      "Подать рапорт о назначении на должности",
+      "Подать данные приказов об назначении в ДП ЗГТ",
+      "Заполнить электронную книгу алфавитного учёта",
+      "Оформить служебные карточки",
+      "Согласовать выдачу банковских карт",
     ],
-  },
+  }),
+
+  // Приказ по ОВП  КВ-2
   {
-    title:       "Подготовить приказ о проведении общевойсковой подготовки (декабрь)",
-    category:    "БП",
-    priority:    "normal",
-    responsible: "КВ-1",
-    month: 12, dateFrom: 15, dateTo: 30,
-    subtasks: [],
+    title: "Подготовить приказ о проведении общевойсковой подготовки (декабрь)",
+    category: "БП", priority: "normal", responsible: "КВ-2",
+    month: 12, dateFrom: 1, dateTo: 31,
   },
+
+  // 30.12 ЗиТ  КВ-1
   {
-    title:       "Выдача по учету в журнале МНИ (ПЭВМ, USB, пропуска) — 30 декабря",
-    category:    "ЗиТ",
-    priority:    "normal",
-    responsible: "КВ-1",
+    title: "Выдача по учёту в журнале МНИ с составлением актов (ПЭВМ, USB, пропуска) — 30.12",
+    category: "ЗиТ", priority: "normal", responsible: "КВ-1",
     month: 12, dateFrom: 30, dateTo: 30,
     subtasks: [
-      "ПЭВМ (в комплекте: сумка, мышь, ЗУ) — 24 шт.",
+      "ПЭВМ (в комплекте: сумка, мышь, ЗУ)",
       "USB-носители",
       "Электронные пропуска",
     ],
   },
-  {
-    title:       "Организация Нового года",
-    category:    "ПД",
-    priority:    "normal",
-    responsible: "ПС",
+
+  // 15-30  ПС → все — организация Нового года
+  ...ps({
+    title: "Организация Нового года",
+    category: "ПД", priority: "normal",
     month: 12, dateFrom: 15, dateTo: 30,
     subtasks: [
       "Ёлка",
@@ -2376,56 +3014,74 @@ const SEED_TASKS: SeedTask[] = [
       "Увольнения",
       "Культурный досуг",
     ],
-  },
+  }),
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ИТОГОВЫЙ МАССИВ И ЗАПИСЬ В БД
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ALL_TASKS: SeedTask[] = [
+  ...JANUARY,
+  ...FEBRUARY,
+  ...MARCH,
+  ...APRIL,
+  ...MAY,
+  ...JUNE,
+  ...JULY,
+  ...AUGUST,
+  ...SEPTEMBER,
+  ...OCTOBER,
+  ...NOVEMBER,
+  ...DECEMBER,
 ];
 
 async function seed() {
-  console.log("🌱 Полная загрузка данных из Годового плана...");
-  console.log(`📋 Всего задач: ${SEED_TASKS.length}`);
+  console.log("🌱 ПОЛНЫЙ ГОДОВОЙ ПЛАН: Январь–Декабрь");
+  console.log(`📋 Задач к вставке: ${ALL_TASKS.length}`);
 
   try {
-    // Очищаем старые данные
+    // Полная очистка
     await db.delete(subtasks);
     await db.delete(tasks);
     console.log("🗑️  Старые данные очищены");
 
-    // Вставляем задачи
-    const taskValues = SEED_TASKS.map(t => ({
-      title:       t.title,
-      category:    t.category,
-      priority:    t.priority,
-      responsible: t.responsible,
-      month:       t.month,
-      dateFrom:    t.dateFrom,
-      dateTo:      t.dateTo,
-    }));
-
-    const inserted = await db
-      .insert(tasks)
-      .values(taskValues)
-      .returning({ id: tasks.id, title: tasks.title });
-
-    console.log(`✅ Вставлено ${inserted.length} задач`);
-
-    // Вставляем подзадачи
-    let subtaskCount = 0;
-    for (let i = 0; i < SEED_TASKS.length; i++) {
-      const subs = SEED_TASKS[i].subtasks ?? [];
-      if (subs.length === 0) continue;
-
-      const taskId = inserted[i].id;
-      const subValues = subs.map((title, order) => ({
-        taskId,
-        title,
-        order,
+    // Вставка задач батчами по 20
+    const inserted: { id: number }[] = [];
+    for (let i = 0; i < ALL_TASKS.length; i += 20) {
+      // Создаем типизированный батч, который гарантированно подходит для вставки в tasks
+      const batch: (typeof tasks.$inferInsert)[] = ALL_TASKS.slice(i, i + 20).map(t => ({
+        title: t.title,
+        category: t.category,
+        priority: t.priority,
+        // Используем as any только если уверены, что строки совпадают с enum в БД
+        // Это поможет обойти чрезмерно строгую проверку TS на пересечение типов
+        responsible: t.responsible as any,
+        month: t.month,
+        dateFrom: t.dateFrom,
+        dateTo: t.dateTo,
       }));
+      const rows = await db.insert(tasks).values(batch).returning();
 
-      await db.insert(subtasks).values(subValues);
+
+      inserted.push(...rows);
+
+    }
+    console.log(`✅ Вставлено задач: ${inserted.length}`);
+
+    // Вставка подзадач
+    let subtaskCount = 0;
+    for (let i = 0; i < ALL_TASKS.length; i++) {
+      const subs = ALL_TASKS[i].subtasks ?? [];
+      if (!subs.length) continue;
+      const taskId = inserted[i].id;
+      await db.insert(subtasks).values(
+        subs.map((title, order) => ({ taskId, title, order }))
+      );
       subtaskCount += subs.length;
     }
-
-    console.log(`✅ Вставлено ${subtaskCount} подзадач`);
-    console.log("🎉 Готово!");
+    console.log(`✅ Вставлено подзадач: ${subtaskCount}`);
+    console.log("🎉 Полный годовой план загружен успешно!");
 
   } catch (error) {
     console.error("❌ Ошибка:", error);

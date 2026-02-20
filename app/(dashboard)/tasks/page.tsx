@@ -33,7 +33,7 @@ const STATUSES = [
   { value: "cancelled", label: "Отменено", color: "#ef4444" },
 ];
 
-const RESPONSIBLES = ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "ПС", "СР"] as const;
+const RESPONSIBLES = ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "КО-2", "СР"] as const;
 
 const MONTHS_SHORT = ["", "ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
 

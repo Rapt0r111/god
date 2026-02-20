@@ -13,7 +13,7 @@ type Rank =
   | "Сержант" | "Младший сержант" | "Рядовой";
 
 type Status = "active" | "on-leave" | "sick" | "detached";
-type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2";
+type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2"| "КО-2";
 
 interface Person {
   id: string;
@@ -78,11 +78,12 @@ const MOCK_PERSONNEL: Person[] = [
   { id: "4", lastName: "Тарасенко", firstName: "Станислав Евгеньевич", patronymic: "КНР", rank: "Капитан", role: "Командир научной роты", code: "КНР", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
   { id: "5", lastName: "Антипов", firstName: "Егор Викторович", patronymic: "ЗКВ-1", rank: "Сержант", role: "Зам. командира 1 взвода", code: "ЗКВ-1", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
   { id: "6", lastName: "Ермаков", firstName: "Владимир Александрович", patronymic: "ЗКВ-2", rank: "Старший сержант", role: "Зам. командира 2 взвода", code: "ЗКВ-2", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
+  { id: "7", lastName: "Арсёнов", firstName: "Алексей Владимирович", patronymic: "КО-2", rank: "Сержант", role: "Командир 2 отделения", code: "КО-2", status: "active", tasks: 0, tasksDone: 0, specialty: "Должность" },
 ];
 
 // ── Главный компонент ──────────────────────────────────────────────────
 
-const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"];
+const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2", "КО-2"];
 
 const TASK_DETAILS_MOCK: Record<number, { notes: string }> = {
   1: { notes: "Контрольная точка: проверить комплект документов перед закрытием." },
