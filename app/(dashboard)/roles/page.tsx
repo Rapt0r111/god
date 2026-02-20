@@ -12,6 +12,7 @@ type Rank =
   | "Сержант" | "Младший сержант" | "Рядовой";
 
 type Status = "active" | "on-leave" | "sick" | "detached";
+type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2";
 
 interface Person {
   id:         string;
@@ -20,7 +21,7 @@ interface Person {
   patronymic: string;
   rank:       Rank;
   role:       string;
-  code:       string;
+  code:       PersonnelCode;
   status:     Status;
   phone?:     string;
   tasks:      number;
@@ -71,14 +72,21 @@ const MOCK_PERSONNEL: Person[] = [
 
 // ── Главный компонент ──────────────────────────────────────────────────
 
+const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"];
+
 export default function RolesPage() {
   const [search,       setSearch      ] = useState("");
   const [filterStatus, setFilterStatus] = useState<Status | "all">("all");
   const [selected,     setSelected    ] = useState<Person | null>(null);
   const [viewMode,     setViewMode    ] = useState<"grid" | "list">("grid");
 
+  const basePersonnel = useMemo(
+    () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
+    [],
+  );
+
   const personnel = useMemo(() => {
-    let list = [...MOCK_PERSONNEL];
+    let list = [...basePersonnel];
     if (filterStatus !== "all") list = list.filter(p => p.status === filterStatus);
     if (search) {
       const q = search.toLowerCase();
@@ -91,16 +99,16 @@ export default function RolesPage() {
       );
     }
     return list;
-  }, [search, filterStatus]);
+  }, [basePersonnel, search, filterStatus]);
 
   const stats = useMemo(() => ({
-    total:    MOCK_PERSONNEL.length,
-    active:   MOCK_PERSONNEL.filter(p => p.status === "active").length,
-    onLeave:  MOCK_PERSONNEL.filter(p => p.status === "on-leave").length,
-    sick:     MOCK_PERSONNEL.filter(p => p.status === "sick").length,
-    detached: MOCK_PERSONNEL.filter(p => p.status === "detached").length,
-    tasksBusy:MOCK_PERSONNEL.filter(p => p.tasks > 0).length,
-  }), []);
+    total:    basePersonnel.length,
+    active:   basePersonnel.filter(p => p.status === "active").length,
+    onLeave:  basePersonnel.filter(p => p.status === "on-leave").length,
+    sick:     basePersonnel.filter(p => p.status === "sick").length,
+    detached: basePersonnel.filter(p => p.status === "detached").length,
+    tasksBusy:basePersonnel.filter(p => p.tasks > 0).length,
+  }), [basePersonnel]);
 
   const STAT_ITEMS = [
     { label: "ВСЕГО Л/С",  value: stats.total,    color: "#93c5fd" },
