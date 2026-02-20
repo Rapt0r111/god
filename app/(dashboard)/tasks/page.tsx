@@ -267,15 +267,14 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
         )}
       </div>
 
-      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }>
-        <summary className="cursor-pointer list-none flex items-center justify-between">
-          <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>        <summary className="cursor-pointer list-none flex items-center justify-between">
+        <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
             // ФИЛЬТРЫ ЗАДАЧ
-          </span>
-          <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
-            {activeFilters > 0 ? `Активно: ${activeFilters}` : "Скрыты"}
-          </span>
-        </summary>
+        </span>
+        <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
+          {activeFilters > 0 ? `Активно: ${activeFilters}` : "Скрыты"}
+        </span>
+      </summary>
 
         <div className="mt-3 space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
