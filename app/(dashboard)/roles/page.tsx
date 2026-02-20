@@ -724,7 +724,16 @@ function PersonModal({
               </div>
             </div>
             <div className="rounded-xl p-3 min-h-0 flex flex-col" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-[10px] font-mono mb-2 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>Задачи личного состава</p>
+              <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+                <p className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>Задачи личного состава</p>
+                <a
+                  href={`/tasks?responsible=${encodeURIComponent(person.code)}`}
+                  className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
+                  style={{ color: "#93c5fd", border: "1px solid rgba(147,197,253,0.35)", background: "rgba(147,197,253,0.08)" }}
+                >
+                  в журнал
+                </a>
+              </div>
               {loadingTasks ? (
                 <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Загрузка...</p>
               ) : tasks.length === 0 ? (

@@ -33,6 +33,8 @@ const STATUSES = [
   { value: "cancelled", label: "Отменено", color: "#ef4444" },
 ];
 
+const RESPONSIBLES = ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "ПС", "СР"] as const;
+
 const MONTHS_SHORT = ["", "ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
 
 type ActiveFilters = {
@@ -41,6 +43,7 @@ type ActiveFilters = {
   status: string;
   month: number;
   search: string;
+  responsible: string;
   criticalOnly: boolean;
   monthWindowAuto: boolean;
   currentMonth: number;
@@ -77,7 +80,7 @@ function sortTasksForList<T extends { status: string; priority: string; month: n
   });
 }
 
-function updateTaskList<T extends { category: string; priority: string; status: string; month: number; title: string; description: string | null; dateTo: number; dateFrom: number }>(
+function updateTaskList<T extends { category: string; priority: string; status: string; month: number; title: string; description: string | null; dateTo: number; dateFrom: number; responsible: string }>(
   source: T[],
   activeFilters: ActiveFilters,
 ) {
@@ -97,6 +100,7 @@ function updateTaskList<T extends { category: string; priority: string; status: 
   if (activeFilters.category) list = list.filter((t) => t.category === activeFilters.category);
   if (activeFilters.priority) list = list.filter((t) => t.priority === activeFilters.priority);
   if (activeFilters.status) list = list.filter((t) => t.status === activeFilters.status);
+  if (activeFilters.responsible) list = list.filter((t) => t.responsible === activeFilters.responsible);
   if (activeFilters.month) list = list.filter((t) => t.month === activeFilters.month);
 
   if (activeFilters.search) {
@@ -120,6 +124,7 @@ interface PageProps {
     status?: string;
     month?: string;
     q?: string;
+    responsible?: string;
     criticalOnly?: string;
     autoMonthWindow?: string;
   }>;
@@ -132,6 +137,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const filterStat = sp.status ?? "";
   const filterMonth = sp.month ? parseInt(sp.month) : 0;
   const filterQ = sp.q ?? "";
+  const filterResponsible = RESPONSIBLES.includes((sp.responsible ?? "") as typeof RESPONSIBLES[number]) ? (sp.responsible ?? "") : "";
   const criticalOnly = sp.criticalOnly === "1";
   const currentMonth = new Date().getMonth() + 1;
   const autoMonthWindowDisabled = sp.autoMonthWindow === "0";
@@ -148,6 +154,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
     status: filterStat,
     month: filterMonth,
     search: filterQ,
+    responsible: filterResponsible,
     criticalOnly,
     monthWindowAuto,
     currentMonth,
@@ -161,7 +168,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const critical = allTasks.filter(t => isTaskDashboardCritical(t)).length;
 
   // Active filters count (for badge)
-  const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, criticalOnly ? "criticalOnly" : "", monthWindowAuto ? "monthWindowAuto" : ""].filter(Boolean).length;
+  const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, filterResponsible, criticalOnly ? "criticalOnly" : "", monthWindowAuto ? "monthWindowAuto" : ""].filter(Boolean).length;
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -189,6 +196,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
         filterStat={filterStat}
         filterMonth={filterMonth}
         filterQ={filterQ}
+        filterResponsible={filterResponsible}
         activeFilters={activeFiltersCount}
         criticalOnly={criticalOnly}
         monthWindowAuto={monthWindowAuto}
@@ -210,9 +218,9 @@ function buildUrl(params: Record<string, string | number>) {
   return "/tasks?" + entries.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
 }
 
-function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, activeFilters, criticalOnly, monthWindowAuto }: {
+function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, filterResponsible, activeFilters, criticalOnly, monthWindowAuto }: {
   filterCat: string; filterPri: string; filterStat: string;
-  filterMonth: number; filterQ: string; activeFilters: number; criticalOnly: boolean; monthWindowAuto: boolean;
+  filterMonth: number; filterQ: string; filterResponsible: string; activeFilters: number; criticalOnly: boolean; monthWindowAuto: boolean;
 }) {
   const base = {
     category: filterCat,
@@ -220,6 +228,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
     status: filterStat,
     month: filterMonth,
     q: filterQ,
+    responsible: filterResponsible,
     criticalOnly: criticalOnly ? 1 : 0,
     autoMonthWindow: monthWindowAuto ? "" : "0",
   };
@@ -233,6 +242,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
           {filterPri && <input type="hidden" name="priority" value={filterPri} />}
           {filterStat && <input type="hidden" name="status" value={filterStat} />}
           {filterMonth > 0 && <input type="hidden" name="month" value={filterMonth} />}
+          {filterResponsible && <input type="hidden" name="responsible" value={filterResponsible} />}
           {criticalOnly && <input type="hidden" name="criticalOnly" value="1" />}
           {!monthWindowAuto && <input type="hidden" name="autoMonthWindow" value="0" />}
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>⌕</span>
@@ -257,7 +267,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
         )}
       </div>
 
-      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }} open={activeFilters > 0}>
+      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }>
         <summary className="cursor-pointer list-none flex items-center justify-between">
           <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
             // ФИЛЬТРЫ ЗАДАЧ
@@ -268,20 +278,20 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
         </summary>
 
         <div className="mt-3 space-y-3">
-          {monthWindowAuto && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={{ color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }}>
-                Авто-период: предыдущий · текущий · следующий месяц
-              </span>
-              <a
-                href={buildUrl({ ...base, autoMonthWindow: "0" })}
-                className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
-                style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.03)" }}
-              >
-                отключить
-              </a>
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={monthWindowAuto
+              ? { color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }
+              : { color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.03)" }}>
+              Авто-период: предыдущий · текущий · следующий месяц
+            </span>
+            <a
+              href={buildUrl({ ...base, autoMonthWindow: monthWindowAuto ? "0" : "" })}
+              className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
+              style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.03)" }}
+            >
+              {monthWindowAuto ? "отключить" : "включить"}
+            </a>
+          </div>
 
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Быстрый фильтр:</span>
@@ -353,6 +363,27 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
                       background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.28)",
                     }}>
                     {m}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Личный состав:</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {RESPONSIBLES.map((responsible) => {
+                const active = filterResponsible === responsible;
+                const url = buildUrl({ ...base, responsible: active ? "" : responsible });
+                return (
+                  <a key={responsible} href={url}
+                    className="px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
+                    style={active ? {
+                      background: "rgba(59,130,246,0.18)", border: "1px solid rgba(59,130,246,0.45)", color: "#93c5fd",
+                    } : {
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)",
+                    }}>
+                    {responsible}
                   </a>
                 );
               })}
