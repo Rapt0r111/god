@@ -9,7 +9,9 @@ export const priorityEnum = pgEnum("priority", ["critical", "high", "normal"]);
 export const statusEnum = pgEnum("status", ["pending", "in_progress", "done", "cancelled"]);
 export const categoryEnum = pgEnum("category", ["Н", "А", "БП", "ПД", "ВПР", "У", "П", "ЗиТ", "ЕМ", "НД", "МГ"]);
 export const frequencyEnum = pgEnum("frequency", ["once", "weekly", "monthly", "quarterly", "yearly"]);
-export const roleEnum = pgEnum("role", ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "ПС", "СР"]);
+// КО-2 добавлен — командир 2 отделения (ноябрь: увольнение)
+// ПС удалён — заменяется на все роли: КНР, КВ-1, КВ-2, ЗКВ-1, ЗКВ-2, СР, КО-2
+export const roleEnum = pgEnum("role", ["КНР", "КВ-1", "КВ-2", "ЗКВ-1", "ЗКВ-2", "СР", "КО-2"]);
 
 // ─── Пользователи ────────────────────────────────
 export const users = pgTable("users", {
@@ -85,12 +87,10 @@ export type TaskWithSubtasks = Task & {
   subtasks: Subtask[];
 };
 
-// ─── ИСПРАВЛЕННЫЕ ОТНОШЕНИЯ ──────────────────────
+// ─── Отношения ──────────────────────────────────
 
-// 1. Отношения для задач
 export const tasksRelations = relations(tasks, ({ many }) => ({
-  // Называем СТРОГО именем таблицы (subtasks), а не subtasks!
-  subtasks: many(subtasks), 
+  subtasks: many(subtasks),
 }));
 
 export const subtasksRelations = relations(subtasks, ({ one }) => ({
