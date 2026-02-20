@@ -83,6 +83,12 @@ const MOCK_PERSONNEL: Person[] = [
 
 const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"];
 
+const TASK_DETAILS_MOCK: Record<number, { notes: string }> = {
+  1: { notes: "Контрольная точка: проверить комплект документов перед закрытием." },
+  2: { notes: "Сверить исполнителей и дедлайны с планом роты." },
+  3: { notes: "Подготовить сводку для доклада командиру." },
+};
+
 export default function RolesPage() {
   const [search,       setSearch      ] = useState("");
   const [filterStatus, setFilterStatus] = useState<Status | "all">("all");
@@ -599,6 +605,12 @@ function PersonModal({
   const [tasks, setTasks] = useState<AssignedTask[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [selectedSubtaskId, setSelectedSubtaskId] = useState<number | null>(null);
+
+  const openTaskDetails = (taskId: number) => {
+    setSelectedTaskId(taskId);
+    setSelectedSubtaskId(null);
+  };
 
   const loadedTotalTasks = tasks.length;
   const loadedDoneTasks = tasks.filter((t) => t.status === "done").length;
@@ -619,6 +631,7 @@ function PersonModal({
   }, [person.code]);
 
   const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null;
+  const selectedSubtask = selectedTask?.subtasks.find((sub) => sub.id === selectedSubtaskId) ?? null;
 
   return (
     <div
@@ -680,8 +693,12 @@ function PersonModal({
                     const doneSubs = task.subtasks.filter((s) => s.status === "done").length;
                     const cardActive = selectedTaskId === task.id;
                     return (
-                      <button key={task.id} onClick={() => setSelectedTaskId(task.id)}
-                        className="w-full text-left rounded-lg p-2"
+                      <button key={task.id} onClick={() => openTaskDetails(task.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openTaskDetails(task.id); } }}
+                        data-task-id={task.id}
+                        role="button"
+                        tabIndex={0}
+                        className="w-full text-left rounded-lg p-2 cursor-pointer transition-all duration-200"
                         style={{
                           border: cardActive ? "1px solid rgba(59,130,246,0.5)" : "1px solid rgba(255,255,255,0.08)",
                           background: cardActive ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.02)",
@@ -705,7 +722,7 @@ function PersonModal({
               </div>
             ) : (
               <div className="space-y-3 h-full overflow-y-auto pr-1">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <h4 className="text-[15px] font-semibold" style={{ color: "#e8f0fe" }}>{selectedTask.title}</h4>
                   <span className="text-[10px] font-mono px-2 py-1 rounded" style={{ color: "#93c5fd", border: "1px solid rgba(147,197,253,0.35)", background: "rgba(147,197,253,0.08)" }}>
                     {selectedTask.category} · {PRIORITY_LABEL[selectedTask.priority]}
@@ -734,6 +751,12 @@ function PersonModal({
                     );
                   })()}
                 </div>
+                <div className="rounded-lg p-2.5" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                  <p className="text-[9px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.3)" }}>Комментарий</p>
+                  <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.72)" }}>
+                    {TASK_DETAILS_MOCK[selectedTask.id]?.notes ?? "Нет дополнительной информации."}
+                  </p>
+                </div>
                 <div>
                   <p className="text-[10px] font-mono mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>Детализация выполнения</p>
                   {selectedTask.subtasks.length === 0 ? (
@@ -741,7 +764,15 @@ function PersonModal({
                   ) : (
                     <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
                       {selectedTask.subtasks.map((sub, idx) => (
-                        <div key={sub.id} className="rounded-lg px-2.5 py-2" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                        <button key={sub.id}
+                          onClick={() => { setSelectedSubtaskId(sub.id); openTaskDetails(selectedTask.id); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedSubtaskId(sub.id); openTaskDetails(selectedTask.id); } }}
+                          data-task-id={selectedTask.id}
+                          data-subtask-id={sub.id}
+                          role="button"
+                          tabIndex={0}
+                          className="w-full rounded-lg px-2.5 py-2 text-left cursor-pointer transition-all duration-200"
+                          style={{ border: selectedSubtaskId === sub.id ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.08)", background: selectedSubtaskId === sub.id ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.02)" }}>
                           <div className="flex items-center justify-between gap-3">
                             <span className="text-[11px] truncate" style={{ color: "#e8f0fe" }}>
                               {sub.title || `Подзадача #${idx + 1}`}
@@ -755,8 +786,13 @@ function PersonModal({
                               {sub.description}
                             </p>
                           )}
-                        </div>
+                        </button>
                       ))}
+                    </div>
+                  )}
+                  {selectedSubtask && (
+                    <div className="mt-2 rounded-lg p-2" style={{ border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.08)" }}>
+                      <p className="text-[9px] font-mono" style={{ color: "#93c5fd" }}>Выбрана подзадача #{selectedSubtask.id}</p>
                     </div>
                   )}
                 </div>

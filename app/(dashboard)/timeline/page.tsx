@@ -35,11 +35,19 @@ const STATUS_LABEL: Record<Status, string> = {
   cancelled: "ОТМЕНЕНО",
 };
 
+const TASK_DETAILS_MOCK: Record<number, { notes: string }> = {
+  1: { notes: "Ключевая задача месяца: контроль на ежедневных сверках." },
+  2: { notes: "Требуется подтверждение выполнения ответственным." },
+};
+
 export default function TimelinePage() {
   const currentMonth = new Date().getMonth() + 1;
   const [tasks, setTasks] = useState<TimelineTask[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const openTaskDetails = (taskId: number) => setSelectedTaskId(taskId);
 
   const loadTasks = async () => {
     const rows = await getTimelineTasks();
@@ -69,6 +77,7 @@ export default function TimelinePage() {
   );
 
   const doneCount = monthTasks.filter((t) => t.status === "done").length;
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId) ?? null;
 
   const markDone = (id: number) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "done" } : t)));
@@ -123,7 +132,14 @@ export default function TimelinePage() {
               const width = ((task.dateTo - task.dateFrom + 1) / DAYS_IN_MONTH[selectedMonth]) * 100;
               const color = PRIORITY_COLOR[task.priority];
               return (
-                <div key={task.id} className="rounded-lg p-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div key={task.id}
+                  data-task-id={task.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openTaskDetails(task.id)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openTaskDetails(task.id); } }}
+                  className="rounded-lg p-2 cursor-pointer transition-all duration-200"
+                  style={{ background: selectedTaskId === task.id ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.03)", border: selectedTaskId === task.id ? "1px solid rgba(59,130,246,0.45)" : "1px solid rgba(255,255,255,0.1)", boxShadow: selectedTaskId === task.id ? "0 6px 20px rgba(59,130,246,0.18)" : "none" }}>
                   <div className="mb-1 flex items-center gap-2 text-[11px]">
                     <span style={{ color }}>{task.category}</span>
                     <span style={{ color: "#e8f0fe" }}>{task.title}</span>
@@ -140,7 +156,7 @@ export default function TimelinePage() {
                   <div className="mt-2 flex justify-end">
                     <button
                       disabled={task.status === "done" || isPending}
-                      onClick={() => markDone(task.id)}
+                      onClick={(e) => { e.stopPropagation(); markDone(task.id); }}
                       className="rounded px-2 py-1 text-[10px] font-mono"
                       style={{
                         border: "1px solid rgba(16,185,129,0.35)",
@@ -157,6 +173,52 @@ export default function TimelinePage() {
           </div>
         )}
       </div>
+      {selectedTask && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.52)", backdropFilter: "blur(6px)" }}
+          onClick={() => setSelectedTaskId(null)}
+        >
+          <div
+            className="w-full max-w-xl rounded-2xl p-5"
+            style={{
+              background: "linear-gradient(145deg, rgba(20,30,52,0.9), rgba(9,14,28,0.88))",
+              border: "1px solid rgba(255,255,255,0.14)",
+              backdropFilter: "blur(24px)",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.65)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <h3 className="text-[16px] font-semibold" style={{ color: "#f8fbff" }}>{selectedTask.title}</h3>
+              <button onClick={() => setSelectedTaskId(null)} className="text-[16px]" style={{ color: "rgba(255,255,255,0.6)" }}>×</button>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <Meta label="Статус" value={STATUS_LABEL[selectedTask.status]} />
+              <Meta label="Ответственный" value={selectedTask.responsible} />
+              <Meta label="Срок" value={`${selectedTask.dateFrom}-${selectedTask.dateTo}/${selectedTask.month}`} />
+              <Meta label="Категория" value={`${selectedTask.category} · ${selectedTask.priority}`} />
+            </div>
+            <div className="rounded-lg p-2.5" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
+              <p className="text-[10px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>Комментарий</p>
+              <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.72)" }}>
+                {TASK_DETAILS_MOCK[selectedTask.id]?.notes ?? "Подробная информация будет добавлена после синхронизации данных."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
+function Meta({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg p-2" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+      <p className="text-[9px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.35)" }}>{label}</p>
+      <p className="text-[11px]" style={{ color: "#e8f0fe" }}>{value}</p>
+    </div>
+  );
+}
+
