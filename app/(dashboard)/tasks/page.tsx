@@ -158,7 +158,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
   // stats
   const total = allTasks.length;
   const done = allTasks.filter(t => t.status === "done").length;
-  const critical = allTasks.filter(t => t.priority === "critical" && t.status !== "done").length;
+  const critical = allTasks.filter(t => isTaskDashboardCritical(t)).length;
 
   // Active filters count (for badge)
   const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, criticalOnly ? "criticalOnly" : "", monthWindowAuto ? "monthWindowAuto" : ""].filter(Boolean).length;
@@ -285,14 +285,14 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
 
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Быстрый фильтр:</span>
-            <a href={buildUrl({ ...base, criticalOnly: criticalOnly ? 0 : 1, priority: criticalOnly ? filterPri : "critical", status: criticalOnly ? filterStat : "" })}
+            <a href={buildUrl({ ...base, criticalOnly: criticalOnly ? 0 : 1 })}
               className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
               style={criticalOnly ? {
                 background: "rgba(239,68,68,0.22)", border: "1px solid rgba(239,68,68,0.55)", color: "#fca5a5",
               } : {
                 background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)",
               }}>
-              ⚠ Критичные (не выполнено)
+              ⚠ Срочные (до 2 суток)
             </a>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
