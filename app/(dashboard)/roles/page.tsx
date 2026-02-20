@@ -39,7 +39,12 @@ interface AssignedTask {
   dateTo: number;
   priority: "critical" | "high" | "normal";
   category: string;
-  subtasks: Array<{ id: number; status: "pending" | "in_progress" | "done" | "cancelled" }>;
+  subtasks: Array<{
+    id: number;
+    title: string;
+    description: string | null;
+    status: "pending" | "in_progress" | "done" | "cancelled";
+  }>;
 }
 
 // ── Метаданные ─────────────────────────────────────────────────────────
@@ -578,9 +583,20 @@ function PersonModal({
   const total    = person.tasksDone + person.tasks;
   const progress = total > 0 ? (person.tasksDone / total) * 100 : 0;
 
+  const STATUS_LABEL: Record<AssignedTask["status"], string> = {
+    pending: "Ожидает",
+    in_progress: "В работе",
+    done: "Выполнено",
+    cancelled: "Отменено",
+  };
+
   const [tasks, setTasks] = useState<AssignedTask[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  const loadedTotalTasks = tasks.length;
+  const loadedDoneTasks = tasks.filter((t) => t.status === "done").length;
+  const loadedProgress = loadedTotalTasks > 0 ? Math.round((loadedDoneTasks / loadedTotalTasks) * 100) : 0;
 
   useEffect(() => {
     let alive = true;
@@ -639,10 +655,10 @@ function PersonModal({
             <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex justify-between text-[10px] font-mono mb-2">
                 <span style={{ color: "rgba(255,255,255,0.35)" }}>Прогресс профиля</span>
-                <span style={{ color: "#93c5fd" }}>{Math.round(progress)}%</span>
+                <span style={{ color: "#93c5fd" }}>{loadedTotalTasks > 0 ? loadedProgress : Math.round(progress)}%</span>
               </div>
               <div className="h-2 rounded-full" style={{ background: "rgba(255,255,255,0.08)" }}>
-                <div className="h-2 rounded-full" style={{ width: `${progress}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
+                <div className="h-2 rounded-full" style={{ width: `${loadedTotalTasks > 0 ? loadedProgress : Math.round(progress)}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
               </div>
             </div>
             <div className="rounded-xl p-3 min-h-0 flex flex-col" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -666,7 +682,7 @@ function PersonModal({
                         }}>
                         <p className="text-[11px] truncate" style={{ color: "#e8f0fe" }}>{task.title}</p>
                         <p className="text-[9px] font-mono mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-                          {task.dateFrom}-{task.dateTo}/{task.month} · {task.status} · подзадач {doneSubs}/{totalSubs}
+                          {task.dateFrom}-{task.dateTo}/{task.month} · {STATUS_LABEL[task.status]} · подзадач {doneSubs}/{totalSubs}
                         </p>
                       </button>
                     );
@@ -686,11 +702,11 @@ function PersonModal({
                 <div className="flex items-center justify-between">
                   <h4 className="text-[15px] font-semibold" style={{ color: "#e8f0fe" }}>{selectedTask.title}</h4>
                   <span className="text-[10px] font-mono px-2 py-1 rounded" style={{ color: "#93c5fd", border: "1px solid rgba(147,197,253,0.35)", background: "rgba(147,197,253,0.08)" }}>
-                    {selectedTask.category} · {selectedTask.priority}
+                    {selectedTask.category} · {selectedTask.priority.toUpperCase()}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <Info label="Статус" value={selectedTask.status} />
+                  <Info label="Статус" value={STATUS_LABEL[selectedTask.status]} />
                   <Info label="Срок" value={`${selectedTask.dateFrom}-${selectedTask.dateTo}/${selectedTask.month}`} />
                   <Info label="Подзадачи" value={`${selectedTask.subtasks.filter((s) => s.status === "done").length}/${selectedTask.subtasks.length}`} />
                 </div>
@@ -701,9 +717,20 @@ function PersonModal({
                   ) : (
                     <div className="space-y-1.5">
                       {selectedTask.subtasks.map((sub, idx) => (
-                        <div key={sub.id} className="rounded-lg px-2.5 py-2 flex items-center justify-between" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-                          <span className="text-[11px]" style={{ color: "#e8f0fe" }}>Подзадача #{idx + 1}</span>
-                          <span className="text-[10px] font-mono" style={{ color: sub.status === "done" ? "#34d399" : "rgba(255,255,255,0.45)" }}>{sub.status}</span>
+                        <div key={sub.id} className="rounded-lg px-2.5 py-2" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-[11px] truncate" style={{ color: "#e8f0fe" }}>
+                              {sub.title || `Подзадача #${idx + 1}`}
+                            </span>
+                            <span className="text-[10px] font-mono shrink-0" style={{ color: sub.status === "done" ? "#34d399" : "rgba(255,255,255,0.45)" }}>
+                              {STATUS_LABEL[sub.status]}
+                            </span>
+                          </div>
+                          {sub.description && (
+                            <p className="text-[10px] mt-1" style={{ color: "rgba(255,255,255,0.42)" }}>
+                              {sub.description}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
