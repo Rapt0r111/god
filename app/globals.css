@@ -2,22 +2,25 @@
 @import "tailwindcss";
 
 @theme {
-  /* Фоны — ZGT стиль */
-  --color-bg-deep:    #0f172a;
-  --color-bg-panel:   #1e293b;
-  --color-bg-card:    #1e293b;
-  --color-bg-hover:   rgba(255,255,255,0.06);
+  /* ── Фоны ── */
+  --color-bg-deep:    #070d1a;
+  --color-bg-panel:   #0d1829;
+  --color-bg-card:    #111e32;
+  --color-bg-hover:   rgba(255,255,255,0.04);
+  --color-bg-modal:   rgba(8, 15, 30, 0.92);
 
-  /* Границы */
-  --color-border:        rgba(255,255,255,0.1);
-  --color-border-bright: rgba(255,255,255,0.2);
+  /* ── Границы ── */
+  --color-border:        rgba(255,255,255,0.08);
+  --color-border-bright: rgba(255,255,255,0.18);
+  --color-border-glow:   rgba(59,130,246,0.35);
 
-  /* Текст */
-  --color-text-primary:   #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-text-dim:       #475569;
+  /* ── Текст ── */
+  --color-text-primary:   #e8f0fe;
+  --color-text-secondary: #7d9ab5;
+  --color-text-dim:       #3d5470;
+  --color-text-muted:     rgba(255,255,255,0.25);
 
-  /* Акценты ZGT */
+  /* ── Акценты ── */
   --color-accent-blue:   #3b82f6;
   --color-accent-green:  #10b981;
   --color-accent-amber:  #f59e0b;
@@ -26,88 +29,360 @@
   --color-accent-cyan:   #06b6d4;
   --color-critical:      #ef4444;
 
-  /* Приоритеты */
+  /* ── Приоритеты ── */
   --color-priority-critical: #ef4444;
   --color-priority-high:     #f59e0b;
   --color-priority-normal:   #10b981;
 
-  /* Шрифты */
-  --font-mono:    "JetBrains Mono", "Fira Code", monospace;
-  --font-display: "Inter", sans-serif;
-  --font-body:    "Inter", sans-serif;
+  /* ── Шрифты ── */
+  --font-mono:    "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-body:    "Inter", system-ui, sans-serif;
 
-  /* Радиусы */
+  /* ── Радиусы ── */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 20px;
 }
 
+/* ── Базовые стили ── */
 @layer base {
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
 
   html {
     color-scheme: dark;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    background: #070d1a;
     background-attachment: fixed;
     color: var(--color-text-primary);
-    font-family: "Inter", sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  body { @apply antialiased; }
+  body {
+    background: 
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(59,130,246,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(167,139,250,0.04) 0%, transparent 60%),
+      linear-gradient(180deg, #070d1a 0%, #0a1220 50%, #070d1a 100%);
+    min-height: 100vh;
+  }
 
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(59,130,246,0.2);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(59,130,246,0.4);
+  }
+
+  /* ── Селекция ── */
+  ::selection {
+    background: rgba(59,130,246,0.3);
+    color: #e8f0fe;
+  }
 }
 
-/* Glass utility classes (ZGT style) */
+/* ── Утилиты glassmorphism ── */
 @layer utilities {
+
+  /* Базовое стекло */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    border: 1px solid rgba(255,255,255,0.07);
   }
 
+  /* Поднятое стекло (панели, карточки) */
   .glass-elevated {
-    background: rgba(30, 41, 59, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    background: linear-gradient(
+      145deg,
+      rgba(255,255,255,0.06) 0%,
+      rgba(255,255,255,0.02) 100%
+    );
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.09);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,255,255,0.08) inset,
+      0 -1px 0 rgba(0,0,0,0.2) inset;
   }
 
+  /* Карточки с акцентом */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.05) 0%,
+      rgba(255,255,255,0.02) 60%,
+      rgba(59,130,246,0.03) 100%
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+      0 4px 24px rgba(0,0,0,0.3),
+      0 1px 0 rgba(255,255,255,0.06) inset;
+    transition: all 0.2s ease;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,255,255,0.08) inset;
+    transform: translateY(-1px);
+  }
+
+  /* Модальное стекло */
+  .glass-modal {
+    background: linear-gradient(
+      145deg,
+      rgba(13,24,41,0.95) 0%,
+      rgba(7,13,26,0.9) 100%
+    );
+    backdrop-filter: blur(40px) saturate(1.5);
+    -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow:
+      0 24px 80px rgba(0,0,0,0.7),
+      0 1px 0 rgba(255,255,255,0.1) inset,
+      0 0 0 1px rgba(0,0,0,0.5);
+  }
+
+  /* ── Градиенты ── */
   .gradient-primary {
     background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
   }
-
   .gradient-success {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   }
-
   .gradient-danger {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   }
 
-  /* Legacy utility aliases */
+  /* ── Шрифты ── */
   .font-mono    { font-family: var(--font-mono); }
   .font-display { font-family: var(--font-display); }
   .font-body    { font-family: var(--font-body); }
 
+  /* ── Цвета текста ── */
   .text-primary   { color: var(--color-text-primary); }
   .text-secondary { color: var(--color-text-secondary); }
   .text-dim       { color: var(--color-text-dim); }
 
+  /* ── Фоны ── */
   .bg-deep  { background-color: var(--color-bg-deep); }
   .bg-panel { background-color: var(--color-bg-panel); }
   .bg-card  { background-color: var(--color-bg-card); }
 
+  /* ── Границы ── */
   .border-default { border-color: var(--color-border); }
   .border-bright  { border-color: var(--color-border-bright); }
 
-  .glow-blue   { filter: drop-shadow(0 0 8px rgba(59,130,246,0.5)); }
-  .glow-green  { filter: drop-shadow(0 0 8px rgba(16,185,129,0.5)); }
-  .glow-amber  { filter: drop-shadow(0 0 8px rgba(245,158,11,0.5)); }
-  .glow-red    { filter: drop-shadow(0 0 8px rgba(239,68,68,0.5)); }
+  /* ── Свечение ── */
+  .glow-blue   { filter: drop-shadow(0 0 10px rgba(59,130,246,0.5)); }
+  .glow-green  { filter: drop-shadow(0 0 10px rgba(16,185,129,0.5)); }
+  .glow-amber  { filter: drop-shadow(0 0 10px rgba(245,158,11,0.5)); }
+  .glow-red    { filter: drop-shadow(0 0 10px rgba(239,68,68,0.5)); }
+
+  /* ── Бейджи статусов ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid;
+    line-height: 1.6;
+  }
+
+  /* ── Кнопки ── */
+  .btn-glass {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+  }
+  .btn-glass:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+  }
+
+  .btn-primary {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.4);
+    background: rgba(59,130,246,0.15);
+    color: #93c5fd;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+  }
+  .btn-primary:hover {
+    background: rgba(59,130,246,0.25);
+    border-color: rgba(59,130,246,0.6);
+    color: #bfdbfe;
+  }
+
+  /* ── Поля ввода ── */
+  .input-glass {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    transition: all 0.15s ease;
+  }
+  .input-glass::placeholder { color: rgba(255,255,255,0.2); }
+  .input-glass:focus {
+    outline: none;
+    border-color: rgba(59,130,246,0.5);
+    background: rgba(59,130,246,0.05);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+
+  /* ── Разделители ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  }
+
+  /* ── Статусные точки ── */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Анимации ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .animate-fade-in    { animation: fadeIn 0.25s ease forwards; }
+  .animate-slide-in   { animation: slideIn 0.2s ease forwards; }
+  .animate-scale-in   { animation: scaleIn 0.2s ease forwards; }
+  .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  /* ── Шиммер для загрузки ── */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* ── Метка секции ── */
+  .section-label {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    font-weight: 500;
+  }
+
+  /* ── Моно-метка с цветом ── */
+  .mono-tag {
+    font-size: 9px;
+    font-family: var(--font-mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-weight: 600;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  /* ── Приоритетная полоса слева ── */
+  .priority-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Hover-эффект для строк ── */
+  .row-hover {
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .row-hover:hover {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.12) !important;
+  }
+
+  /* ── Чекбокс военного стиля ── */
+  .checkbox-military {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .checkbox-military:hover {
+    border-color: #10b981;
+    background: rgba(16,185,129,0.08);
+  }
+  .checkbox-military.checked {
+    border-color: #10b981;
+    background: rgba(16,185,129,0.15);
+    color: #10b981;
+    box-shadow: 0 0 8px rgba(16,185,129,0.2);
+  }
 }

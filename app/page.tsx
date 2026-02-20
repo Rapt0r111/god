@@ -9,11 +9,13 @@ async function getStats() {
 
   const total    = allTasks.length;
   const done     = allTasks.filter((t: typeof allTasks[number]) => t.status === "done").length;
-  const critical = allTasks.filter((t: typeof allTasks[number]) => t.priority === "critical" && t.status !== "done").length;
+  const critical = allTasks.filter(
+    (t: typeof allTasks[number]) => t.priority === "critical" && t.status !== "done"
+  ).length;
 
-  const currentMonth = new Date().getMonth() + 1;
-  const thisMonth    = allTasks.filter((t: typeof allTasks[number]) => t.month === currentMonth);
-  const thisMonthDone= thisMonth.filter((t: typeof allTasks[number]) => t.status === "done").length;
+  const currentMonth  = new Date().getMonth() + 1;
+  const thisMonth     = allTasks.filter((t: typeof allTasks[number]) => t.month === currentMonth);
+  const thisMonthDone = thisMonth.filter((t: typeof allTasks[number]) => t.status === "done").length;
 
   const monthStats = Array.from({ length: 12 }, (_, i) => {
     const m = allTasks.filter((t: typeof allTasks[number]) => t.month === i + 1);
@@ -26,79 +28,185 @@ async function getStats() {
   });
 
   const criticalTasks = allTasks
-    .filter((t: typeof allTasks[number]) => t.priority === "critical" && t.status !== "done")
+    .filter(
+      (t: typeof allTasks[number]) =>
+        t.priority === "critical" && t.status !== "done"
+    )
     .slice(0, 6);
 
-  return { total, done, critical, thisMonth: thisMonth.length, thisMonthDone, currentMonth, monthStats, criticalTasks, allTasks };
+  return {
+    total, done, critical,
+    thisMonth: thisMonth.length, thisMonthDone,
+    currentMonth, monthStats, criticalTasks, allTasks,
+  };
 }
 
 export default async function DashboardPage() {
-  const { total, done, critical, thisMonth, thisMonthDone, currentMonth, monthStats, criticalTasks } = await getStats();
+  const {
+    total, done, critical,
+    thisMonth, thisMonthDone,
+    currentMonth, monthStats, criticalTasks,
+  } = await getStats();
 
-  const readiness  = total > 0 ? Math.round((done / total) * 100) : 0;
-  const maxCount   = Math.max(...monthStats.map(m => m.total), 1);
-
-  const gaugeColor = readiness < 30 ? "#ef4444" : readiness < 60 ? "#f59e0b" : "#10b981";
+  const readiness = total > 0 ? Math.round((done / total) * 100) : 0;
+  const maxCount  = Math.max(...monthStats.map(m => m.total), 1);
+  const gaugeColor =
+    readiness < 30 ? "#ef4444" : readiness < 60 ? "#f59e0b" : "#10b981";
 
   const today = new Date().toLocaleDateString("ru-RU", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div
+      className="min-h-screen text-white"
+      style={{
+        background:
+          "radial-gradient(ellipse 80% 50% at 10% 0%, rgba(59,130,246,0.06) 0%, transparent 50%)," +
+          "radial-gradient(ellipse 50% 40% at 90% 80%, rgba(167,139,250,0.04) 0%, transparent 50%)," +
+          "linear-gradient(180deg, #070d1a 0%, #0a1220 100%)",
+        minHeight: "100vh",
+      }}
+    >
+      {/* ── TOPBAR ── */}
+      <header
+        className="h-14 flex items-center px-6 gap-4"
+        style={{
+          background: "rgba(7,13,26,0.95)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          boxShadow: "0 2px 20px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-[13px]"
+            style={{
+              background: "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(99,102,241,0.2))",
+              border: "1px solid rgba(59,130,246,0.3)",
+            }}
+          >
+            ◈
+          </div>
+          <span
+            className="font-bold text-[15px] tracking-wide uppercase"
+            style={{ color: "#e8f0fe", letterSpacing: "0.06em" }}
+          >
+            Оперативный центр управления
+          </span>
+        </div>
 
-      {/* ── TOPBAR ───────────────────────────────── */}
-      <header className="h-14 glass-elevated border-b border-white/10 flex items-center px-6 gap-5">
-        <span className="font-bold text-[16px] tracking-wide uppercase text-white">
-          Оперативный центр управления
-        </span>
-        <div className="w-px h-5 bg-white/20" />
-        <span className="text-[11px] text-white/50 capitalize font-mono">
+        <div className="w-px h-5" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+        <span
+          className="text-[11px] font-mono capitalize"
+          style={{ color: "rgba(255,255,255,0.3)" }}
+        >
           {today}
         </span>
+
         {critical > 0 && (
-          <span className="text-[10px] text-red-400 tracking-widest font-mono">
-            ⚠ {critical} КРИ
-          </span>
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              border: "1px solid rgba(239,68,68,0.2)",
+            }}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ background: "#ef4444", boxShadow: "0 0 6px #ef4444" }}
+            />
+            <span
+              className="text-[10px] font-mono font-semibold tracking-wider"
+              style={{ color: "#fca5a5" }}
+            >
+              ⚠ {critical} КРИТИЧНЫХ
+            </span>
+          </div>
         )}
       </header>
 
-      <div className="flex h-[calc(100vh-56px)]">
+      <div className="flex" style={{ height: "calc(100vh - 56px)" }}>
 
-        {/* ── SIDEBAR ──────────────────────────────── */}
-        <nav className="w-[220px] min-w-[220px] glass-elevated border-r border-white/10 flex flex-col">
-          <div className="px-5 pt-6 pb-5 border-b border-white/10">
-            <p className="text-[10px] text-blue-400/70 tracking-[3px] uppercase mb-2 font-mono">
-              // СИСТЕМА УПРАВЛЕНИЯ
+        {/* ── SIDEBAR ── */}
+        <nav
+          className="w-[220px] min-w-[220px] flex flex-col"
+          style={{
+            background: "rgba(7,13,26,0.9)",
+            backdropFilter: "blur(20px)",
+            borderRight: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          <div
+            className="px-5 pt-6 pb-5"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            <p
+              className="text-[9px] font-mono tracking-[3px] uppercase mb-2"
+              style={{ color: "rgba(59,130,246,0.6)" }}
+            >
+              // Система управления
             </p>
-            <h1 className="text-[20px] font-bold tracking-wide">ЦСУ ПД</h1>
-            <p className="text-[11px] text-amber-400/80 mt-1 tracking-wide font-mono">
-              НАУЧНАЯ РОТА · В/Ч
+            <h1
+              className="text-[22px] font-bold tracking-wide"
+              style={{ color: "#e8f0fe", letterSpacing: "0.05em" }}
+            >
+              ЦСУ ПД
+            </h1>
+            <p
+              className="text-[10px] font-mono tracking-[2px] uppercase mt-1"
+              style={{ color: "rgba(245,158,11,0.65)" }}
+            >
+              Научная рота · В/Ч
             </p>
           </div>
 
           <div className="flex-1 py-4 overflow-y-auto">
-            <p className="text-[9px] text-white/30 tracking-[2px] px-5 py-2 uppercase font-mono">
+            <p
+              className="text-[9px] font-mono tracking-[2.5px] uppercase px-5 pb-2"
+              style={{ color: "rgba(255,255,255,0.18)" }}
+            >
               Навигация
             </p>
             {[
               { href: "/",         icon: "◈", label: "Дашборд",       active: true  },
-              { href: "/tasks",    icon: "≡", label: "Задачи",        active: false },
-              { href: "/timeline", icon: "◫", label: "Хронология",    active: false },
-              { href: "/roles",    icon: "◉", label: "Личный состав", active: false },
+              { href: "/tasks",    icon: "≡", label: "Задачи",         active: false },
+              { href: "/timeline", icon: "◫", label: "Хронология",     active: false },
+              { href: "/roles",    icon: "◉", label: "Личный состав",  active: false },
             ].map(item => (
-              <a key={item.href} href={item.href}
-                className={[
-                  "flex items-center gap-3 px-5 py-2.5 mx-2 rounded-lg text-[13px] font-medium transition-all",
-                  item.active
-                    ? "bg-blue-500/15 text-blue-400 border border-blue-500/20"
-                    : "text-white/60 hover:bg-white/8 hover:text-white",
-                ].join(" ")}
+              <a
+                key={item.href}
+                href={item.href}
+                className="relative flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-[13px] font-medium transition-all duration-150"
+                style={item.active ? {
+                  background: "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(99,102,241,0.1))",
+                  border: "1px solid rgba(59,130,246,0.25)",
+                  color: "#93c5fd",
+                } : {
+                  border: "1px solid transparent",
+                  color: "rgba(255,255,255,0.4)",
+                }}
               >
-                <span className="text-[15px] w-5 text-center">{item.icon}</span>
+                {item.active && (
+                  <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
+                    style={{ background: "#3b82f6", boxShadow: "0 0 8px #3b82f6" }}
+                  />
+                )}
+                <span className="text-[15px] w-5 text-center" style={{ opacity: item.active ? 1 : 0.5 }}>
+                  {item.icon}
+                </span>
                 {item.label}
                 {item.href === "/tasks" && critical > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-mono">
+                  <span
+                    className="ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded-full"
+                    style={{
+                      background: "#ef4444",
+                      color: "#fff",
+                      boxShadow: "0 0 8px rgba(239,68,68,0.4)",
+                    }}
+                  >
                     {critical}
                   </span>
                 )}
@@ -106,120 +214,203 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          <div className="px-5 py-4 border-t border-white/10 space-y-2">
+          <div
+            className="px-5 py-4 space-y-2"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          >
             {[
-              { color: "#10b981", label: "СИСТЕМА АКТИВНА",         delay: "0s"  },
-              { color: "#f59e0b", label: "OFFLINE OK · LOCAL-FIRST", delay: "1s" },
+              { color: "#10b981", label: "Система активна", delay: "0s" },
+              { color: "#f59e0b", label: "Offline · Local-first", delay: "1s" },
             ].map(s => (
-              <div key={s.label} className="flex items-center gap-2 text-[10px] text-white/30 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0" style={{ backgroundColor: s.color, animationDelay: s.delay }} />
+              <div key={s.label} className="flex items-center gap-2.5 text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
+                  style={{ background: s.color, animationDelay: s.delay, boxShadow: `0 0 5px ${s.color}` }}
+                />
                 {s.label}
               </div>
             ))}
           </div>
         </nav>
 
-        {/* ── MAIN CONTENT ─────────────────────────── */}
-        <main className="flex-1 overflow-y-auto p-6">
+        {/* ── MAIN ── */}
+        <main className="flex-1 overflow-y-auto p-6 space-y-5">
 
           {/* Алерт критичных */}
           {critical > 0 && (
-            <div className="flex items-center gap-3 px-4 py-3 mb-5 rounded-xl border border-red-500/20 bg-red-500/8 text-[12px] text-red-300">
-              <span className="text-red-400 text-base">⚠</span>
-              <span>
-                <span className="text-red-400 font-semibold mr-1">ВНИМАНИЕ:</span>
-                {critical} критичных задач без исполнения требуют немедленного внимания
+            <div
+              className="flex items-center gap-3 px-4 py-3 rounded-xl"
+              style={{
+                background: "rgba(239,68,68,0.06)",
+                border: "1px solid rgba(239,68,68,0.2)",
+                boxShadow: "0 2px 12px rgba(239,68,68,0.08)",
+              }}
+            >
+              <span style={{ color: "#ef4444", fontSize: 16 }}>⚠</span>
+              <span className="text-[12px]" style={{ color: "#fca5a5" }}>
+                <span className="font-semibold">ВНИМАНИЕ: </span>
+                {critical} критичных задач требуют немедленного исполнения
               </span>
             </div>
           )}
 
-          {/* ── BENTO GRID ─────────────────────────── */}
-          <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr 1fr 300px", gridTemplateRows: "auto auto auto" }}>
-
+          {/* ── BENTO GRID ── */}
+          <div
+            className="grid gap-4"
+            style={{
+              gridTemplateColumns: "1fr 1fr 1fr 300px",
+              gridTemplateRows:    "auto auto auto",
+            }}
+          >
             {/* KPI карточки */}
             <KpiCard
-              label="// КРИТИЧНЫХ ЗАДАЧ"
+              label="// Критичных задач"
               value={critical}
               color="#ef4444"
-              colorBg="rgba(239,68,68,0.08)"
-              colorBorder="rgba(239,68,68,0.2)"
+              colorBg="rgba(239,68,68,0.05)"
+              colorBorder="rgba(239,68,68,0.15)"
               sub="не выполнено · требует решения"
               progress={0}
             />
             <KpiCard
-              label={`// ЗАДАЧ В ${MONTHS[currentMonth]}`}
+              label={`// Задач в ${MONTHS[currentMonth]}`}
               value={thisMonth}
               color="#f59e0b"
-              colorBg="rgba(245,158,11,0.08)"
-              colorBorder="rgba(245,158,11,0.2)"
+              colorBg="rgba(245,158,11,0.05)"
+              colorBorder="rgba(245,158,11,0.15)"
               sub={`${thisMonthDone} выполнено`}
               progress={thisMonth > 0 ? (thisMonthDone / thisMonth) * 100 : 0}
             />
             <KpiCard
-              label="// ВСЕГО ВЫПОЛНЕНО"
+              label="// Всего выполнено"
               value={done}
               color="#10b981"
-              colorBg="rgba(16,185,129,0.08)"
-              colorBorder="rgba(16,185,129,0.2)"
+              colorBg="rgba(16,185,129,0.05)"
+              colorBorder="rgba(16,185,129,0.15)"
               sub={`из ${total} задач за год`}
               progress={total > 0 ? (done / total) * 100 : 0}
             />
 
             {/* Gauge — правая колонка, 2 строки */}
-            <div className="row-span-2 glass-elevated rounded-xl border border-white/10 p-5 relative overflow-hidden">
-              <p className="text-[9px] text-white/40 tracking-[2px] uppercase mb-4 font-mono">
-                // ОПЕРАТИВНАЯ ГОТОВНОСТЬ
+            <div
+              className="row-span-2 rounded-2xl p-5 relative overflow-hidden"
+              style={{
+                background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+              }}
+            >
+              <p
+                className="text-[9px] font-mono tracking-[2px] uppercase mb-4"
+                style={{ color: "rgba(255,255,255,0.25)" }}
+              >
+                // Оперативная готовность
               </p>
               <GaugeSvg value={readiness} color={gaugeColor} />
-              <div className="mt-5 space-y-2.5">
+              <div className="mt-5 space-y-3">
                 {[
                   { label: "🔴 КРИТИЧНЫЕ", value: critical },
                   { label: "🟡 ВЫСОКИЕ",   value: total - done - critical },
                   { label: "🟢 ВЫПОЛНЕНО", value: done },
                 ].map(row => (
-                  <div key={row.label} className="flex justify-between text-[11px] text-white/50 font-mono">
-                    <span>{row.label}</span>
-                    <span className="text-white font-semibold">{row.value}</span>
+                  <div
+                    key={row.label}
+                    className="flex justify-between items-center"
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <span
+                      className="text-[11px] font-mono"
+                      style={{ color: "rgba(255,255,255,0.45)" }}
+                    >
+                      {row.label}
+                    </span>
+                    <span
+                      className="text-[14px] font-bold font-mono tabular-nums"
+                      style={{ color: "#e8f0fe" }}
+                    >
+                      {row.value}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* График по месяцам */}
-            <div className="col-span-3 glass-elevated rounded-xl border border-white/10 p-5">
-              <p className="text-[9px] text-white/40 tracking-[2px] uppercase mb-4 font-mono">
-                // ГОДОВОЙ ПЛАН · НАГРУЗКА ПО МЕСЯЦАМ
-              </p>
-              <div className="flex gap-[3px] items-end h-[80px]">
+            <div
+              className="col-span-3 rounded-2xl p-5"
+              style={{
+                background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <p
+                  className="text-[9px] font-mono tracking-[2px] uppercase"
+                  style={{ color: "rgba(255,255,255,0.25)" }}
+                >
+                  // Годовой план · нагрузка по месяцам
+                </p>
+                <div className="flex items-center gap-3 text-[9px] font-mono">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-1.5 rounded-full inline-block" style={{ background: "rgba(59,130,246,0.5)" }} />
+                    <span style={{ color: "rgba(255,255,255,0.3)" }}>обычные</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-1.5 rounded-full inline-block" style={{ background: "rgba(239,68,68,0.5)" }} />
+                    <span style={{ color: "rgba(255,255,255,0.3)" }}>с критичными</span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-1 items-end" style={{ height: 88 }}>
                 {monthStats.map(m => {
-                  const h     = Math.round((m.total / maxCount) * 64);
-                  const isCur = m.month === currentMonth;
+                  const h    = Math.round((m.total / maxCount) * 68);
+                  const isCur= m.month === currentMonth;
                   return (
-                    <a key={m.month} href={`/tasks?month=${m.month}`}
-                      className="flex-1 flex flex-col items-center gap-1 group cursor-pointer"
+                    <a
+                      key={m.month}
+                      href={`/tasks?month=${m.month}`}
+                      className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer"
                     >
-                      <div className="w-full flex flex-col justify-end" style={{ height: 64 }}>
+                      <div className="w-full flex flex-col justify-end" style={{ height: 68 }}>
                         {m.total > 0 && (
                           <div
-                            className="w-full rounded-t-sm transition-all group-hover:opacity-80"
+                            className="w-full rounded-t transition-all group-hover:brightness-125"
                             style={{
                               height: h,
                               background: isCur
                                 ? "linear-gradient(to top, #f59e0b, #fbbf24)"
                                 : m.critical > 0
-                                  ? "linear-gradient(to top, rgba(239,68,68,0.5), rgba(239,68,68,0.15))"
-                                  : "linear-gradient(to top, rgba(59,130,246,0.4), rgba(59,130,246,0.1))",
-                              border: isCur ? "1px solid rgba(245,158,11,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                                  ? "linear-gradient(to top, rgba(239,68,68,0.55), rgba(239,68,68,0.15))"
+                                  : "linear-gradient(to top, rgba(59,130,246,0.45), rgba(59,130,246,0.12))",
+                              border: isCur
+                                ? "1px solid rgba(245,158,11,0.4)"
+                                : m.critical > 0
+                                  ? "1px solid rgba(239,68,68,0.25)"
+                                  : "1px solid rgba(59,130,246,0.2)",
+                              boxShadow: isCur ? "0 0 12px rgba(245,158,11,0.2)" : "none",
+                              borderRadius: "4px 4px 0 0",
                             }}
                           />
                         )}
                       </div>
-                      <span className="text-[9px] font-mono tracking-wide" style={{
-                        color: isCur ? "#f59e0b" : "rgba(255,255,255,0.3)",
-                      }}>
+                      <span
+                        className="text-[9px] font-mono tracking-wide"
+                        style={{ color: isCur ? "#fbbf24" : "rgba(255,255,255,0.25)" }}
+                      >
                         {MONTHS[m.month]}
                       </span>
-                      <span className="text-[9px] text-white/20 font-mono">
+                      <span
+                        className="text-[8px] font-mono tabular-nums"
+                        style={{ color: "rgba(255,255,255,0.15)" }}
+                      >
                         {m.total}
                       </span>
                     </a>
@@ -229,14 +420,31 @@ export default async function DashboardPage() {
             </div>
 
             {/* Критичные задачи */}
-            <div className="col-span-3 glass-elevated rounded-xl border border-white/10 p-5">
-              <p className="text-[9px] text-white/40 tracking-[2px] uppercase mb-4 font-mono">
-                // КРИТИЧНЫЕ ЗАДАЧИ · ТРЕБУЮТ ИСПОЛНЕНИЯ
+            <div
+              className="col-span-3 rounded-2xl p-5"
+              style={{
+                background: "linear-gradient(145deg, rgba(239,68,68,0.04), rgba(255,255,255,0.02))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(239,68,68,0.12)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset",
+              }}
+            >
+              <p
+                className="text-[9px] font-mono tracking-[2px] uppercase mb-4"
+                style={{ color: "rgba(239,68,68,0.5)" }}
+              >
+                // Критичные задачи · требуют исполнения
               </p>
               {criticalTasks.length === 0 ? (
-                <p className="text-[12px] text-white/30 text-center py-6 font-mono">
-                  // ВСЕ КРИТИЧНЫЕ ЗАДАЧИ ВЫПОЛНЕНЫ ✓
-                </p>
+                <div
+                  className="text-center py-6"
+                  style={{ color: "rgba(16,185,129,0.5)" }}
+                >
+                  <div className="text-2xl mb-2">✓</div>
+                  <p className="text-[12px] font-mono">
+                    Все критичные задачи выполнены
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-2">
                   {criticalTasks.map((task: typeof criticalTasks[number]) => (
@@ -247,14 +455,25 @@ export default async function DashboardPage() {
             </div>
 
             {/* Постоянные задачи */}
-            <div className="glass-elevated rounded-xl border border-white/10 p-5">
-              <p className="text-[9px] text-white/40 tracking-[2px] uppercase mb-4 font-mono">
-                // ПОСТОЯННЫЕ ЗАДАЧИ
+            <div
+              className="rounded-2xl p-5"
+              style={{
+                background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,255,255,0.09)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+              }}
+            >
+              <p
+                className="text-[9px] font-mono tracking-[2px] uppercase mb-4"
+                style={{ color: "rgba(255,255,255,0.25)" }}
+              >
+                // Постоянные задачи
               </p>
               {[
-                { freq: "ЕЖН", label: "Рапорт в ЗГТ",           role: "ЗКВ-2" },
-                { freq: "ЕЖН", label: "Проверка САВЗ",           role: "ЗКВ-2" },
-                { freq: "ЕЖН", label: "Рапорт о ГДП",            role: "ЗКВ-2" },
+                { freq: "ЕЖН", label: "Рапорт в ЗГТ",            role: "ЗКВ-2" },
+                { freq: "ЕЖН", label: "Проверка САВЗ",            role: "ЗКВ-2" },
+                { freq: "ЕЖН", label: "Рапорт о ГДП",             role: "ЗКВ-2" },
                 { freq: "ЕЖН", label: "Анализ электронной почты", role: "КВ-2"  },
                 { freq: "ЕМС", label: "Сверка личных планов",     role: "КВ-2"  },
                 { freq: "ЕМС", label: "Сверка служебных карточек",role: "ЗКВ-2" },
@@ -262,17 +481,39 @@ export default async function DashboardPage() {
                 { freq: "ЕМС", label: "Подведение итогов роты",   role: "ПС"    },
                 { freq: "ЕМС", label: "Приказ № 85дсп",           role: "ЗКВ-2" },
               ].map((r, i) => (
-                <div key={i} className="flex items-center gap-2.5 py-2 border-b border-white/5 last:border-0 text-white/50">
-                  <span className="px-1.5 py-0.5 text-[9px] tracking-wide rounded font-mono"
-                    style={r.freq === "ЕЖН"
-                      ? { background: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.25)"  }
-                      : { background: "rgba(245,158,11,0.12)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.25)" }
-                    }
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 py-2"
+                  style={{
+                    borderBottom: i < 8 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  }}
+                >
+                  <span
+                    className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded"
+                    style={r.freq === "ЕЖН" ? {
+                      background: "rgba(59,130,246,0.1)",
+                      color: "#60a5fa",
+                      border: "1px solid rgba(59,130,246,0.2)",
+                    } : {
+                      background: "rgba(245,158,11,0.1)",
+                      color: "#fbbf24",
+                      border: "1px solid rgba(245,158,11,0.2)",
+                    }}
                   >
                     {r.freq}
                   </span>
-                  <span className="flex-1 text-[11px] leading-tight text-white/70">{r.label}</span>
-                  <span className="text-[10px] text-white/30 font-mono">{r.role}</span>
+                  <span
+                    className="flex-1 text-[11px] leading-tight"
+                    style={{ color: "rgba(255,255,255,0.6)" }}
+                  >
+                    {r.label}
+                  </span>
+                  <span
+                    className="text-[10px] font-mono"
+                    style={{ color: "rgba(255,255,255,0.25)" }}
+                  >
+                    {r.role}
+                  </span>
                 </div>
               ))}
             </div>
@@ -283,25 +524,63 @@ export default async function DashboardPage() {
   );
 }
 
-// ── Вспомогательные компоненты ──────────────────────
+// ── Вспомогательные компоненты ─────────────────────────────────────────
 
-function KpiCard({ label, value, color, colorBg, colorBorder, sub, progress }: {
-  label: string; value: number; color: string; colorBg: string; colorBorder: string; sub: string; progress: number;
+function KpiCard({
+  label, value, color, colorBg, colorBorder, sub, progress,
+}: {
+  label:       string;
+  value:       number;
+  color:       string;
+  colorBg:     string;
+  colorBorder: string;
+  sub:         string;
+  progress:    number;
 }) {
   return (
     <div
-      className="glass-elevated rounded-xl p-5 relative overflow-hidden"
-      style={{ border: `1px solid ${colorBorder}`, background: colorBg }}
+      className="rounded-2xl p-5 relative overflow-hidden"
+      style={{
+        background: colorBg,
+        border: `1px solid ${colorBorder}`,
+        backdropFilter: "blur(20px)",
+        boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 40px ${color}08`,
+      }}
     >
-      <p className="text-[9px] text-white/40 tracking-[2px] uppercase mb-3 font-mono">
+      <p
+        className="text-[9px] font-mono tracking-[2px] uppercase mb-3"
+        style={{ color: "rgba(255,255,255,0.3)" }}
+      >
         {label}
       </p>
-      <p className="text-[44px] font-bold leading-none mb-1.5" style={{ color, filter: `drop-shadow(0 0 12px ${color}40)` }}>
+      <p
+        className="text-[46px] font-bold leading-none mb-1.5 tabular-nums"
+        style={{
+          color,
+          textShadow: `0 0 40px ${color}50`,
+          fontFamily: "var(--font-mono)",
+        }}
+      >
         {value}
       </p>
-      <p className="text-[11px] text-white/50 mb-3 font-mono">{sub}</p>
-      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${progress}%`, background: color }} />
+      <p
+        className="text-[11px] mb-3 font-mono"
+        style={{ color: "rgba(255,255,255,0.35)" }}
+      >
+        {sub}
+      </p>
+      <div
+        className="h-1 rounded-full overflow-hidden"
+        style={{ background: "rgba(255,255,255,0.06)" }}
+      >
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{
+            width: `${progress}%`,
+            background: color,
+            boxShadow: `0 0 8px ${color}50`,
+          }}
+        />
       </div>
     </div>
   );
@@ -309,7 +588,7 @@ function KpiCard({ label, value, color, colorBg, colorBorder, sub, progress }: {
 
 function GaugeSvg({ value, color }: { value: number; color: string }) {
   const toRad = (a: number) => (a * Math.PI) / 180;
-  const cx = 100, cy = 100, r = 78;
+  const cx = 100, cy = 100, r = 75;
   const startAngle = -210, sweepAngle = 240;
   const endAngle = startAngle + sweepAngle * (value / 100);
 
@@ -319,27 +598,68 @@ function GaugeSvg({ value, color }: { value: number; color: string }) {
     return `M ${s.x} ${s.y} A ${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${e.x} ${e.y}`;
   };
 
-  const needleX = cx + (r - 18) * Math.cos(toRad(endAngle));
-  const needleY = cy + (r - 18) * Math.sin(toRad(endAngle));
+  const needleX = cx + (r - 15) * Math.cos(toRad(endAngle));
+  const needleY = cy + (r - 15) * Math.sin(toRad(endAngle));
 
   return (
     <div className="flex justify-center">
       <svg width="200" height="160" viewBox="0 0 200 160">
-        <path d={arcPath(startAngle, sweepAngle)} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="12" strokeLinecap="round" />
+        {/* Дорожка */}
+        <path
+          d={arcPath(startAngle, sweepAngle)}
+          fill="none"
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth="10"
+          strokeLinecap="round"
+        />
+        {/* Прогресс */}
         {value > 0 && (
-          <path d={arcPath(startAngle, sweepAngle * value / 100)} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 8px ${color}60)` }} />
+          <path
+            d={arcPath(startAngle, sweepAngle * value / 100)}
+            fill="none"
+            stroke={color}
+            strokeWidth="10"
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 0 8px ${color}60)` }}
+          />
         )}
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke={color} strokeWidth="2" strokeLinecap="round" />
-        <circle cx={cx} cy={cy} r="6" fill={color} />
-        <circle cx={cx} cy={cy} r="3" fill="#0f172a" />
-        <text x={cx} y={cy + 26} textAnchor="middle" fill={color}
-          style={{ fontFamily: "Inter, sans-serif", fontSize: 30, fontWeight: 700 }}>
+        {/* Стрелка */}
+        <line
+          x1={cx} y1={cy}
+          x2={needleX} y2={needleY}
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          style={{ filter: `drop-shadow(0 0 4px ${color})` }}
+        />
+        {/* Центр */}
+        <circle cx={cx} cy={cy} r="6" fill={color} style={{ filter: `drop-shadow(0 0 6px ${color})` }} />
+        <circle cx={cx} cy={cy} r="3" fill="#070d1a" />
+
+        {/* Значение */}
+        <text
+          x={cx} y={cy + 26}
+          textAnchor="middle"
+          fill={color}
+          style={{
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: 30,
+            fontWeight: 700,
+          }}
+        >
           {value}%
         </text>
-        <text x={cx} y={cy + 42} textAnchor="middle" fill="rgba(255,255,255,0.3)"
-          style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9 }}>
-          ГОТОВНОСТЬ К ПРОВЕРКЕ
+        <text
+          x={cx} y={cy + 42}
+          textAnchor="middle"
+          fill="rgba(255,255,255,0.2)"
+          style={{
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: 8,
+            letterSpacing: "2px",
+          }}
+        >
+          ГОТОВНОСТЬ
         </text>
       </svg>
     </div>
@@ -364,19 +684,57 @@ const MONTH_SHORT = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","�
 
 function StaticTaskRow({ task }: { task: any }) {
   const cat  = CATEGORY_META[task.category] ?? { icon: "•", color: "#94a3b8" };
-  const date = task.dateFrom === task.dateTo ? `${task.dateFrom}` : `${task.dateFrom}–${task.dateTo}`;
+  const date = task.dateFrom === task.dateTo
+    ? `${task.dateFrom}`
+    : `${task.dateFrom}–${task.dateTo}`;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-red-500/15 bg-red-500/5 hover:bg-red-500/8 transition-colors">
-      <div className="w-[18px] h-[18px] min-w-[18px] border border-white/20 rounded-sm" />
+    <div
+      className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+      style={{
+        background: "rgba(239,68,68,0.04)",
+        border: "1px solid rgba(239,68,68,0.12)",
+      }}
+    >
+      <div
+        className="w-4 h-4 rounded shrink-0"
+        style={{
+          border: "1px solid rgba(255,255,255,0.2)",
+          background: "rgba(255,255,255,0.02)",
+        }}
+      />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-medium text-white truncate mb-1">{task.title}</p>
-        <div className="flex items-center gap-2 text-[10px] text-white/40 font-mono">
-          <span className="text-white/50">{MONTH_SHORT[task.month]} {date}</span>
-          <span className="px-1.5 py-0.5 rounded text-[9px]" style={{ background: `${cat.color}15`, color: cat.color, border: `1px solid ${cat.color}30` }}>
+        <p
+          className="text-[13px] font-medium truncate mb-1"
+          style={{ color: "#e8f0fe", letterSpacing: "0.01em" }}
+        >
+          {task.title}
+        </p>
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[10px] font-mono"
+            style={{ color: "rgba(255,255,255,0.35)" }}
+          >
+            {MONTH_SHORT[task.month]} {date}
+          </span>
+          <span
+            className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded"
+            style={{
+              background: `${cat.color}15`,
+              color: cat.color,
+              border: `1px solid ${cat.color}25`,
+            }}
+          >
             {cat.icon} {task.category}
           </span>
-          <span className="px-1.5 py-0.5 rounded text-[9px] text-red-400" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)" }}>
+          <span
+            className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded"
+            style={{
+              background: "rgba(239,68,68,0.1)",
+              color: "#fca5a5",
+              border: "1px solid rgba(239,68,68,0.2)",
+            }}
+          >
             {task.responsible}
           </span>
         </div>
