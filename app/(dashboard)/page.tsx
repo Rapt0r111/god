@@ -3,13 +3,24 @@ import { db }    from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
 
 const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
+const CRITICAL_DUE_SOON_DAYS = 2;
+
+function isTaskDashboardCritical(task: { month: number; dateTo: number; status: string }) {
+  if (task.status === "done" || task.status === "cancelled") return false;
+
+  const now = new Date();
+  const dueDate = new Date(now.getFullYear(), task.month - 1, task.dateTo, 23, 59, 59, 999);
+  const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  return daysLeft <= CRITICAL_DUE_SOON_DAYS;
+}
 
 async function getStats() {
   const allTasks = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
 
   const total    = allTasks.length;
   const done     = allTasks.filter((t) => t.status === "done").length;
-  const critical = allTasks.filter((t) => t.priority === "critical" && t.status !== "done").length;
+  const critical = allTasks.filter((t) => isTaskDashboardCritical(t)).length;
 
   const currentMonth  = new Date().getMonth() + 1;
   const thisMonth     = allTasks.filter((t) => t.month === currentMonth);
@@ -21,12 +32,12 @@ async function getStats() {
       month:    i + 1,
       total:    m.length,
       done:     m.filter((t) => t.status === "done").length,
-      critical: m.filter((t) => t.priority === "critical").length,
+      critical: m.filter((t) => isTaskDashboardCritical(t)).length,
     };
   });
 
   const criticalTasks = allTasks
-    .filter((t) => t.priority === "critical" && t.status !== "done")
+    .filter((t) => isTaskDashboardCritical(t))
     .slice(0, 6);
 
   return {
