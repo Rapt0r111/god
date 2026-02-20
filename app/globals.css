@@ -16,9 +16,9 @@
 
   /* ── Текст ── */
   --color-text-primary:   #e8f0fe;
-  --color-text-secondary: #7d9ab5;
+  --color-text-secondary: #9fb6cd;
   --color-text-dim:       #3d5470;
-  --color-text-muted:     rgba(255,255,255,0.25);
+  --color-text-muted:     rgba(255,255,255,0.42);
 
   /* ── Акценты ── */
   --color-accent-blue:   #3b82f6;
@@ -63,10 +63,11 @@
   }
 
   body {
-    background: 
-      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(59,130,246,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(167,139,250,0.04) 0%, transparent 60%),
-      linear-gradient(180deg, #070d1a 0%, #0a1220 50%, #070d1a 100%);
+    background:
+      radial-gradient(ellipse 70% 55% at 8% -5%, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.03) 45%, transparent 72%),
+      radial-gradient(ellipse 65% 45% at 95% 110%, rgba(167,139,250,0.14) 0%, rgba(167,139,250,0.02) 50%, transparent 75%),
+      radial-gradient(ellipse 40% 25% at 50% 8%, rgba(16,185,129,0.08) 0%, transparent 70%),
+      linear-gradient(180deg, #050914 0%, #0a1427 50%, #060b18 100%);
     min-height: 100vh;
   }
 
