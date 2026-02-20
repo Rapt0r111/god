@@ -1,7 +1,7 @@
 // app/(dashboard)/page.tsx
 import { db }    from "@/lib/db";
 import { tasks } from "@/lib/db/schema";
-import { isTaskDashboardCritical } from "@/lib/tasks/critical";
+import { isTaskDashboardCritical as isDashboardTaskCritical } from "@/lib/tasks/critical";
 
 const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
 const CRITICAL_DUE_SOON_DAYS = 2;
@@ -21,7 +21,7 @@ async function getStats() {
 
   const total    = allTasks.length;
   const done     = allTasks.filter((t) => t.status === "done").length;
-  const critical = allTasks.filter((t) => isTaskDashboardCritical(t)).length;
+  const critical = allTasks.filter((t) => isDashboardTaskCritical(t)).length;
 
   const currentMonth  = new Date().getMonth() + 1;
   const thisMonth     = allTasks.filter((t) => t.month === currentMonth);
@@ -33,12 +33,12 @@ async function getStats() {
       month:    i + 1,
       total:    m.length,
       done:     m.filter((t) => t.status === "done").length,
-      critical: m.filter((t) => isTaskDashboardCritical(t)).length,
+      critical: m.filter((t) => isDashboardTaskCritical(t)).length,
     };
   });
 
   const criticalTasks = allTasks
-    .filter((t) => isTaskDashboardCritical(t))
+    .filter((t) => isDashboardTaskCritical(t))
     .slice(0, 6);
 
   return {
