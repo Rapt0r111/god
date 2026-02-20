@@ -605,7 +605,7 @@ function PersonModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-5xl rounded-2xl animate-scale-in"
+        className="w-full max-w-6xl max-h-[88vh] rounded-2xl animate-scale-in flex flex-col overflow-hidden"
         style={{
           background: "linear-gradient(145deg, rgba(13,24,41,0.98), rgba(7,13,26,0.95))",
           backdropFilter: "blur(40px)",
@@ -614,7 +614,7 @@ function PersonModal({
           padding: "20px",
         }}
       >
-        <div className="flex items-start gap-4 mb-4">
+        <div className="flex items-start gap-4 mb-4 shrink-0">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-[24px] font-bold shrink-0"
             style={{ background: `linear-gradient(135deg, ${rank.color}30, ${rank.color}10)`, border: `1px solid ${rank.color}30`, color: "#e8f0fe" }}>
             {initials}
@@ -630,8 +630,8 @@ function PersonModal({
             style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}>×</button>
         </div>
 
-        <div className="grid grid-cols-12 gap-3">
-          <div className="col-span-4 space-y-3">
+        <div className="grid grid-cols-12 gap-3 flex-1 min-h-0 overflow-hidden">
+          <div className="col-span-12 xl:col-span-4 min-h-0 flex flex-col gap-3">
             <div className="rounded-xl p-3" style={{ background: st.bg, border: `1px solid ${st.border}` }}>
               <p className="text-[11px] font-mono" style={{ color: st.color }}>{st.label}</p>
               <p className="text-[12px] mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>{person.role}</p>
@@ -645,14 +645,14 @@ function PersonModal({
                 <div className="h-2 rounded-full" style={{ width: `${progress}%`, background: "linear-gradient(90deg,#3b82f6,#60a5fa)" }} />
               </div>
             </div>
-            <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="text-[10px] font-mono mb-2" style={{ color: "rgba(255,255,255,0.35)" }}>Задачи личного состава</p>
+            <div className="rounded-xl p-3 min-h-0 flex flex-col" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] font-mono mb-2 shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>Задачи личного состава</p>
               {loadingTasks ? (
                 <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Загрузка...</p>
               ) : tasks.length === 0 ? (
                 <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>Нет закреплённых задач</p>
               ) : (
-                <div className="space-y-1.5 max-h-[320px] overflow-auto pr-1">
+                <div className="space-y-1.5 flex-1 min-h-0 overflow-y-auto pr-1">
                   {tasks.map((task) => {
                     const totalSubs = task.subtasks.length;
                     const doneSubs = task.subtasks.filter((s) => s.status === "done").length;
@@ -676,13 +676,13 @@ function PersonModal({
             </div>
           </div>
 
-          <div className="col-span-8 rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="col-span-12 xl:col-span-8 rounded-xl p-4 min-h-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
             {!selectedTask ? (
-              <div className="h-full flex items-center justify-center text-[12px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <div className="h-full overflow-y-auto flex items-center justify-center text-[12px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
                 Выберите задачу слева для просмотра деталей выполнения
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 h-full overflow-y-auto pr-1">
                 <div className="flex items-center justify-between">
                   <h4 className="text-[15px] font-semibold" style={{ color: "#e8f0fe" }}>{selectedTask.title}</h4>
                   <span className="text-[10px] font-mono px-2 py-1 rounded" style={{ color: "#93c5fd", border: "1px solid rgba(147,197,253,0.35)", background: "rgba(147,197,253,0.08)" }}>
