@@ -1,9 +1,8 @@
 // app/(dashboard)/tasks/page.tsx
 import { db } from "@/lib/db";
-import { tasks } from "@/lib/db/schema";
-import { eq, and, or, like } from "drizzle-orm";
 import { TasksList } from "@/components/tasks/TasksList";
 import { AddTaskButton } from "@/components/tasks/AddTaskButton";
+import { getTaskDueInDays, isTaskDashboardCritical } from "@/lib/tasks/critical";
 
 // ── helpers ──────────────────────────────────────────────────────────
 
@@ -36,6 +35,82 @@ const STATUSES = [
 
 const MONTHS_SHORT = ["", "ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
 
+type ActiveFilters = {
+  category: string;
+  priority: string;
+  status: string;
+  month: number;
+  search: string;
+  criticalOnly: boolean;
+  monthWindowAuto: boolean;
+  currentMonth: number;
+};
+
+function getDueInDays(task: { month: number; dateTo: number }) {
+  return getTaskDueInDays(task);
+}
+
+function sortTasksForList<T extends { status: string; priority: string; month: number; dateTo: number; dateFrom: number }>(rows: T[]) {
+  const priorityWeight: Record<string, number> = { critical: 0, high: 1, normal: 2 };
+
+  return [...rows].sort((a, b) => {
+    const aDone = a.status === "done";
+    const bDone = b.status === "done";
+    if (aDone !== bDone) return aDone ? 1 : -1;
+
+    if (!aDone && !bDone) {
+      const aDue = getDueInDays(a);
+      const bDue = getDueInDays(b);
+      const aNearWeek = aDue <= 7;
+      const bNearWeek = bDue <= 7;
+      if (aNearWeek !== bNearWeek) return aNearWeek ? -1 : 1;
+      if (aNearWeek && bNearWeek && aDue !== bDue) return aDue - bDue;
+    }
+
+    const pa = priorityWeight[a.priority] ?? 99;
+    const pb = priorityWeight[b.priority] ?? 99;
+    if (pa !== pb) return pa - pb;
+
+    if (a.month !== b.month) return a.month - b.month;
+    if (a.dateTo !== b.dateTo) return a.dateTo - b.dateTo;
+    return a.dateFrom - b.dateFrom;
+  });
+}
+
+function updateTaskList<T extends { category: string; priority: string; status: string; month: number; title: string; description: string | null; dateTo: number; dateFrom: number }>(
+  source: T[],
+  activeFilters: ActiveFilters,
+) {
+  let list = [...source];
+
+  if (activeFilters.monthWindowAuto && !activeFilters.month) {
+    const prevMonth = activeFilters.currentMonth === 1 ? 12 : activeFilters.currentMonth - 1;
+    const nextMonth = activeFilters.currentMonth === 12 ? 1 : activeFilters.currentMonth + 1;
+    const allowed = new Set([prevMonth, activeFilters.currentMonth, nextMonth]);
+    list = list.filter((t) => allowed.has(t.month));
+  }
+
+  if (activeFilters.criticalOnly) {
+    list = list.filter((t) => isTaskDashboardCritical(t));
+  }
+
+  if (activeFilters.category) list = list.filter((t) => t.category === activeFilters.category);
+  if (activeFilters.priority) list = list.filter((t) => t.priority === activeFilters.priority);
+  if (activeFilters.status) list = list.filter((t) => t.status === activeFilters.status);
+  if (activeFilters.month) list = list.filter((t) => t.month === activeFilters.month);
+
+  if (activeFilters.search) {
+    const q = activeFilters.search.toLowerCase();
+    list = list.filter((t) =>
+      t.title.toLowerCase().includes(q) ||
+      (t.description ?? "").toLowerCase().includes(q)
+    );
+  }
+
+  return sortTasksForList(list);
+}
+
+
 // ── Page ─────────────────────────────────────────────────────────────
 
 interface PageProps {
@@ -45,6 +120,8 @@ interface PageProps {
     status?: string;
     month?: string;
     q?: string;
+    criticalOnly?: string;
+    autoMonthWindow?: string;
   }>;
 }
 
@@ -55,22 +132,28 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const filterStat = sp.status ?? "";
   const filterMonth = sp.month ? parseInt(sp.month) : 0;
   const filterQ = sp.q ?? "";
+  const criticalOnly = sp.criticalOnly === "1";
+  const currentMonth = new Date().getMonth() + 1;
+  const autoMonthWindowDisabled = sp.autoMonthWindow === "0";
+  const monthWindowAuto = !sp.month && !autoMonthWindowDisabled;
 
   // ── fetch all tasks (server-side) ──
-  let allTasks = await db.query.tasks.findMany({
+  const sourceTasks = await db.query.tasks.findMany({
     with: { subtasks: true },
-    orderBy: (t, { asc, desc }) => [desc(t.priority), asc(t.month), asc(t.dateFrom)],
   });
 
-  // ── apply filters ──
-  if (filterCat) allTasks = allTasks.filter(t => t.category === filterCat);
-  if (filterPri) allTasks = allTasks.filter(t => t.priority === filterPri);
-  if (filterStat) allTasks = allTasks.filter(t => t.status === filterStat);
-  if (filterMonth) allTasks = allTasks.filter(t => t.month === filterMonth);
-  if (filterQ) allTasks = allTasks.filter(t =>
-    t.title.toLowerCase().includes(filterQ.toLowerCase()) ||
-    (t.description ?? "").toLowerCase().includes(filterQ.toLowerCase())
-  );
+  const activeFiltersState: ActiveFilters = {
+    category: filterCat,
+    priority: filterPri,
+    status: filterStat,
+    month: filterMonth,
+    search: filterQ,
+    criticalOnly,
+    monthWindowAuto,
+    currentMonth,
+  };
+
+  const allTasks = updateTaskList(sourceTasks as any, activeFiltersState);
 
   // stats
   const total = allTasks.length;
@@ -78,7 +161,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
   const critical = allTasks.filter(t => t.priority === "critical" && t.status !== "done").length;
 
   // Active filters count (for badge)
-  const activeFilters = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ].filter(Boolean).length;
+  const activeFiltersCount = [filterCat, filterPri, filterStat, filterMonth ? String(filterMonth) : "", filterQ, criticalOnly ? "criticalOnly" : "", monthWindowAuto ? "monthWindowAuto" : ""].filter(Boolean).length;
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -106,7 +189,9 @@ export default async function TasksPage({ searchParams }: PageProps) {
         filterStat={filterStat}
         filterMonth={filterMonth}
         filterQ={filterQ}
-        activeFilters={activeFilters}
+        activeFilters={activeFiltersCount}
+        criticalOnly={criticalOnly}
+        monthWindowAuto={monthWindowAuto}
       />
 
       {/* ── Task list ── */}
@@ -125,9 +210,9 @@ function buildUrl(params: Record<string, string | number>) {
   return "/tasks?" + entries.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
 }
 
-function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, activeFilters }: {
+function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, activeFilters, criticalOnly, monthWindowAuto }: {
   filterCat: string; filterPri: string; filterStat: string;
-  filterMonth: number; filterQ: string; activeFilters: number;
+  filterMonth: number; filterQ: string; activeFilters: number; criticalOnly: boolean; monthWindowAuto: boolean;
 }) {
   const base = {
     category: filterCat,
@@ -135,20 +220,21 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
     status: filterStat,
     month: filterMonth,
     q: filterQ,
+    criticalOnly: criticalOnly ? 1 : 0,
+    autoMonthWindow: monthWindowAuto ? "" : "0",
   };
 
   return (
     <div className="space-y-2.5">
-      {/* Search + clear */}
       <div className="flex items-center gap-2.5">
-        {/* Search (client form with GET) */}
         <form method="GET" action="/tasks" className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl"
           style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
-          {/* Hidden fields to preserve other filters */}
           {filterCat && <input type="hidden" name="category" value={filterCat} />}
           {filterPri && <input type="hidden" name="priority" value={filterPri} />}
           {filterStat && <input type="hidden" name="status" value={filterStat} />}
           {filterMonth > 0 && <input type="hidden" name="month" value={filterMonth} />}
+          {criticalOnly && <input type="hidden" name="criticalOnly" value="1" />}
+          {!monthWindowAuto && <input type="hidden" name="autoMonthWindow" value="0" />}
           <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 13 }}>⌕</span>
           <input name="q" defaultValue={filterQ} placeholder="Поиск задач..."
             className="flex-1 bg-transparent text-[12px] outline-none"
@@ -162,7 +248,6 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
           )}
         </form>
 
-        {/* Clear all filters */}
         {activeFilters > 0 && (
           <a href="/tasks"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-mono tracking-wide transition-all"
@@ -172,110 +257,131 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, act
         )}
       </div>
 
-      {/* Filter pills row */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Priority pills */}
-        <div className="flex gap-1">
-          {PRIORITIES.map(p => {
-            const active = filterPri === p.value;
-            const url = buildUrl({ ...base, priority: active ? "" : p.value });
-            return (
-              <a key={p.value} href={url}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
-                style={active ? {
-                  background: `${p.color}22`,
-                  border: `1px solid ${p.color}55`,
-                  color: p.color,
-                  boxShadow: `0 2px 10px ${p.color}18`,
-                } : {
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.35)",
-                }}>
-                {p.label}
+      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }} open={activeFilters > 0}>
+        <summary className="cursor-pointer list-none flex items-center justify-between">
+          <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+            // ФИЛЬТРЫ ЗАДАЧ
+          </span>
+          <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
+            {activeFilters > 0 ? `Активно: ${activeFilters}` : "Скрыты"}
+          </span>
+        </summary>
+
+        <div className="mt-3 space-y-3">
+          {monthWindowAuto && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={{ color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }}>
+                Авто-период: предыдущий · текущий · следующий месяц
+              </span>
+              <a
+                href={buildUrl({ ...base, autoMonthWindow: "0" })}
+                className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
+                style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.03)" }}
+              >
+                отключить
               </a>
-            );
-          })}
-        </div>
+            </div>
+          )}
 
-        <div className="w-px h-4 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-        {/* Status pills */}
-        <div className="flex gap-1">
-          {STATUSES.map(s => {
-            const active = filterStat === s.value;
-            const url = buildUrl({ ...base, status: active ? "" : s.value });
-            return (
-              <a key={s.value} href={url}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
-                style={active ? {
-                  background: `${s.color}18`,
-                  border: `1px solid ${s.color}45`,
-                  color: s.color,
-                  boxShadow: `0 2px 10px ${s.color}12`,
-                } : {
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "rgba(255,255,255,0.35)",
-                }}>
-                {s.label}
-              </a>
-            );
-          })}
-        </div>
-
-        <div className="w-px h-4 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-        {/* Month pills - compact (just numbers) */}
-        <div className="flex gap-1">
-          {MONTHS_SHORT.slice(1).map((m, i) => {
-            const monthNum = i + 1;
-            const active = filterMonth === monthNum;
-            const url = buildUrl({ ...base, month: active ? 0 : monthNum });
-            return (
-              <a key={monthNum} href={url}
-                className="w-8 py-1.5 rounded-lg text-[9px] font-mono font-semibold tracking-wide transition-all text-center"
-                style={active ? {
-                  background: "rgba(59,130,246,0.2)",
-                  border: "1px solid rgba(59,130,246,0.5)",
-                  color: "#93c5fd",
-                  boxShadow: "0 2px 10px rgba(59,130,246,0.15)",
-                } : {
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  color: "rgba(255,255,255,0.28)",
-                }}>
-                {m}
-              </a>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Category chips */}
-      <div className="flex gap-1.5 flex-wrap">
-        {CATEGORIES.map(cat => {
-          const active = filterCat === cat.code;
-          const url = buildUrl({ ...base, category: active ? "" : cat.code });
-          return (
-            <a key={cat.code} href={url}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
-              style={active ? {
-                background: `${cat.color}18`,
-                border: `1px solid ${cat.color}45`,
-                color: cat.color,
-                boxShadow: `0 2px 12px ${cat.color}14`,
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Быстрый фильтр:</span>
+            <a href={buildUrl({ ...base, criticalOnly: criticalOnly ? 0 : 1, priority: criticalOnly ? filterPri : "critical", status: criticalOnly ? filterStat : "" })}
+              className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
+              style={criticalOnly ? {
+                background: "rgba(239,68,68,0.22)", border: "1px solid rgba(239,68,68,0.55)", color: "#fca5a5",
               } : {
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                color: "rgba(255,255,255,0.3)",
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)",
               }}>
-              <span className="text-[11px]">{cat.icon}</span>
-              {cat.code}
+              ⚠ Критичные (не выполнено)
             </a>
-          );
-        })}
-      </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Приоритет:</span>
+            <div className="flex gap-1 flex-wrap">
+              {PRIORITIES.map(p => {
+                const active = filterPri === p.value;
+                const url = buildUrl({ ...base, priority: active ? "" : p.value });
+                return (
+                  <a key={p.value} href={url}
+                    className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
+                    style={active ? {
+                      background: `${p.color}22`, border: `1px solid ${p.color}55`, color: p.color,
+                    } : {
+                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                    }}>
+                    {p.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Статус:</span>
+            <div className="flex gap-1 flex-wrap">
+              {STATUSES.map(s => {
+                const active = filterStat === s.value;
+                const url = buildUrl({ ...base, status: active ? "" : s.value });
+                return (
+                  <a key={s.value} href={url}
+                    className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
+                    style={active ? {
+                      background: `${s.color}18`, border: `1px solid ${s.color}45`, color: s.color,
+                    } : {
+                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                    }}>
+                    {s.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Месяц:</span>
+            <div className="flex gap-1 flex-wrap">
+              {MONTHS_SHORT.slice(1).map((m, i) => {
+                const monthNum = i + 1;
+                const active = filterMonth === monthNum;
+                const url = buildUrl({ ...base, month: active ? 0 : monthNum });
+                return (
+                  <a key={monthNum} href={url}
+                    className="w-8 py-1.5 rounded-lg text-[9px] font-mono font-semibold tracking-wide transition-all text-center"
+                    style={active ? {
+                      background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.5)", color: "#93c5fd",
+                    } : {
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.28)",
+                    }}>
+                    {m}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Категория:</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {CATEGORIES.map(cat => {
+                const active = filterCat === cat.code;
+                const url = buildUrl({ ...base, category: active ? "" : cat.code });
+                return (
+                  <a key={cat.code} href={url}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
+                    style={active ? {
+                      background: `${cat.color}18`, border: `1px solid ${cat.color}45`, color: cat.color,
+                    } : {
+                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)",
+                    }}>
+                    <span className="text-[11px]">{cat.icon}</span>
+                    {cat.code}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
