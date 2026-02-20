@@ -4,6 +4,7 @@ import { db }       from "@/lib/db";
 import { tasks, subtasks } from "@/lib/db/schema";
 import { eq }       from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { isTaskDashboardCritical } from "@/lib/tasks/critical";
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -27,9 +28,10 @@ export type SubtaskInsert = {
 
 // ── Dashboard ─────────────────────────────────────────────────────────
 
+
 export async function getDashboardStats() {
   const all = await db.select().from(tasks);
-  const critical = all.filter(t => t.priority === "critical" && t.status !== "done").length;
+  const critical = all.filter((t) => isTaskDashboardCritical(t)).length;
   const done     = all.filter(t => t.status === "done").length;
   const total    = all.length;
   return { critical, done, total };
@@ -52,6 +54,7 @@ export async function createTask(data: TaskInsert) {
       status:      data.status ?? "pending",
     }).returning();
     revalidatePath("/tasks");
+    revalidatePath("/timeline");
     revalidatePath("/dashboard");
     revalidatePath("/");
     return { success: true, task: created };
@@ -69,6 +72,7 @@ export async function completeTask(id: number) {
     .set({ status: "done" })
     .where(eq(subtasks.taskId, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
 }
@@ -81,6 +85,7 @@ export async function reopenTask(id: number) {
     .set({ status: "pending" })
     .where(eq(subtasks.taskId, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
 }
@@ -99,9 +104,36 @@ export async function deleteTask(id: number) {
   await db.delete(subtasks).where(eq(subtasks.taskId, id));
   await db.delete(tasks).where(eq(tasks.id, id));
   revalidatePath("/tasks");
+  revalidatePath("/timeline");
   revalidatePath("/dashboard");
   revalidatePath("/");
   return { success: true };
+}
+
+
+export async function getTasksByResponsible(responsible: string) {
+  return db.query.tasks.findMany({
+    where: eq(tasks.responsible, responsible as any),
+    with: { subtasks: true },
+    orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
+  });
+}
+
+export async function getTimelineTasks() {
+  return db.query.tasks.findMany({
+    columns: {
+      id: true,
+      title: true,
+      category: true,
+      month: true,
+      dateFrom: true,
+      dateTo: true,
+      responsible: true,
+      status: true,
+      priority: true,
+    },
+    orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
+  });
 }
 
 // ── Subtask CRUD ──────────────────────────────────────────────────────
