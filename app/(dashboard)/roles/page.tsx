@@ -12,6 +12,7 @@ type Rank =
   | "Сержант" | "Младший сержант" | "Рядовой";
 
 type Status = "active" | "on-leave" | "sick" | "detached";
+type PersonnelCode = "КВ-1" | "КВ-2" | "СР" | "КНР" | "ЗКВ-1" | "ЗКВ-2";
 
 interface Person {
   id:         string;
@@ -20,7 +21,7 @@ interface Person {
   patronymic: string;
   rank:       Rank;
   role:       string;
-  code:       string;
+  code:       PersonnelCode;
   status:     Status;
   phone?:     string;
   tasks:      number;
@@ -52,24 +53,17 @@ const RANK_TIER: Record<Rank, { color: string; short: string }> = {
 };
 
 const MOCK_PERSONNEL: Person[] = [
-  { id:"1",  lastName:"Алексеев", firstName:"Сергей", patronymic:"Павлович",    rank:"Капитан",           role:"Командир взвода",   code:"КВ-2",  status:"active",    phone:"+7-900-101-00-01", tasks:3, tasksDone:10, specialty:"Куратор КВ-1" },
-  { id:"2",  lastName:"Белов",    firstName:"Игорь",  patronymic:"Иванович",    rank:"Старший лейтенант", role:"Командир взвода",   code:"КВ-1",  status:"active",    phone:"+7-900-101-00-02", tasks:5, tasksDone:12, specialty:"Работает с ЗКВ-2" },
-  { id:"3",  lastName:"Воронов",  firstName:"Павел",  patronymic:"Андреевич",   rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-2", status:"active",    phone:"+7-900-101-00-03", tasks:4, tasksDone:11, specialty:"Работает с КВ-1" },
-  { id:"4",  lastName:"Громов",   firstName:"Роман",  patronymic:"Васильевич",  rank:"Старший лейтенант", role:"Командир взвода",   code:"КВ-1",  status:"active",    phone:"+7-900-101-00-04", tasks:4, tasksDone:9,  specialty:"Работает с ЗКВ-2" },
-  { id:"5",  lastName:"Данилов",  firstName:"Антон",  patronymic:"Львович",     rank:"Старший лейтенант", role:"Командир взвода",   code:"КВ-1",  status:"on-leave",  phone:"+7-900-101-00-05", tasks:3, tasksDone:8,  specialty:"Работает с ЗКВ-2" },
-  { id:"6",  lastName:"Елисеев",  firstName:"Дмитрий",patronymic:"Олегович",    rank:"Сержант",           role:"Старший расчёта",  code:"СР",    status:"active",    phone:"+7-900-101-00-06", tasks:2, tasksDone:6,  specialty:"Работает с ЗКВ-1" },
-  { id:"7",  lastName:"Жуков",    firstName:"Кирилл", patronymic:"Максимович",  rank:"Старший лейтенант", role:"Командир взвода",   code:"КВ-1",  status:"active",    phone:"+7-900-101-00-07", tasks:4, tasksDone:10, specialty:"Работает с ЗКВ-1" },
-  { id:"8",  lastName:"Зимин",    firstName:"Олег",   patronymic:"Юрьевич",     rank:"Майор",             role:"Командир научной роты",code:"КНР",status:"active",    phone:"+7-900-101-00-08", tasks:1, tasksDone:5,  specialty:"Общий контроль" },
-  { id:"9",  lastName:"Иванов",   firstName:"Максим", patronymic:"Георгиевич",  rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-1", status:"active",    phone:"+7-900-101-00-09", tasks:4, tasksDone:10, specialty:"Работает с КВ-1" },
-  { id:"10", lastName:"Калинин",  firstName:"Андрей", patronymic:"Степанович",  rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-1", status:"sick",      phone:"+7-900-101-00-10", tasks:3, tasksDone:7,  specialty:"Работает с ЗКВ-2" },
-  { id:"11", lastName:"Ларионов", firstName:"Илья",   patronymic:"Сергеевич",   rank:"Старший лейтенант", role:"Командир взвода",   code:"КВ-1",  status:"active",    phone:"+7-900-101-00-11", tasks:4, tasksDone:9,  specialty:"Работает с ЗКВ-2" },
-  { id:"12", lastName:"Мельник",  firstName:"Артём",  patronymic:"Петрович",    rank:"Сержант",           role:"Старший расчёта",  code:"СР",    status:"active",    phone:"+7-900-101-00-12", tasks:2, tasksDone:5,  specialty:"Работает с ЗКВ-1" },
-  { id:"13", lastName:"Никитин",  firstName:"Вадим",  patronymic:"Денисович",   rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-1", status:"detached",  phone:"+7-900-101-00-13", tasks:3, tasksDone:8,  specialty:"Работает с СР" },
-  { id:"14", lastName:"Орлов",    firstName:"Тимур",  patronymic:"Анатольевич", rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-1", status:"active",    phone:"+7-900-101-00-14", tasks:3, tasksDone:8,  specialty:"Работает с СР" },
-  { id:"15", lastName:"Панин",    firstName:"Даниил", patronymic:"Михайлович",  rank:"Старший лейтенант", role:"Зам. командира",    code:"ЗКВ-2", status:"active",    phone:"+7-900-101-00-15", tasks:3, tasksDone:9,  specialty:"Работает с ЗКВ-1" },
+  { id:"1", lastName:"Штатная", firstName:"единица", patronymic:"КВ-2",  rank:"Капитан",           role:"Командир взвода",      code:"КВ-2",  status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id:"2", lastName:"Штатная", firstName:"единица", patronymic:"КВ-1",  rank:"Старший лейтенант", role:"Командир взвода",      code:"КВ-1",  status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id:"3", lastName:"Штатная", firstName:"единица", patronymic:"СР",    rank:"Сержант",           role:"Старший расчёта",     code:"СР",    status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id:"4", lastName:"Штатная", firstName:"единица", patronymic:"КНР",   rank:"Майор",             role:"Командир научной роты", code:"КНР",   status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id:"5", lastName:"Штатная", firstName:"единица", patronymic:"ЗКВ-1", rank:"Старший лейтенант", role:"Зам. командира",       code:"ЗКВ-1", status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
+  { id:"6", lastName:"Штатная", firstName:"единица", patronymic:"ЗКВ-2", rank:"Старший лейтенант", role:"Зам. командира",       code:"ЗКВ-2", status:"active",   tasks:0, tasksDone:0, specialty:"Должность" },
 ];
 
 // ── Главный компонент ──────────────────────────────────────────────────
+
+const ALLOWED_PERSONNEL_CODES: PersonnelCode[] = ["КВ-1", "КВ-2", "СР", "КНР", "ЗКВ-1", "ЗКВ-2"];
 
 export default function RolesPage() {
   const [search,       setSearch      ] = useState("");
@@ -77,8 +71,13 @@ export default function RolesPage() {
   const [selected,     setSelected    ] = useState<Person | null>(null);
   const [viewMode,     setViewMode    ] = useState<"grid" | "list">("grid");
 
+  const basePersonnel = useMemo(
+    () => MOCK_PERSONNEL.filter((p) => ALLOWED_PERSONNEL_CODES.includes(p.code)),
+    [],
+  );
+
   const personnel = useMemo(() => {
-    let list = [...MOCK_PERSONNEL];
+    let list = [...basePersonnel];
     if (filterStatus !== "all") list = list.filter(p => p.status === filterStatus);
     if (search) {
       const q = search.toLowerCase();
@@ -91,16 +90,16 @@ export default function RolesPage() {
       );
     }
     return list;
-  }, [search, filterStatus]);
+  }, [basePersonnel, search, filterStatus]);
 
   const stats = useMemo(() => ({
-    total:    MOCK_PERSONNEL.length,
-    active:   MOCK_PERSONNEL.filter(p => p.status === "active").length,
-    onLeave:  MOCK_PERSONNEL.filter(p => p.status === "on-leave").length,
-    sick:     MOCK_PERSONNEL.filter(p => p.status === "sick").length,
-    detached: MOCK_PERSONNEL.filter(p => p.status === "detached").length,
-    tasksBusy:MOCK_PERSONNEL.filter(p => p.tasks > 0).length,
-  }), []);
+    total:    basePersonnel.length,
+    active:   basePersonnel.filter(p => p.status === "active").length,
+    onLeave:  basePersonnel.filter(p => p.status === "on-leave").length,
+    sick:     basePersonnel.filter(p => p.status === "sick").length,
+    detached: basePersonnel.filter(p => p.status === "detached").length,
+    tasksBusy:basePersonnel.filter(p => p.tasks > 0).length,
+  }), [basePersonnel]);
 
   const STAT_ITEMS = [
     { label: "ВСЕГО Л/С",  value: stats.total,    color: "#93c5fd" },
