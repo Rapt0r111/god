@@ -765,8 +765,8 @@ function PersonModal({
                     <div className="space-y-1.5 max-h-[340px] overflow-y-auto pr-1">
                       {selectedTask.subtasks.map((sub, idx) => (
                         <button key={sub.id}
-                          onClick={() => { setSelectedSubtaskId(sub.id); openTaskDetails(selectedTask.id); }}
-                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedSubtaskId(sub.id); openTaskDetails(selectedTask.id); } }}
+                          onClick={() => { setSelectedSubtaskId(sub.id); setSelectedTaskId(selectedTask.id); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedSubtaskId(sub.id); setSelectedTaskId(selectedTask.id); } }}
                           data-task-id={selectedTask.id}
                           data-subtask-id={sub.id}
                           role="button"
