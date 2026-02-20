@@ -1,6 +1,18 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const fontSans = Inter({
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-sans",
+});
+
+const fontMono = JetBrains_Mono({
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   title: "ЦСУ ПД | Научная рота",
@@ -9,16 +21,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
+    <html lang="ru" className={`${fontSans.variable} ${fontMono.variable}`}>
+      <body className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 antialiased">
         {children}
       </body>
     </html>

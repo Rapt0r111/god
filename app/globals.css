@@ -35,9 +35,9 @@
   --color-priority-normal:   #10b981;
 
   /* ── Шрифты ── */
-  --font-mono:    "JetBrains Mono", "Fira Code", "Consolas", monospace;
-  --font-display: "Inter", system-ui, sans-serif;
-  --font-body:    "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-mono), "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  --font-display: var(--font-sans), "Inter", "Segoe UI", "Roboto", system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-sans), "Inter", "Segoe UI", "Roboto", system-ui, -apple-system, sans-serif;
 
   /* ── Радиусы ── */
   --radius-sm: 6px;
@@ -57,18 +57,43 @@
     background: #070d1a;
     background-attachment: fixed;
     color: var(--color-text-primary);
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1;
   }
 
   body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
     background:
       radial-gradient(ellipse 70% 55% at 8% -5%, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.03) 45%, transparent 72%),
       radial-gradient(ellipse 65% 45% at 95% 110%, rgba(167,139,250,0.14) 0%, rgba(167,139,250,0.02) 50%, transparent 75%),
       radial-gradient(ellipse 40% 25% at 50% 8%, rgba(16,185,129,0.08) 0%, transparent 70%),
       linear-gradient(180deg, #050914 0%, #0a1427 50%, #060b18 100%);
     min-height: 100vh;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    line-height: 1.4;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
   /* ── Scrollbar ── */
