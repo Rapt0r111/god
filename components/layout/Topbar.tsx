@@ -30,10 +30,10 @@ function LiveClock() {
 
   return (
     <div className="flex items-center gap-1 font-mono">
-      <span className="text-[15px] font-bold tracking-widest" style={{ color: "#34d399" }}>
+      <span className="text-[15px] font-bold tabular-nums tracking-widest" style={{ color: "#1ae8a0", textShadow: "0 0 16px rgba(26,232,160,0.4)" }}>
         {time.h}:{time.m}
       </span>
-      <span className="text-[11px] tabular-nums" style={{ color: "rgba(52,211,153,0.45)" }}>
+      <span className="text-[11px] tabular-nums" style={{ color: "rgba(26,232,160,0.35)" }}>
         :{time.s}
       </span>
     </div>
@@ -46,19 +46,19 @@ export function Topbar({ criticalCount }: TopbarProps) {
 
   const today = new Date().toLocaleDateString("ru-RU", {
     weekday: "short",
-    day:     "numeric",
-    month:   "long",
-    year:    "numeric",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
   return (
     <header
       className="h-14 min-h-14 flex items-center px-5 gap-4"
       style={{
-        background: "linear-gradient(90deg, #151f31, #111a2c)",
-        backdropFilter: "blur(20px)",
-        borderBottom: "1px solid var(--border-color)",
-        boxShadow: "0 2px 16px rgba(2,6,23,0.34)",
+        background: "linear-gradient(90deg, rgba(7,13,26,0.96), rgba(4,8,15,0.98))",
+        backdropFilter: "blur(24px)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        boxShadow: "0 2px 20px rgba(0,0,0,0.4)",
       }}
     >
       {/* Back button */}
@@ -66,72 +66,68 @@ export function Topbar({ criticalCount }: TopbarProps) {
         type="button"
         onClick={() => window.history.back()}
         disabled={pathname === "/"}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
         style={{
-          border: "1px solid var(--border-color)",
-          background: "var(--bg-card)",
-          color: "var(--text-secondary)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(255,255,255,0.03)",
+          color: "rgba(136,153,187,0.7)",
           fontSize: "11px",
           fontFamily: "var(--font-mono)",
         }}
-        onMouseEnter={(e) => {
+        onMouseEnter={e => {
           if (!e.currentTarget.disabled) {
-            e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-            e.currentTarget.style.color = "rgba(255,255,255,0.9)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
+            e.currentTarget.style.color = "#eef2ff";
           }
         }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-          e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+        onMouseLeave={e => {
+          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+          e.currentTarget.style.color = "rgba(136,153,187,0.7)";
         }}
       >
         ← <span className="tracking-wider">НАЗАД</span>
       </button>
 
-      {/* Divider */}
-      <div className="w-px h-6 shrink-0" style={{ background: "rgba(255,255,255,0.08)" }} />
+      <div className="w-px h-5 shrink-0" style={{ background: "rgba(255,255,255,0.07)" }} />
 
       {/* Page title */}
       <div className="flex items-center gap-2.5">
-        <span className="text-[14px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <span className="text-[14px]" style={{ color: "rgba(136,153,187,0.5)" }}>
           {meta.icon}
         </span>
         <h2
-          className="text-[14px] font-semibold tracking-wide uppercase"
-          style={{ color: "var(--text-primary)", letterSpacing: "0.08em" }}
+          className="text-[13px] font-semibold tracking-widest uppercase"
+          style={{ color: "#eef2ff", letterSpacing: "0.1em" }}
         >
           {meta.title}
         </h2>
         {meta.desc && (
           <span
             className="text-[9px] font-mono tracking-wider hidden lg:block"
-            style={{ color: "rgba(255,255,255,0.18)" }}
+            style={{ color: "rgba(74,90,122,0.6)" }}
           >
             // {meta.desc}
           </span>
         )}
       </div>
 
-      {/* Critical alert */}
+      {/* Critical badge */}
       {criticalCount > 0 && (
         <div
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
           style={{
-            background: "rgba(239,68,68,0.09)",
-            border: "1px solid rgba(239,68,68,0.22)",
-            boxShadow: "0 0 12px rgba(239,68,68,0.08)",
+            background: "rgba(255,107,107,0.08)",
+            border: "1px solid rgba(255,107,107,0.2)",
+            boxShadow: "0 0 16px rgba(255,107,107,0.08)",
           }}
         >
           <span
-            className="w-1.5 h-1.5 rounded-full animate-pulse"
-            style={{ background: "#ef4444", boxShadow: "0 0 6px #ef4444" }}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: "#ff6b6b", boxShadow: "0 0 6px #ff6b6b", animation: "pulseGlow 1.5s ease-in-out infinite" }}
           />
-          <span
-            className="text-[10px] font-mono font-semibold tracking-wider"
-            style={{ color: "#fca5a5" }}
-          >
+          <span className="text-[10px] font-mono font-semibold tracking-wider" style={{ color: "#ff9999" }}>
             ⚠ {criticalCount} КРИТИЧНЫХ
           </span>
         </div>
@@ -140,13 +136,13 @@ export function Topbar({ criticalCount }: TopbarProps) {
       {/* Right side */}
       <div className="ml-auto flex items-center gap-4">
         <span
-          className="text-[11px] capitalize hidden md:block"
-          style={{ color: "rgba(255,255,255,0.28)", fontFamily: "var(--font-mono)" }}
+          className="text-[10px] capitalize hidden md:block font-mono"
+          style={{ color: "rgba(74,90,122,0.7)" }}
         >
           {today}
         </span>
 
-        <div className="w-px h-5 hidden md:block" style={{ background: "rgba(255,255,255,0.08)" }} />
+        <div className="w-px h-5 hidden md:block" style={{ background: "rgba(255,255,255,0.07)" }} />
 
         <LiveClock />
       </div>

@@ -5,19 +5,19 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const NAV_ITEMS = [
-  { href: "/",         icon: "◈", label: "Дашборд",      desc: "Обзор" },
-  { href: "/tasks",    icon: "≡", label: "Задачи",        desc: "Журнал" },
-  { href: "/timeline", icon: "◫", label: "Хронология",   desc: "Ганта" },
-  { href: "/roles",    icon: "◉", label: "Личный состав", desc: "Л/С" },
+  { href: "/",         icon: "◈", label: "Дашборд",       desc: "Overview" },
+  { href: "/tasks",    icon: "≡", label: "Задачи",         desc: "Tasks" },
+  { href: "/timeline", icon: "◫", label: "Хронология",    desc: "Timeline" },
+  { href: "/roles",    icon: "◉", label: "Личный состав",  desc: "Personnel" },
 ] as const;
 
 const CATEGORIES = [
-  { code: "Н",   icon: "⚗",  label: "Наука",            color: "#10b981" },
-  { code: "А",   icon: "📡", label: "Агитация",          color: "#3b82f6" },
-  { code: "БП",  icon: "🎯", label: "Боевая подготовка", color: "#ef4444" },
-  { code: "ПД",  icon: "⚙",  label: "Повседн. деят.",    color: "#f59e0b" },
-  { code: "У",   icon: "🏁", label: "Увольнение",        color: "#f97316" },
-  { code: "П",   icon: "🔰", label: "Призыв",            color: "#06b6d4" },
+  { code: "Н",   icon: "⚗",  label: "Наука",            color: "#1ae8a0" },
+  { code: "А",   icon: "📡", label: "Агитация",          color: "#4f8ef7" },
+  { code: "БП",  icon: "🎯", label: "Боевая подготовка", color: "#ff6b6b" },
+  { code: "ПД",  icon: "⚙",  label: "Повседн. деят.",    color: "#f5b942" },
+  { code: "У",   icon: "🏁", label: "Увольнение",        color: "#ff8c42" },
+  { code: "П",   icon: "🔰", label: "Призыв",            color: "#22d4f0" },
 ] as const;
 
 interface SidebarProps {
@@ -28,14 +28,13 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  // Persist collapse state
   useEffect(() => {
     const stored = localStorage.getItem("sidebar_collapsed");
     if (stored === "true") setCollapsed(true);
   }, []);
 
   const toggle = () => {
-    setCollapsed((prev) => {
+    setCollapsed(prev => {
       localStorage.setItem("sidebar_collapsed", String(!prev));
       return !prev;
     });
@@ -45,22 +44,22 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
     <nav
       className="relative flex flex-col z-20 transition-all duration-300 ease-in-out flex-shrink-0"
       style={{
-        width: collapsed ? 64 : 224,
-        background: "linear-gradient(180deg, #141f31 0%, #101a2b 100%)",
-        backdropFilter: "blur(24px)",
-        borderRight: "1px solid var(--border-color)",
-        boxShadow: "4px 0 32px rgba(0,0,0,0.5)",
+        width: collapsed ? 68 : 228,
+        background: "linear-gradient(180deg, rgba(7,13,26,0.96) 0%, rgba(4,8,15,0.98) 100%)",
+        backdropFilter: "blur(32px)",
+        borderRight: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "4px 0 40px rgba(0,0,0,0.6), 1px 0 0 rgba(255,255,255,0.04) inset",
       }}
     >
-      {/* ── Toggle button ── */}
+      {/* Toggle */}
       <button
         onClick={toggle}
         className="absolute -right-3 top-8 z-30 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200"
         style={{
-          background: "linear-gradient(135deg, #27344b, #1a2538)",
-          border: "1px solid var(--border-color)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-          color: "var(--text-secondary)",
+          background: "linear-gradient(135deg, rgba(20,32,56,0.95), rgba(12,21,40,0.98))",
+          border: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
+          color: "rgba(136,153,187,0.7)",
           fontSize: 10,
         }}
         title={collapsed ? "Развернуть" : "Свернуть"}
@@ -68,43 +67,55 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         {collapsed ? "›" : "‹"}
       </button>
 
-      {/* ── Logo ── */}
+      {/* Logo */}
       <div
         className="px-4 pt-6 pb-5 overflow-hidden"
-        style={{ borderBottom: "1px solid var(--border-color)" }}
+        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2.5 mb-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[14px] shrink-0"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-[15px] shrink-0 relative"
             style={{
-              background: "linear-gradient(135deg, rgba(59,130,246,0.35), rgba(99,102,241,0.2))",
-              border: "1px solid rgba(59,130,246,0.35)",
-              boxShadow: "0 0 16px rgba(59,130,246,0.2)",
+              background: "linear-gradient(135deg, rgba(79,142,247,0.3), rgba(34,212,240,0.15))",
+              border: "1px solid rgba(79,142,247,0.3)",
+              boxShadow: "0 0 20px rgba(79,142,247,0.2), 0 0 40px rgba(79,142,247,0.08)",
             }}
           >
             ◈
+            <span
+              className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+              style={{
+                background: "#1ae8a0",
+                boxShadow: "0 0 6px #1ae8a0",
+                animation: "pulseGlow 2s ease-in-out infinite",
+              }}
+            />
           </div>
           {!collapsed && (
-            <p
-              className="text-[9px] font-mono tracking-[3px] uppercase leading-none whitespace-nowrap"
-              style={{ color: "rgba(59,130,246,0.7)" }}
+            <span
+              className="text-[9px] font-mono tracking-[3px] uppercase"
+              style={{ color: "rgba(79,142,247,0.65)" }}
             >
               // система
-            </p>
+            </span>
           )}
         </div>
 
         {!collapsed && (
           <>
             <h1
-              className="text-[22px] font-bold tracking-wide leading-none mb-1"
-              style={{ color: "var(--text-primary)", letterSpacing: "0.05em" }}
+              className="text-[20px] font-bold tracking-wider leading-none mb-1.5"
+              style={{
+                color: "#eef2ff",
+                letterSpacing: "0.06em",
+                textShadow: "0 0 30px rgba(79,142,247,0.25)",
+              }}
             >
               ЦСУ ПД
             </h1>
             <p
-              className="text-[10px] font-mono tracking-[2px] uppercase"
-              style={{ color: "rgba(245,158,11,0.75)" }}
+              className="text-[9px] font-mono tracking-[2px] uppercase"
+              style={{ color: "rgba(245,185,66,0.65)" }}
             >
               Научная рота · В/Ч
             </p>
@@ -112,18 +123,18 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         )}
       </div>
 
-      {/* ── Nav items ── */}
+      {/* Nav */}
       <div className="flex-1 py-4 overflow-y-auto overflow-x-hidden">
         {!collapsed && (
           <p
-            className="text-[9px] font-mono tracking-[2.5px] uppercase px-4 pt-1 pb-3 whitespace-nowrap"
-            style={{ color: "var(--text-secondary)" }}
+            className="text-[8px] font-mono tracking-[2.5px] uppercase px-4 pb-3"
+            style={{ color: "rgba(74,90,122,0.8)" }}
           >
             Навигация
           </p>
         )}
 
-        <div className={collapsed ? "px-2 space-y-1" : "px-2 space-y-0.5"}>
+        <div className={collapsed ? "px-2 space-y-1.5" : "px-2.5 space-y-0.5"}>
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
             const hasCritical = item.href === "/tasks" && criticalCount > 0;
@@ -133,42 +144,69 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 title={collapsed ? item.label : undefined}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 relative group overflow-hidden"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-medium transition-all duration-200 relative group overflow-hidden"
                 style={active ? {
-                  background: "linear-gradient(135deg, rgba(99,102,241,0.24), rgba(99,102,241,0.12))",
-                  border: "1px solid var(--border-color)",
-                  color: "var(--text-secondary)",
-                  boxShadow: "0 2px 12px rgba(59,130,246,0.12)",
+                  background: "linear-gradient(135deg, rgba(79,142,247,0.2), rgba(34,212,240,0.08))",
+                  border: "1px solid rgba(79,142,247,0.3)",
+                  color: "#eef2ff",
+                  boxShadow: "0 4px 16px rgba(79,142,247,0.12), 0 1px 0 rgba(255,255,255,0.06) inset",
                 } : {
                   border: "1px solid transparent",
-                  color: "var(--text-secondary)",
+                  color: "rgba(136,153,187,0.7)",
+                }}
+                onMouseEnter={e => {
+                  if (!active) {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+                    e.currentTarget.style.color = "#eef2ff";
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!active) {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.borderColor = "transparent";
+                    e.currentTarget.style.color = "rgba(136,153,187,0.7)";
+                  }
                 }}
               >
                 {active && (
                   <div
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full"
-                    style={{ background: "#3b82f6", boxShadow: "0 0 8px #3b82f6" }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
+                    style={{
+                      width: 3,
+                      height: 22,
+                      background: "linear-gradient(180deg, #4f8ef7, #22d4f0)",
+                      boxShadow: "0 0 10px rgba(79,142,247,0.7)",
+                    }}
                   />
                 )}
 
                 <span
-                  className="text-[16px] shrink-0"
-                  style={{ opacity: active ? 1 : 0.6, width: 20, textAlign: "center" }}
+                  className="text-[15px] shrink-0 transition-transform group-hover:scale-110 duration-200"
+                  style={{
+                    opacity: active ? 1 : 0.55,
+                    width: 22,
+                    textAlign: "center",
+                    filter: active ? "drop-shadow(0 0 8px rgba(79,142,247,0.6))" : "none",
+                  }}
                 >
                   {item.icon}
                 </span>
 
                 {!collapsed && (
-                  <span className="flex-1 whitespace-nowrap">{item.label}</span>
+                  <span className="flex-1 whitespace-nowrap font-medium text-[13px]">
+                    {item.label}
+                  </span>
                 )}
 
                 {!collapsed && hasCritical && (
                   <span
-                    className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full ml-auto"
+                    className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full"
                     style={{
-                      background: "#ef4444",
-                      color: "#fff",
-                      boxShadow: "0 0 8px rgba(239,68,68,0.5)",
+                      background: "rgba(255,107,107,0.2)",
+                      border: "1px solid rgba(255,107,107,0.45)",
+                      color: "#ff9999",
+                      boxShadow: "0 0 8px rgba(255,107,107,0.3)",
                     }}
                   >
                     {criticalCount}
@@ -178,7 +216,10 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                 {collapsed && hasCritical && (
                   <span
                     className="absolute top-1 right-1 w-2 h-2 rounded-full"
-                    style={{ background: "#ef4444", boxShadow: "0 0 4px #ef4444" }}
+                    style={{
+                      background: "#ff6b6b",
+                      boxShadow: "0 0 6px #ff6b6b",
+                    }}
                   />
                 )}
               </Link>
@@ -186,15 +227,15 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
           })}
         </div>
 
-        {/* ── Categories ── */}
+        {/* Categories */}
         {!collapsed && (
           <div
-            className="mt-5 pt-4 px-2"
-            style={{ borderTop: "1px solid var(--border-color)" }}
+            className="mt-5 pt-4 px-2.5"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
           >
             <p
-              className="text-[9px] font-mono tracking-[2.5px] uppercase px-3 pb-2"
-              style={{ color: "var(--text-secondary)" }}
+              className="text-[8px] font-mono tracking-[2.5px] uppercase px-3 pb-2.5"
+              style={{ color: "rgba(74,90,122,0.8)" }}
             >
               Категории
             </p>
@@ -203,10 +244,18 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                 <Link
                   key={cat.code}
                   href={`/tasks?category=${cat.code}`}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-150 group"
-                  style={{ color: "rgba(255,255,255,0.4)" }}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 group"
+                  style={{ color: "rgba(136,153,187,0.5)" }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.035)";
+                    e.currentTarget.style.color = "rgba(238,242,255,0.8)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = "";
+                    e.currentTarget.style.color = "rgba(136,153,187,0.5)";
+                  }}
                 >
-                  <span className="text-[12px] group-hover:scale-110 transition-transform shrink-0">
+                  <span className="text-[12px] shrink-0 transition-transform group-hover:scale-110 duration-150">
                     {cat.icon}
                   </span>
                   <span
@@ -215,9 +264,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                   >
                     {cat.code}
                   </span>
-                  <span className="text-[11px] truncate group-hover:text-white/70 transition-colors">
-                    {cat.label}
-                  </span>
+                  <span className="text-[11px] truncate">{cat.label}</span>
                 </Link>
               ))}
             </div>
@@ -225,36 +272,29 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         )}
       </div>
 
-      {/* ── Status footer ── */}
+      {/* Footer */}
       <div
         className="px-3 py-4 overflow-hidden"
-        style={{ borderTop: "1px solid var(--border-color)" }}
+        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
       >
         {collapsed ? (
           <div className="flex flex-col items-center gap-2">
-            <span
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "#10b981", boxShadow: "0 0 6px #10b981" }}
-            />
-            <span
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "#f59e0b", boxShadow: "0 0 6px #f59e0b", animationDelay: "1.2s" }}
-            />
+            <span className="w-2 h-2 rounded-full" style={{ background: "#1ae8a0", boxShadow: "0 0 6px #1ae8a0", animation: "pulseGlow 2s ease-in-out infinite" }} />
           </div>
         ) : (
           <>
-            <StatusRow color="#10b981" label="Система активна" delay="0s" />
-            <div className="mt-1.5">
-              <StatusRow color="#f59e0b" label="Offline · Local-first" delay="1.2s" />
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#1ae8a0", boxShadow: "0 0 6px #1ae8a0", animation: "pulseGlow 2s ease-in-out infinite" }} />
+              <span className="text-[10px] font-mono" style={{ color: "rgba(136,153,187,0.5)" }}>Система онлайн</span>
             </div>
             <div
-              className="mt-3 px-3 py-2 rounded-lg"
+              className="px-3 py-2 rounded-xl"
               style={{
-                background: "rgba(59,130,246,0.05)",
-                border: "1px solid rgba(59,130,246,0.12)",
+                background: "rgba(79,142,247,0.05)",
+                border: "1px solid rgba(79,142,247,0.1)",
               }}
             >
-              <p className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>
+              <p className="text-[9px] font-mono" style={{ color: "rgba(74,90,122,0.9)" }}>
                 v1.0 · ЦСУ ПД 2025
               </p>
             </div>
@@ -262,22 +302,5 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         )}
       </div>
     </nav>
-  );
-}
-
-function StatusRow({ color, label, delay }: { color: string; label: string; delay: string }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <span
-        className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
-        style={{ backgroundColor: color, animationDelay: delay, boxShadow: `0 0 6px ${color}` }}
-      />
-      <span
-        className="text-[10px] font-mono tracking-wide whitespace-nowrap"
-        style={{ color: "rgba(255,255,255,0.3)" }}
-      >
-        {label}
-      </span>
-    </div>
   );
 }
