@@ -21,6 +21,18 @@ export type TaskInsert = {
   status:      string;
 };
 
+export type TaskUpdate = {
+  title:       string;
+  category:    string;
+  priority:    string;
+  responsible: string;
+  month:       number;
+  dateFrom:    number;
+  dateTo:      number;
+  description: string | null;
+  notes:       string | null;
+};
+
 export type SubtaskInsert = {
   title:       string;
   description?: string;
@@ -43,15 +55,15 @@ export async function createTask(data: TaskInsert) {
   try {
     const [created] = await db.insert(tasks).values({
       title:       data.title,
-      category:    data.category,
-      priority:    data.priority,
-      responsible: data.responsible,
+      category:    data.category as any,
+      priority:    data.priority as any,
+      responsible: data.responsible as any,
       month:       data.month,
       dateFrom:    data.dateFrom,
       dateTo:      data.dateTo,
       description: data.description,
       notes:       data.notes,
-      status:      data.status ?? "pending",
+      status:      (data.status ?? "pending") as any,
     }).returning();
     revalidatePath("/tasks");
     revalidatePath("/timeline");
@@ -61,6 +73,33 @@ export async function createTask(data: TaskInsert) {
   } catch (error) {
     console.error("createTask error:", error);
     return { success: false, error: "Ошибка создания задачи" };
+  }
+}
+
+export async function updateTask(id: number, data: TaskUpdate) {
+  try {
+    const [updated] = await db.update(tasks)
+      .set({
+        title:       data.title,
+        category:    data.category as any,
+        priority:    data.priority as any,
+        responsible: data.responsible as any,
+        month:       data.month,
+        dateFrom:    data.dateFrom,
+        dateTo:      data.dateTo,
+        description: data.description,
+        notes:       data.notes,
+      })
+      .where(eq(tasks.id, id))
+      .returning();
+    revalidatePath("/tasks");
+    revalidatePath("/timeline");
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    return { success: true, task: updated };
+  } catch (error) {
+    console.error("updateTask error:", error);
+    return { success: false, error: "Ошибка обновления задачи" };
   }
 }
 
@@ -131,6 +170,16 @@ export async function getTimelineTasks() {
       responsible: true,
       status: true,
       priority: true,
+    },
+    with: {
+      subtasks: {
+        columns: {
+          id: true,
+          title: true,
+          status: true,
+        },
+        orderBy: (s, { asc }) => [asc(s.order)],
+      },
     },
     orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
   });

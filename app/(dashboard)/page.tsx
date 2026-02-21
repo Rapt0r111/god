@@ -394,7 +394,7 @@ function GaugeSvg({ value, color }: { value: number; color: string }) {
           style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 30, fontWeight: 700 }}>
           {value}%
         </text>
-        <text x={cx} y={cy + 62} textAnchor="middle" fill="rgba(255,255,255,0.2)"
+        <text x={cx} y={cy + 58} textAnchor="middle" fill="rgba(255,255,255,0.2)"
           style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 8, letterSpacing: "2px" }}>
           ГОТОВНОСТЬ
         </text>

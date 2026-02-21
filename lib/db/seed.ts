@@ -584,7 +584,7 @@ const FEBRUARY: SeedTask[] = [
   // ЕМ (февраль)
   {
     title: "Сверка личных планов постоянного состава",
-    category: "ЕМ", priority: "normal", responsible: "КВ-1",
+    category: "ЕМ", priority: "normal", responsible: "КВ-2",
     month: 2, dateFrom: 20, dateTo: 28,
   },
   {
@@ -2194,6 +2194,11 @@ const OCTOBER: SeedTask[] = [
     month: 10, dateFrom: 1, dateTo: 20,
   },
   {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "ЗКВ-2",
+    month: 10, dateFrom: 1, dateTo: 20,
+  },
+  {
     title: "Дисциплинарная практика за месяц",
     category: "ЕМ", priority: "normal", responsible: "ЗКВ-2",
     month: 10, dateFrom: 1, dateTo: 20,
@@ -2469,6 +2474,11 @@ const NOVEMBER: SeedTask[] = [
   {
     title: "Проверка стенной печати",
     category: "ВПР", priority: "normal", responsible: "КВ-2",
+    month: 11, dateFrom: 25, dateTo: 25,
+  },
+    {
+    title: "Проверка стенной печати",
+    category: "ВПР", priority: "normal", responsible: "ЗКВ-2",
     month: 11, dateFrom: 25, dateTo: 25,
   },
   {
