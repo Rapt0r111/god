@@ -3,22 +3,22 @@
 
 @theme {
   /* ── Фоны ── */
-  --color-bg-deep:    #070d1a;
-  --color-bg-panel:   #0d1829;
-  --color-bg-card:    #111e32;
-  --color-bg-hover:   rgba(255,255,255,0.04);
-  --color-bg-modal:   rgba(8, 15, 30, 0.92);
+  --color-bg-deep:    #101b2e;
+  --color-bg-panel:   #16253d;
+  --color-bg-card:    #1b2d49;
+  --color-bg-hover:   rgba(255,255,255,0.08);
+  --color-bg-modal:   rgba(18, 31, 50, 0.94);
 
   /* ── Границы ── */
-  --color-border:        rgba(255,255,255,0.08);
-  --color-border-bright: rgba(255,255,255,0.18);
+  --color-border:        rgba(255,255,255,0.14);
+  --color-border-bright: rgba(255,255,255,0.28);
   --color-border-glow:   rgba(59,130,246,0.35);
 
   /* ── Текст ── */
   --color-text-primary:   #e8f0fe;
-  --color-text-secondary: #9fb6cd;
-  --color-text-dim:       #3d5470;
-  --color-text-muted:     rgba(255,255,255,0.42);
+  --color-text-secondary: #bfd1e8;
+  --color-text-dim:       #7b97ba;
+  --color-text-muted:     rgba(255,255,255,0.62);
 
   /* ── Акценты ── */
   --color-accent-blue:   #3b82f6;
@@ -54,7 +54,7 @@
 
   html {
     color-scheme: dark;
-    background: #070d1a;
+    background: #101b2e;
     background-attachment: fixed;
     color: var(--color-text-primary);
     font-family: var(--font-body);
@@ -70,10 +70,10 @@
     line-height: 1.6;
     letter-spacing: 0.01em;
     background:
-      radial-gradient(ellipse 70% 55% at 8% -5%, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.03) 45%, transparent 72%),
-      radial-gradient(ellipse 65% 45% at 95% 110%, rgba(167,139,250,0.14) 0%, rgba(167,139,250,0.02) 50%, transparent 75%),
-      radial-gradient(ellipse 40% 25% at 50% 8%, rgba(16,185,129,0.08) 0%, transparent 70%),
-      linear-gradient(180deg, #050914 0%, #0a1427 50%, #060b18 100%);
+      radial-gradient(ellipse 70% 55% at 8% -5%, rgba(96,165,250,0.28) 0%, rgba(59,130,246,0.08) 45%, transparent 72%),
+      radial-gradient(ellipse 65% 45% at 95% 110%, rgba(196,181,253,0.2) 0%, rgba(167,139,250,0.06) 50%, transparent 75%),
+      radial-gradient(ellipse 40% 25% at 50% 8%, rgba(52,211,153,0.14) 0%, transparent 70%),
+      linear-gradient(180deg, #0d172a 0%, #16243e 52%, #0f1b31 100%);
     min-height: 100vh;
   }
 
@@ -119,25 +119,25 @@
 
   /* Базовое стекло */
   .glass {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.06);
     backdrop-filter: blur(20px) saturate(1.2);
     -webkit-backdrop-filter: blur(20px) saturate(1.2);
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
   }
 
   /* Поднятое стекло (панели, карточки) */
   .glass-elevated {
     background: linear-gradient(
       145deg,
-      rgba(255,255,255,0.06) 0%,
-      rgba(255,255,255,0.02) 100%
+      rgba(255,255,255,0.12) 0%,
+      rgba(255,255,255,0.04) 100%
     );
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    border: 1px solid rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.16);
     box-shadow:
-      0 8px 32px rgba(0,0,0,0.4),
-      0 1px 0 rgba(255,255,255,0.08) inset,
+      0 8px 32px rgba(0,0,0,0.32),
+      0 1px 0 rgba(255,255,255,0.12) inset,
       0 -1px 0 rgba(0,0,0,0.2) inset;
   }
 
@@ -145,24 +145,24 @@
   .glass-card {
     background: linear-gradient(
       135deg,
-      rgba(255,255,255,0.05) 0%,
-      rgba(255,255,255,0.02) 60%,
-      rgba(59,130,246,0.03) 100%
+      rgba(255,255,255,0.1) 0%,
+      rgba(255,255,255,0.04) 60%,
+      rgba(96,165,250,0.08) 100%
     );
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.16);
     box-shadow:
-      0 4px 24px rgba(0,0,0,0.3),
-      0 1px 0 rgba(255,255,255,0.06) inset;
+      0 4px 24px rgba(0,0,0,0.24),
+      0 1px 0 rgba(255,255,255,0.1) inset;
     transition: all 0.2s ease;
   }
 
   .glass-card:hover {
-    border-color: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.24);
     box-shadow:
-      0 8px 32px rgba(0,0,0,0.4),
-      0 1px 0 rgba(255,255,255,0.08) inset;
+      0 8px 32px rgba(0,0,0,0.3),
+      0 1px 0 rgba(255,255,255,0.12) inset;
     transform: translateY(-1px);
   }
 
@@ -170,12 +170,12 @@
   .glass-modal {
     background: linear-gradient(
       145deg,
-      rgba(13,24,41,0.95) 0%,
-      rgba(7,13,26,0.9) 100%
+      rgba(22,37,61,0.96) 0%,
+      rgba(14,27,46,0.92) 100%
     );
     backdrop-filter: blur(40px) saturate(1.5);
     -webkit-backdrop-filter: blur(40px) saturate(1.5);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
     box-shadow:
       0 24px 80px rgba(0,0,0,0.7),
       0 1px 0 rgba(255,255,255,0.1) inset,
