@@ -46,9 +46,9 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
       className="relative flex flex-col z-20 transition-all duration-300 ease-in-out flex-shrink-0"
       style={{
         width: collapsed ? 64 : 224,
-        background: "linear-gradient(180deg, rgba(7,13,26,0.99) 0%, rgba(10,18,32,0.97) 100%)",
+        background: "linear-gradient(180deg, #141f31 0%, #101a2b 100%)",
         backdropFilter: "blur(24px)",
-        borderRight: "1px solid rgba(255,255,255,0.07)",
+        borderRight: "1px solid var(--border-color)",
         boxShadow: "4px 0 32px rgba(0,0,0,0.5)",
       }}
     >
@@ -57,10 +57,10 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         onClick={toggle}
         className="absolute -right-3 top-8 z-30 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200"
         style={{
-          background: "linear-gradient(135deg, #1e3a5f, #0d1829)",
-          border: "1px solid rgba(59,130,246,0.3)",
+          background: "linear-gradient(135deg, #27344b, #1a2538)",
+          border: "1px solid var(--border-color)",
           boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-          color: "#93c5fd",
+          color: "var(--text-secondary)",
           fontSize: 10,
         }}
         title={collapsed ? "Развернуть" : "Свернуть"}
@@ -71,7 +71,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
       {/* ── Logo ── */}
       <div
         className="px-4 pt-6 pb-5 overflow-hidden"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ borderBottom: "1px solid var(--border-color)" }}
       >
         <div className="flex items-center gap-2 mb-3">
           <div
@@ -98,7 +98,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
           <>
             <h1
               className="text-[22px] font-bold tracking-wide leading-none mb-1"
-              style={{ color: "#e8f0fe", letterSpacing: "0.05em" }}
+              style={{ color: "var(--text-primary)", letterSpacing: "0.05em" }}
             >
               ЦСУ ПД
             </h1>
@@ -117,7 +117,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         {!collapsed && (
           <p
             className="text-[9px] font-mono tracking-[2.5px] uppercase px-4 pt-1 pb-3 whitespace-nowrap"
-            style={{ color: "rgba(255,255,255,0.2)" }}
+            style={{ color: "var(--text-secondary)" }}
           >
             Навигация
           </p>
@@ -135,13 +135,13 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                 title={collapsed ? item.label : undefined}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 relative group overflow-hidden"
                 style={active ? {
-                  background: "linear-gradient(135deg, rgba(59,130,246,0.2), rgba(99,102,241,0.1))",
-                  border: "1px solid rgba(59,130,246,0.3)",
-                  color: "#93c5fd",
+                  background: "linear-gradient(135deg, rgba(99,102,241,0.24), rgba(99,102,241,0.12))",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-secondary)",
                   boxShadow: "0 2px 12px rgba(59,130,246,0.12)",
                 } : {
                   border: "1px solid transparent",
-                  color: "rgba(255,255,255,0.45)",
+                  color: "var(--text-secondary)",
                 }}
               >
                 {active && (
@@ -190,11 +190,11 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         {!collapsed && (
           <div
             className="mt-5 pt-4 px-2"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+            style={{ borderTop: "1px solid var(--border-color)" }}
           >
             <p
               className="text-[9px] font-mono tracking-[2.5px] uppercase px-3 pb-2"
-              style={{ color: "rgba(255,255,255,0.2)" }}
+              style={{ color: "var(--text-secondary)" }}
             >
               Категории
             </p>
@@ -228,7 +228,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
       {/* ── Status footer ── */}
       <div
         className="px-3 py-4 overflow-hidden"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ borderTop: "1px solid var(--border-color)" }}
       >
         {collapsed ? (
           <div className="flex flex-col items-center gap-2">
@@ -254,7 +254,7 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
                 border: "1px solid rgba(59,130,246,0.12)",
               }}
             >
-              <p className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>
+              <p className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>
                 v1.0 · ЦСУ ПД 2025
               </p>
             </div>

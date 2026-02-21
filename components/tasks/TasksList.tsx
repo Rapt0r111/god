@@ -121,16 +121,16 @@ const inputStyle: CSSProperties = {
   padding: "9px 12px",
   borderRadius: 8,
   fontSize: 13,
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.09)",
-  color: "#e8f0fe",
+  background: "var(--bg-input)",
+  border: "1px solid var(--border-color)",
+  color: "var(--text-primary)",
   outline: "none",
   transition: "border-color 0.15s",
   fontFamily: "inherit",
 };
 
 const labelCls = "text-[9px] font-mono tracking-[2px] uppercase block mb-1.5";
-const labelStyle: CSSProperties = { color: "rgba(255,255,255,0.3)" };
+const labelStyle: CSSProperties = { color: "var(--text-secondary)" };
 
 // ── AutoTextarea ──────────────────────────────────────────────────────
 
@@ -221,7 +221,7 @@ function SubtaskRow({ subtask, onDelete, onStatusChange, onContentChange }: {
               if (e.key === "Escape") { setTitle(subtask.title); setEditing(false); }
             }}
             className="flex-1 px-2 py-0.5 rounded text-[12px] outline-none"
-            style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.3)", color: "#e8f0fe" }}
+            style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.3)", color: "var(--text-primary)" }}
           />
         ) : (
           <span className="flex-1 text-[12px] cursor-text select-none"
@@ -236,14 +236,14 @@ function SubtaskRow({ subtask, onDelete, onStatusChange, onContentChange }: {
             className="flex items-center justify-center rounded transition-all"
             style={{ width: 20, height: 20, fontSize: 9, fontFamily: "var(--font-mono)",
               border: "1px solid rgba(255,255,255,0.12)",
-              background: showDesc ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.05)",
-              color: showDesc ? "#93c5fd" : "rgba(255,255,255,0.4)" }}>
+              background: showDesc ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.05)",
+              color: showDesc ? "#c7d2fe" : "rgba(255,255,255,0.4)" }}>
             {desc ? "≡" : "+"}
           </button>
           <button onClick={() => onDelete(subtask.id)}
             className="flex items-center justify-center rounded transition-all"
-            style={{ width: 20, height: 20, fontSize: 13, border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.25)" }}
+            style={{ width: 20, height: 20, fontSize: 13, border: "1px solid var(--border-color)",
+              background: "#1a2435", color: "var(--text-secondary)" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.25)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
             ×
@@ -255,7 +255,7 @@ function SubtaskRow({ subtask, onDelete, onStatusChange, onContentChange }: {
           <AutoTextarea value={desc} onChange={setDesc}
             onBlur={() => { if (desc !== (subtask.description ?? "")) startTransition(async () => { await updateSubtask(subtask.id, { description: desc }); onContentChange(subtask.id, { description: desc || null }); }); }}
             placeholder="Описание подзадачи..."
-            style={{ width: "100%", padding: "6px 10px", borderRadius: 8, fontSize: 11, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(200,216,232,0.7)", fontFamily: "var(--font-mono)", outline: "none" }}
+            style={{ width: "100%", padding: "6px 10px", borderRadius: 8, fontSize: 11, background: "#1a2435", border: "1px solid var(--border-color)", color: "rgba(200,216,232,0.7)", fontFamily: "var(--font-mono)", outline: "none" }}
           />
         </div>
       )}
@@ -279,7 +279,7 @@ function AddSubtaskInput({ taskId, onAdd }: { taskId: number; onAdd: (s: Subtask
   };
 
   return (
-    <div className="flex items-center gap-2.5 mt-2 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+    <div className="flex items-center gap-2.5 mt-2 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
       <div className="w-1 h-1 rounded-full shrink-0 ml-0.5" style={{ background: "rgba(255,255,255,0.15)" }} />
       <div className="flex items-center justify-center shrink-0 rounded" style={{ width: 18, height: 18, border: "1px dashed rgba(255,255,255,0.15)" }} />
       <input value={value} onChange={e => setValue(e.target.value)}
@@ -326,12 +326,12 @@ function NotesSection({ task, onTaskPatch }: { task: TaskData; onTaskPatch: (id:
     });
   };
 
-  const fieldStyle: CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, fontSize: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(200,216,232,0.85)", outline: "none", transition: "border-color 0.15s ease", fontFamily: "inherit", lineHeight: 1.6 };
+  const fieldStyle: CSSProperties = { width: "100%", padding: "10px 12px", borderRadius: 8, fontSize: 12, background: "#1a2435", border: "1px solid var(--border-color)", color: "rgba(200,216,232,0.85)", outline: "none", transition: "border-color 0.15s ease", fontFamily: "inherit", lineHeight: 1.6 };
 
   return (
     <div className="space-y-3">
       <label className="block">
-        <span className="text-[9px] font-mono tracking-[2px] uppercase block mb-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>// Описание задачи</span>
+        <span className="text-[9px] font-mono tracking-[2px] uppercase block mb-1.5" style={{ color: "var(--text-secondary)" }}>// Описание задачи</span>
         <AutoTextarea value={desc} onChange={setDesc} onBlur={() => saveField("description", desc)} placeholder="Детальное описание задачи..." style={fieldStyle} />
       </label>
       <label className="block">
@@ -340,7 +340,7 @@ function NotesSection({ task, onTaskPatch }: { task: TaskData; onTaskPatch: (id:
           style={{ ...fieldStyle, color: "rgba(245,158,11,0.75)", fontFamily: "var(--font-mono)", fontSize: 11 }} />
       </label>
       <div className="text-right h-4">
-        {saving && <span className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>сохранение...</span>}
+        {saving && <span className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>сохранение...</span>}
         {saved  && <span className="text-[10px] font-mono" style={{ color: "#10b981" }}>✓ сохранено</span>}
       </div>
     </div>
@@ -459,13 +459,13 @@ function EditTaskModal({
               <span style={{ fontSize: 14 }}>✎</span>
             </div>
             <div>
-              <h3 className="text-[14px] font-semibold" style={{ color: "#e8f0fe" }}>Редактирование задачи</h3>
-              <p className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>// ID #{task.id} · {task.responsible}</p>
+              <h3 className="text-[14px] font-semibold" style={{ color: "var(--text-primary)" }}>Редактирование задачи</h3>
+              <p className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>// ID #{task.id} · {task.responsible}</p>
             </div>
           </div>
           <button onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[18px] transition-all"
-            style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.35)" }}
+            style={{ border: "1px solid rgba(255,255,255,0.1)", background: "var(--bg-input)", color: "var(--text-secondary)" }}
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.35)"; }}>
             ×
@@ -502,9 +502,9 @@ function EditTaskModal({
                       border: `1px solid ${cat.color}50`,
                       color: cat.color,
                     } : {
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      color: "rgba(255,255,255,0.3)",
+                      background: "#1a2435",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--text-secondary)",
                     }}>
                     <span className="text-[11px]">{cat.icon}</span> {cat.code}
                   </button>
@@ -528,7 +528,7 @@ function EditTaskModal({
                         border: `1px solid ${p.color}50`,
                         color: p.color,
                       } : {
-                        background: "rgba(255,255,255,0.03)",
+                        background: "#1a2435",
                         border: "1px solid rgba(255,255,255,0.07)",
                         color: "rgba(255,255,255,0.28)",
                       }}>
@@ -547,13 +547,13 @@ function EditTaskModal({
                     <button key={p} type="button" onClick={() => set("responsible", p)}
                       className="py-2 rounded-lg text-[10px] font-mono font-bold tracking-wide transition-all"
                       style={active ? {
-                        background: "rgba(59,130,246,0.18)",
-                        border: "1px solid rgba(59,130,246,0.5)",
-                        color: "#93c5fd",
+                        background: "rgba(99,102,241,0.18)",
+                        border: "1px solid rgba(99,102,241,0.5)",
+                        color: "#c7d2fe",
                       } : {
-                        background: "rgba(255,255,255,0.03)",
+                        background: "#1a2435",
                         border: "1px solid rgba(255,255,255,0.07)",
-                        color: "rgba(255,255,255,0.3)",
+                        color: "var(--text-secondary)",
                       }}>
                       {p}
                     </button>
@@ -574,13 +574,13 @@ function EditTaskModal({
                   <button key={monthNum} type="button" onClick={() => set("month", monthNum)}
                     className="px-2.5 py-1.5 rounded-lg text-[9px] font-mono font-semibold transition-all"
                     style={active ? {
-                      background: "rgba(59,130,246,0.2)",
-                      border: "1px solid rgba(59,130,246,0.5)",
-                      color: "#93c5fd",
+                      background: "rgba(99,102,241,0.2)",
+                      border: "1px solid rgba(99,102,241,0.5)",
+                      color: "#c7d2fe",
                     } : {
-                      background: "rgba(255,255,255,0.03)",
+                      background: "#1a2435",
                       border: "1px solid rgba(255,255,255,0.07)",
-                      color: "rgba(255,255,255,0.25)",
+                      color: "var(--text-secondary)",
                     }}>
                     {m.substring(0, 3).toUpperCase()}
                   </button>
@@ -597,19 +597,19 @@ function EditTaskModal({
                 <p className="text-[9px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.2)" }}>С числа</p>
                 <input type="number" min={1} max={31} value={form.dateFrom}
                   onChange={e => set("dateFrom", Math.min(31, Math.max(1, parseInt(e.target.value) || 1)))}
-                  style={{ ...inputStyle, textAlign: "center", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-mono)", color: "#93c5fd" }}
+                  style={{ ...inputStyle, textAlign: "center", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-mono)", color: "#c7d2fe" }}
                 />
               </div>
               <div className="flex flex-col items-center gap-1 pt-4">
-                <div className="h-px w-8" style={{ background: "rgba(59,130,246,0.35)" }} />
+                <div className="h-px w-8" style={{ background: "rgba(99,102,241,0.35)" }} />
                 <span className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>→</span>
-                <div className="h-px w-8" style={{ background: "rgba(59,130,246,0.35)" }} />
+                <div className="h-px w-8" style={{ background: "rgba(99,102,241,0.35)" }} />
               </div>
               <div className="flex-1">
                 <p className="text-[9px] font-mono mb-1" style={{ color: "rgba(255,255,255,0.2)" }}>По число</p>
                 <input type="number" min={1} max={31} value={form.dateTo}
                   onChange={e => set("dateTo", Math.min(31, Math.max(1, parseInt(e.target.value) || 1)))}
-                  style={{ ...inputStyle, textAlign: "center", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-mono)", color: "#93c5fd" }}
+                  style={{ ...inputStyle, textAlign: "center", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-mono)", color: "#c7d2fe" }}
                 />
               </div>
               <div className="flex-1 pt-4">
@@ -651,7 +651,7 @@ function EditTaskModal({
                 </button>
                 <button onClick={() => setConfirmDelete(false)}
                   className="px-3 py-1.5 rounded-lg text-[11px] font-mono transition-all"
-                  style={{ border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)" }}>
+                  style={{ border: "1px solid rgba(255,255,255,0.12)", background: "var(--bg-input)", color: "rgba(255,255,255,0.5)" }}>
                   Отмена
                 </button>
               </div>
@@ -691,7 +691,7 @@ function EditTaskModal({
           <div className="flex items-center gap-2 shrink-0">
             <button type="button" onClick={onClose}
               className="px-4 py-2 rounded-xl text-[12px] font-mono tracking-wide transition-all"
-              style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}
+              style={{ border: "1px solid rgba(255,255,255,0.1)", background: "var(--bg-input)", color: "rgba(255,255,255,0.4)" }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}>
               Отмена
@@ -809,8 +809,8 @@ function TaskRow({ task, onOpen, onTaskPatch, onEdit }: {
           className="flex items-center justify-center w-7 h-7 rounded-lg transition-all shrink-0 opacity-0 group-hover:opacity-100"
           style={{
             border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.04)",
-            color: "rgba(255,255,255,0.35)",
+            background: "var(--bg-input)",
+            color: "var(--text-secondary)",
             fontSize: 13,
           }}
           onMouseEnter={e => {
@@ -827,9 +827,9 @@ function TaskRow({ task, onOpen, onTaskPatch, onEdit }: {
           ✎
         </button>
 
-        <span className="shrink-0 text-[13px] opacity-0 group-hover:opacity-50 transition-opacity" style={{ color: "#93c5fd" }}>→</span>
+        <span className="shrink-0 text-[13px] opacity-0 group-hover:opacity-50 transition-opacity" style={{ color: "#c7d2fe" }}>→</span>
 
-        {isPending && <span className="text-[10px] font-mono animate-pulse shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>···</span>}
+        {isPending && <span className="text-[10px] font-mono animate-pulse shrink-0" style={{ color: "var(--text-secondary)" }}>···</span>}
       </div>
     </div>
   );
@@ -981,7 +981,7 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
             {/* Close button */}
             <button onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-lg transition-all text-[18px]"
-              style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.4)" }}
+              style={{ border: "1px solid rgba(255,255,255,0.1)", background: "var(--bg-input)", color: "rgba(255,255,255,0.4)" }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
               title="Закрыть (Esc)">
@@ -994,7 +994,7 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
         {subsTotal > 0 && (
           <div className="px-5 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[9px] font-mono tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>ПРОГРЕСС ПОДЗАДАЧ</span>
+              <span className="text-[9px] font-mono tracking-wider" style={{ color: "var(--text-secondary)" }}>ПРОГРЕСС ПОДЗАДАЧ</span>
               <span className="text-[10px] font-mono" style={{ color: progress === 100 ? "#10b981" : "rgba(255,255,255,0.4)" }}>{progress}%</span>
             </div>
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
@@ -1011,7 +1011,7 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className="px-5 py-2.5 text-[11px] font-mono tracking-wide transition-all relative"
-                style={{ color: isActive ? "#93c5fd" : "rgba(255,255,255,0.3)", borderBottom: isActive ? "2px solid #3b82f6" : "2px solid transparent", background: isActive ? "rgba(59,130,246,0.05)" : "transparent" }}>
+                style={{ color: isActive ? "#c7d2fe" : "rgba(255,255,255,0.3)", borderBottom: isActive ? "2px solid #3b82f6" : "2px solid transparent", background: isActive ? "rgba(99,102,241,0.05)" : "transparent" }}>
                 {tab.label}
               </button>
             );
@@ -1022,29 +1022,29 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
         <div className="flex-1 overflow-y-auto p-5">
           {activeTab === "info" && (
             <div className="space-y-4">
-              <div className="rounded-xl p-4" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(59,130,246,0.04))", border: "1px solid rgba(59,130,246,0.2)" }}>
-                <p className="text-[9px] font-mono tracking-[2px] uppercase mb-3" style={{ color: "rgba(59,130,246,0.6)" }}>// Сроки исполнения</p>
+              <div className="rounded-xl p-4" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.08), rgba(99,102,241,0.04))", border: "1px solid rgba(99,102,241,0.2)" }}>
+                <p className="text-[9px] font-mono tracking-[2px] uppercase mb-3" style={{ color: "rgba(99,102,241,0.6)" }}>// Сроки исполнения</p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center">
-                    <p className="text-[9px] font-mono tracking-wider mb-1" style={{ color: "rgba(255,255,255,0.25)" }}>НАЧАЛО</p>
-                    <p className="text-[22px] font-bold font-mono tabular-nums" style={{ color: "#93c5fd" }}>{task.dateFrom}</p>
-                    <p className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>{MONTHS_SHORT[task.month]}</p>
+                    <p className="text-[9px] font-mono tracking-wider mb-1" style={{ color: "var(--text-secondary)" }}>НАЧАЛО</p>
+                    <p className="text-[22px] font-bold font-mono tabular-nums" style={{ color: "#c7d2fe" }}>{task.dateFrom}</p>
+                    <p className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>{MONTHS_SHORT[task.month]}</p>
                   </div>
                   <div className="text-center flex flex-col items-center justify-center">
                     <div className="flex items-center gap-1 mb-1">
-                      <div className="h-px w-6" style={{ background: "rgba(59,130,246,0.4)" }} />
+                      <div className="h-px w-6" style={{ background: "rgba(99,102,241,0.4)" }} />
                       <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>→</span>
-                      <div className="h-px w-6" style={{ background: "rgba(59,130,246,0.4)" }} />
+                      <div className="h-px w-6" style={{ background: "rgba(99,102,241,0.4)" }} />
                     </div>
                     <p className="text-[11px] font-mono font-semibold" style={{ color: "#60a5fa" }}>{durationDays} {durationDays === 1 ? "день" : durationDays < 5 ? "дня" : "дней"}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[9px] font-mono tracking-wider mb-1" style={{ color: "rgba(255,255,255,0.25)" }}>КОНЕЦ</p>
-                    <p className="text-[22px] font-bold font-mono tabular-nums" style={{ color: "#93c5fd" }}>{task.dateTo}</p>
-                    <p className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>{MONTHS_SHORT[task.month]}</p>
+                    <p className="text-[9px] font-mono tracking-wider mb-1" style={{ color: "var(--text-secondary)" }}>КОНЕЦ</p>
+                    <p className="text-[22px] font-bold font-mono tabular-nums" style={{ color: "#c7d2fe" }}>{task.dateTo}</p>
+                    <p className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>{MONTHS_SHORT[task.month]}</p>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid rgba(59,130,246,0.15)" }}>
+                <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid rgba(99,102,241,0.15)" }}>
                   <p className="text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.45)" }}>{dateStr}</p>
                 </div>
               </div>
@@ -1056,8 +1056,8 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
                   { label: "ПРИОРИТЕТ",    value: priLabel,                   color: priColor  },
                   { label: "СТАТУС",       value: statusMeta.label,           color: statusMeta.color },
                 ].map(row => (
-                  <div key={row.label} className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                    <p className="text-[8px] font-mono tracking-[1.5px] uppercase mb-1.5" style={{ color: "rgba(255,255,255,0.25)" }}>{row.label}</p>
+                  <div key={row.label} className="rounded-xl p-3" style={{ background: "#1a2435", border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <p className="text-[8px] font-mono tracking-[1.5px] uppercase mb-1.5" style={{ color: "var(--text-secondary)" }}>{row.label}</p>
                     <p className="text-[12px] font-semibold font-mono" style={{ color: row.color }}>{row.value}</p>
                   </div>
                 ))}
@@ -1065,7 +1065,7 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
 
               {task.description && (
                 <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                  <p className="text-[9px] font-mono tracking-[2px] uppercase mb-2" style={{ color: "rgba(255,255,255,0.25)" }}>// Описание</p>
+                  <p className="text-[9px] font-mono tracking-[2px] uppercase mb-2" style={{ color: "var(--text-secondary)" }}>// Описание</p>
                   <p className="text-[12px] leading-relaxed" style={{ color: "rgba(200,216,232,0.8)" }}>{task.description}</p>
                 </div>
               )}
@@ -1079,9 +1079,9 @@ function TaskDetailsModal({ task, onClose, onTaskPatch, onEdit }: {
 
               <button onClick={() => setActiveTab("subtasks")}
                 className="w-full py-2.5 rounded-xl text-[11px] font-mono tracking-wider transition-all duration-200"
-                style={{ border: "1px solid rgba(59,130,246,0.25)", background: "rgba(59,130,246,0.06)", color: "#93c5fd" }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.12)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.06)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.25)"; }}>
+                style={{ border: "1px solid rgba(99,102,241,0.25)", background: "rgba(99,102,241,0.06)", color: "#c7d2fe" }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(99,102,241,0.12)"; e.currentTarget.style.borderColor = "rgba(99,102,241,0.4)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(99,102,241,0.06)"; e.currentTarget.style.borderColor = "rgba(99,102,241,0.25)"; }}>
                 ◻ Подзадачи{subsTotal > 0 ? ` · ${subsDone}/${subsTotal} выполнено` : " · нет"}
               </button>
             </div>

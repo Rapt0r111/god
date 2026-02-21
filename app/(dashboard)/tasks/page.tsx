@@ -176,10 +176,10 @@ export default async function TasksPage({ searchParams }: PageProps) {
       {/* ── Header row ── */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-[18px] font-bold tracking-wide" style={{ color: "#e8f0fe", letterSpacing: "0.04em" }}>
+          <h2 className="text-[18px] font-bold tracking-wide" style={{ color: "var(--text-primary)", letterSpacing: "0.04em" }}>
             Журнал задач
           </h2>
-          <p className="text-[11px] font-mono mt-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <p className="text-[11px] font-mono mt-0.5" style={{ color: "var(--text-secondary)" }}>
             {total} задач · {done} выполнено
             {critical > 0 && (
               <span className="ml-2" style={{ color: "#fca5a5" }}>· ⚠ {critical} критических</span>
@@ -237,7 +237,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
     <div className="space-y-2.5">
       <div className="flex items-center gap-2.5">
         <form method="GET" action="/tasks" className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl"
-          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)" }}>
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
           {filterCat && <input type="hidden" name="category" value={filterCat} />}
           {filterPri && <input type="hidden" name="priority" value={filterPri} />}
           {filterStat && <input type="hidden" name="status" value={filterStat} />}
@@ -252,7 +252,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
           {filterQ && (
             <a href={buildUrl({ ...base, q: "" })}
               className="text-[12px] leading-none transition-opacity hover:opacity-70"
-              style={{ color: "rgba(255,255,255,0.3)" }}>
+              style={{ color: "var(--text-secondary)" }}>
               ×
             </a>
           )}
@@ -267,11 +267,11 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
         )}
       </div>
 
-      <details className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>        <summary className="cursor-pointer list-none flex items-center justify-between">
-        <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "rgba(255,255,255,0.6)" }}>
+      <details className="rounded-xl p-3" style={{ background: "#1a2435", border: "1px solid var(--border-color)" }}>        <summary className="cursor-pointer list-none flex items-center justify-between">
+        <span className="text-[11px] font-mono tracking-[1.4px]" style={{ color: "var(--text-primary)" }}>
             // ФИЛЬТРЫ ЗАДАЧ
         </span>
-        <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}>
+        <span className="text-[10px] font-mono px-2 py-1 rounded-lg" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#c7d2fe" }}>
           {activeFilters > 0 ? `Активно: ${activeFilters}` : "Скрыты"}
         </span>
       </summary>
@@ -279,33 +279,33 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
         <div className="mt-3 space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[9px] font-mono px-2 py-1 rounded-md" style={monthWindowAuto
-              ? { color: "#93c5fd", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }
-              : { color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.18)", background: "rgba(255,255,255,0.03)" }}>
+              ? { color: "#c7d2fe", border: "1px solid rgba(59,130,246,0.35)", background: "rgba(59,130,246,0.1)" }
+              : { color: "var(--text-secondary)", border: "1px solid rgba(255,255,255,0.18)", background: "#1a2435" }}>
               Авто-период: предыдущий · текущий · следующий месяц
             </span>
             <a
               href={buildUrl({ ...base, autoMonthWindow: monthWindowAuto ? "0" : "" })}
               className="text-[9px] font-mono px-2 py-1 rounded-md transition-all"
-              style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.03)" }}
+              style={{ color: "var(--text-primary)", border: "1px solid rgba(255,255,255,0.2)", background: "#1a2435" }}
             >
               {monthWindowAuto ? "отключить" : "включить"}
             </a>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Быстрый фильтр:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Быстрый фильтр:</span>
             <a href={buildUrl({ ...base, criticalOnly: criticalOnly ? 0 : 1 })}
               className="px-2.5 py-1.5 rounded-lg text-[10px] font-mono font-semibold tracking-wide transition-all"
               style={criticalOnly ? {
                 background: "rgba(239,68,68,0.22)", border: "1px solid rgba(239,68,68,0.55)", color: "#fca5a5",
               } : {
-                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.45)",
+                background: "var(--bg-card)", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
               }}>
               ⚠ Срочные (до 2 суток)
             </a>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Приоритет:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Приоритет:</span>
             <div className="flex gap-1 flex-wrap">
               {PRIORITIES.map(p => {
                 const active = filterPri === p.value;
@@ -316,7 +316,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
                     style={active ? {
                       background: `${p.color}22`, border: `1px solid ${p.color}55`, color: p.color,
                     } : {
-                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                      background: "var(--bg-card)", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
                     }}>
                     {p.label}
                   </a>
@@ -326,7 +326,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Статус:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Статус:</span>
             <div className="flex gap-1 flex-wrap">
               {STATUSES.map(s => {
                 const active = filterStat === s.value;
@@ -337,7 +337,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
                     style={active ? {
                       background: `${s.color}18`, border: `1px solid ${s.color}45`, color: s.color,
                     } : {
-                      background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)",
+                      background: "var(--bg-card)", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
                     }}>
                     {s.label}
                   </a>
@@ -347,7 +347,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Месяц:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Месяц:</span>
             <div className="flex gap-1 flex-wrap">
               {MONTHS_SHORT.slice(1).map((m, i) => {
                 const monthNum = i + 1;
@@ -357,9 +357,9 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
                   <a key={monthNum} href={url}
                     className="w-8 py-1.5 rounded-lg text-[9px] font-mono font-semibold tracking-wide transition-all text-center"
                     style={active ? {
-                      background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.5)", color: "#93c5fd",
+                      background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.5)", color: "#c7d2fe",
                     } : {
-                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.28)",
+                      background: "#1a2435", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
                     }}>
                     {m}
                   </a>
@@ -369,7 +369,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Личный состав:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Личный состав:</span>
             <div className="flex gap-1.5 flex-wrap">
               {RESPONSIBLES.map((responsible) => {
                 const active = filterResponsible === responsible;
@@ -378,9 +378,9 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
                   <a key={responsible} href={url}
                     className="px-2.5 py-1.5 rounded-xl text-[10px] font-mono font-semibold transition-all"
                     style={active ? {
-                      background: "rgba(59,130,246,0.18)", border: "1px solid rgba(59,130,246,0.45)", color: "#93c5fd",
+                      background: "rgba(59,130,246,0.18)", border: "1px solid rgba(59,130,246,0.45)", color: "#c7d2fe",
                     } : {
-                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)",
+                      background: "#1a2435", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
                     }}>
                     {responsible}
                   </a>
@@ -390,7 +390,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.28)" }}>Категория:</span>
+            <span className="text-[9px] font-mono" style={{ color: "var(--text-secondary)" }}>Категория:</span>
             <div className="flex gap-1.5 flex-wrap">
               {CATEGORIES.map(cat => {
                 const active = filterCat === cat.code;
@@ -401,7 +401,7 @@ function FilterBar({ filterCat, filterPri, filterStat, filterMonth, filterQ, fil
                     style={active ? {
                       background: `${cat.color}18`, border: `1px solid ${cat.color}45`, color: cat.color,
                     } : {
-                      background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.3)",
+                      background: "#1a2435", border: "1px solid var(--border-color)", color: "var(--text-secondary)",
                     }}>
                     <span className="text-[11px]">{cat.icon}</span>
                     {cat.code}

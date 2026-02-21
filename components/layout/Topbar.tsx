@@ -55,10 +55,10 @@ export function Topbar({ criticalCount }: TopbarProps) {
     <header
       className="h-14 min-h-14 flex items-center px-5 gap-4"
       style={{
-        background: "linear-gradient(90deg, rgba(7,13,26,0.99), rgba(10,18,32,0.97))",
+        background: "linear-gradient(90deg, #151f31, #111a2c)",
         backdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-        boxShadow: "0 2px 20px rgba(0,0,0,0.35)",
+        borderBottom: "1px solid var(--border-color)",
+        boxShadow: "0 2px 16px rgba(2,6,23,0.34)",
       }}
     >
       {/* Back button */}
@@ -68,9 +68,9 @@ export function Topbar({ criticalCount }: TopbarProps) {
         disabled={pathname === "/"}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
         style={{
-          border: "1px solid rgba(255,255,255,0.1)",
-          background: "rgba(255,255,255,0.04)",
-          color: "rgba(255,255,255,0.5)",
+          border: "1px solid var(--border-color)",
+          background: "var(--bg-card)",
+          color: "var(--text-secondary)",
           fontSize: "11px",
           fontFamily: "var(--font-mono)",
         }}
@@ -100,7 +100,7 @@ export function Topbar({ criticalCount }: TopbarProps) {
         </span>
         <h2
           className="text-[14px] font-semibold tracking-wide uppercase"
-          style={{ color: "#e8f0fe", letterSpacing: "0.08em" }}
+          style={{ color: "var(--text-primary)", letterSpacing: "0.08em" }}
         >
           {meta.title}
         </h2>
