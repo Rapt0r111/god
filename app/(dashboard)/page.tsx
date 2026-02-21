@@ -123,17 +123,17 @@ export default async function DashboardPage() {
 
         {/* Gauge — spans 2 rows */}
         <div
-          className="row-span-2 rounded-2xl p-5 relative overflow-hidden"
+          className="row-span-2 rounded-xl p-5 relative overflow-hidden"
           style={{
             background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 var(--border-color) inset",
           }}
         >
           <p
             className="text-[9px] font-mono tracking-[2px] uppercase mb-4"
-            style={{ color: "rgba(255,255,255,0.25)" }}
+            style={{ color: "var(--text-secondary)" }}
           >
             // Оперативная готовность
           </p>
@@ -150,14 +150,14 @@ export default async function DashboardPage() {
                 style={{
                   padding: "8px 12px",
                   borderRadius: 8,
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "#1a2435",
+                  border: "1px solid var(--border-color)",
                 }}
               >
-                <span className="text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <span className="text-[11px] font-mono" style={{ color: "var(--text-secondary)" }}>
                   {row.label}
                 </span>
-                <span className="text-[14px] font-bold font-mono tabular-nums" style={{ color: "#e8f0fe" }}>
+                <span className="text-[14px] font-bold font-mono tabular-nums" style={{ color: "var(--text-primary)" }}>
                   {row.value}
                 </span>
               </div>
@@ -167,26 +167,26 @@ export default async function DashboardPage() {
 
         {/* Monthly chart */}
         <div
-          className="col-span-3 rounded-2xl p-5"
+          className="col-span-3 rounded-xl p-5"
           style={{
             background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 var(--border-color) inset",
           }}
         >
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[9px] font-mono tracking-[2px] uppercase" style={{ color: "rgba(255,255,255,0.25)" }}>
+            <p className="text-[9px] font-mono tracking-[2px] uppercase" style={{ color: "var(--text-secondary)" }}>
               // Годовой план · нагрузка по месяцам
             </p>
             <div className="flex items-center gap-3 text-[9px] font-mono">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-1.5 rounded-full inline-block" style={{ background: "rgba(59,130,246,0.5)" }} />
-                <span style={{ color: "rgba(255,255,255,0.3)" }}>обычные</span>
+                <span className="w-3 h-1.5 rounded-full inline-block" style={{ background: "rgba(99,102,241,0.5)" }} />
+                <span style={{ color: "var(--text-secondary)" }}>обычные</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-3 h-1.5 rounded-full inline-block" style={{ background: "rgba(239,68,68,0.5)" }} />
-                <span style={{ color: "rgba(255,255,255,0.3)" }}>с критичными</span>
+                <span style={{ color: "var(--text-secondary)" }}>с критичными</span>
               </span>
             </div>
           </div>
@@ -210,12 +210,12 @@ export default async function DashboardPage() {
                             ? "linear-gradient(to top, #f59e0b, #fbbf24)"
                             : m.critical > 0
                               ? "linear-gradient(to top, rgba(239,68,68,0.55), rgba(239,68,68,0.15))"
-                              : "linear-gradient(to top, rgba(59,130,246,0.45), rgba(59,130,246,0.12))",
+                              : "linear-gradient(to top, rgba(99,102,241,0.45), rgba(59,130,246,0.12))",
                           border: isCur
                             ? "1px solid rgba(245,158,11,0.4)"
                             : m.critical > 0
                               ? "1px solid rgba(239,68,68,0.25)"
-                              : "1px solid rgba(59,130,246,0.2)",
+                              : "1px solid rgba(99,102,241,0.2)",
                           boxShadow: isCur ? "0 0 12px rgba(245,158,11,0.2)" : "none",
                           borderRadius: "4px 4px 0 0",
                         }}
@@ -224,7 +224,7 @@ export default async function DashboardPage() {
                   </div>
                   <span
                     className="text-[9px] font-mono tracking-wide"
-                    style={{ color: isCur ? "#fbbf24" : "rgba(255,255,255,0.25)" }}
+                    style={{ color: isCur ? "#fbbf24" : "var(--text-secondary)" }}
                   >
                     {MONTHS[m.month]}
                   </span>
@@ -239,12 +239,12 @@ export default async function DashboardPage() {
 
         {/* Critical tasks list */}
         <div
-          className="col-span-3 rounded-2xl p-5"
+          className="col-span-3 rounded-xl p-5"
           style={{
             background: "linear-gradient(145deg, rgba(239,68,68,0.04), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
             border: "1px solid rgba(239,68,68,0.12)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 #1a2435 inset",
           }}
         >
           <p className="text-[9px] font-mono tracking-[2px] uppercase mb-4" style={{ color: "rgba(239,68,68,0.5)" }}>
@@ -266,15 +266,15 @@ export default async function DashboardPage() {
 
         {/* Recurring tasks */}
         <div
-          className="rounded-2xl p-5"
+          className="rounded-xl p-5"
           style={{
             background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 1px 0 var(--border-color) inset",
           }}
         >
-          <p className="text-[9px] font-mono tracking-[2px] uppercase mb-4" style={{ color: "rgba(255,255,255,0.25)" }}>
+          <p className="text-[9px] font-mono tracking-[2px] uppercase mb-4" style={{ color: "var(--text-secondary)" }}>
             // Постоянные задачи
           </p>
           {[
@@ -291,14 +291,14 @@ export default async function DashboardPage() {
             <div
               key={i}
               className="flex items-center gap-2.5 py-2"
-              style={{ borderBottom: i < 8 ? "1px solid rgba(255,255,255,0.04)" : "none" }}
+              style={{ borderBottom: i < 8 ? "1px solid #1a2435" : "none" }}
             >
               <span
                 className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded"
                 style={r.freq === "ЕЖН" ? {
                   background: "rgba(59,130,246,0.1)",
                   color: "#60a5fa",
-                  border: "1px solid rgba(59,130,246,0.2)",
+                  border: "1px solid rgba(99,102,241,0.2)",
                 } : {
                   background: "rgba(245,158,11,0.1)",
                   color: "#fbbf24",
@@ -310,7 +310,7 @@ export default async function DashboardPage() {
               <span className="flex-1 text-[11px] leading-tight" style={{ color: "rgba(255,255,255,0.6)" }}>
                 {r.label}
               </span>
-              <span className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>
+              <span className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>
                 {r.role}
               </span>
             </div>
@@ -331,7 +331,7 @@ function KpiCard({
 }) {
   return (
     <div
-      className="rounded-2xl p-5 relative overflow-hidden"
+      className="rounded-xl p-5 relative overflow-hidden"
       style={{
         background: colorBg,
         border: `1px solid ${colorBorder}`,
@@ -339,7 +339,7 @@ function KpiCard({
         boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 40px ${color}08`,
       }}
     >
-      <p className="text-[9px] font-mono tracking-[2px] uppercase mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>
+      <p className="text-[9px] font-mono tracking-[2px] uppercase mb-3" style={{ color: "var(--text-secondary)" }}>
         {label}
       </p>
       <p
@@ -348,10 +348,10 @@ function KpiCard({
       >
         {value}
       </p>
-      <p className="text-[11px] mb-3 font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+      <p className="text-[11px] mb-3 font-mono" style={{ color: "var(--text-secondary)" }}>
         {sub}
       </p>
-      <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+      <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--border-color)" }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${progress}%`, background: color, boxShadow: `0 0 8px ${color}50` }}
@@ -381,7 +381,7 @@ function GaugeSvg({ value, color }: { value: number; color: string }) {
   return (
     <div className="flex justify-center">
       <svg width="200" height="160" viewBox="0 0 200 160">
-        <path d={arcPath(startAngle, sweepAngle)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" strokeLinecap="round" />
+        <path d={arcPath(startAngle, sweepAngle)} fill="none" stroke="var(--border-color)" strokeWidth="10" strokeLinecap="round" />
         {value > 0 && (
           <path d={arcPath(startAngle, sweepAngle * value / 100)} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
             style={{ filter: `drop-shadow(0 0 8px ${color}60)` }} />
@@ -439,11 +439,11 @@ function StaticTaskRow({ task }: { task: any }) {
         style={{ border: "1px solid rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.02)" }}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-medium truncate mb-1" style={{ color: "#e8f0fe", letterSpacing: "0.01em" }}>
+        <p className="text-[13px] font-medium truncate mb-1" style={{ color: "var(--text-primary)", letterSpacing: "0.01em" }}>
           {task.title}
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <span className="text-[10px] font-mono" style={{ color: "var(--text-secondary)" }}>
             {MONTH_SHORT[task.month]} {date}
           </span>
           <span
@@ -462,7 +462,7 @@ function StaticTaskRow({ task }: { task: any }) {
       </div>
       <span
         className="text-[12px] opacity-0 group-hover:opacity-60 transition-opacity"
-        style={{ color: "#93c5fd" }}
+        style={{ color: "#c7d2fe" }}
       >
         →
       </span>
