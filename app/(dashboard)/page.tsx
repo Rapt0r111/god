@@ -4,17 +4,8 @@ import { tasks } from "@/lib/db/schema";
 import { isTaskDashboardCritical as isDashboardTaskCritical } from "@/lib/tasks/critical";
 
 const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
-const CRITICAL_DUE_SOON_DAYS = 2;
 
-function isTaskDashboardCritical(task: { month: number; dateTo: number; status: string }) {
-  if (task.status === "done" || task.status === "cancelled") return false;
-
-  const now = new Date();
-  const dueDate = new Date(now.getFullYear(), task.month - 1, task.dateTo, 23, 59, 59, 999);
-  const daysLeft = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-  return daysLeft <= CRITICAL_DUE_SOON_DAYS;
-}
+type DashboardTask = Awaited<ReturnType<typeof getStats>>["criticalTasks"][number];
 
 async function getStats() {
   const allTasks = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
@@ -39,6 +30,10 @@ async function getStats() {
 
   const criticalTasks = allTasks
     .filter((t) => isDashboardTaskCritical(t))
+    .sort((a, b) => {
+      if (a.month !== b.month) return a.month - b.month;
+      return a.dateTo - b.dateTo;
+    })
     .slice(0, 6);
 
   return {
@@ -58,6 +53,7 @@ export default async function DashboardPage() {
   const readiness = total > 0 ? Math.round((done / total) * 100) : 0;
   const maxCount  = Math.max(...monthStats.map(m => m.total), 1);
   const gaugeColor = readiness < 30 ? "#ef4444" : readiness < 60 ? "#f59e0b" : "#10b981";
+  const inProgress = Math.max(total - done - critical, 0);
 
   return (
     <div className="space-y-5">
@@ -86,11 +82,7 @@ export default async function DashboardPage() {
 
       {/* ── BENTO GRID ── */}
       <div
-        className="grid gap-4"
-        style={{
-          gridTemplateColumns: "1fr 1fr 1fr 300px",
-          gridTemplateRows: "auto auto auto",
-        }}
+        className="grid gap-4 xl:grid-cols-[1fr_1fr_1fr_300px]"
       >
         {/* KPI cards */}
         <KpiCard
@@ -117,13 +109,13 @@ export default async function DashboardPage() {
           color="#10b981"
           colorBg="rgba(16,185,129,0.05)"
           colorBorder="rgba(16,185,129,0.15)"
-          sub={`из ${total} задач за год`}
+          sub={`${readiness}% · из ${total} задач за год`}
           progress={total > 0 ? (done / total) * 100 : 0}
         />
 
         {/* Gauge — spans 2 rows */}
         <div
-          className="row-span-2 rounded-xl p-5 relative overflow-hidden"
+          className="rounded-xl p-5 relative overflow-hidden xl:row-span-2"
           style={{
             background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
@@ -141,7 +133,7 @@ export default async function DashboardPage() {
           <div className="mt-5 space-y-3">
             {[
               { label: "🔴 КРИТИЧНЫЕ",  value: critical },
-              { label: "🟡 В РАБОТЕ",   value: total - done - critical },
+              { label: "🟡 В РАБОТЕ",   value: inProgress },
               { label: "🟢 ВЫПОЛНЕНО",  value: done },
             ].map(row => (
               <div
@@ -167,7 +159,7 @@ export default async function DashboardPage() {
 
         {/* Monthly chart */}
         <div
-          className="col-span-3 rounded-xl p-5"
+          className="rounded-xl p-5 xl:col-span-3"
           style={{
             background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
@@ -239,7 +231,7 @@ export default async function DashboardPage() {
 
         {/* Critical tasks list */}
         <div
-          className="col-span-3 rounded-xl p-5"
+          className="rounded-xl p-5 xl:col-span-3"
           style={{
             background: "linear-gradient(145deg, rgba(239,68,68,0.04), rgba(255,255,255,0.02))",
             backdropFilter: "blur(20px)",
@@ -421,18 +413,19 @@ const CATEGORY_META: Record<string, { icon: string; color: string }> = {
 
 const MONTH_SHORT = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
 
-function StaticTaskRow({ task }: { task: any }) {
+function StaticTaskRow({ task }: { task: DashboardTask }) {
   const cat  = CATEGORY_META[task.category] ?? { icon: "•", color: "#94a3b8" };
   const date = task.dateFrom === task.dateTo ? `${task.dateFrom}` : `${task.dateFrom}–${task.dateTo}`;
 
   return (
     <a
-      href="/tasks"
+      href={`/tasks?criticalOnly=1&month=${task.month}`}
       className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 group"
       style={{
         background: "rgba(239,68,68,0.04)",
         border: "1px solid rgba(239,68,68,0.12)",
       }}
+      title="Открыть список критичных задач этого месяца"
     >
       <div
         className="w-4 h-4 rounded shrink-0"
