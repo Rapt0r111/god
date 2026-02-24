@@ -12,11 +12,31 @@ export default async function DashboardLayout({
   const criticalCount = critical ?? 0;
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-deep">
+    <div style={{
+      display: "flex",
+      height: "100vh",
+      width: "100vw",
+      overflow: "hidden",
+      background: "oklch(26% 0.045 268)",
+    }}>
       <Sidebar criticalCount={criticalCount} />
-      <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        overflow: "hidden",
+        minWidth: 0,
+      }}>
         <Topbar criticalCount={criticalCount} />
-        <main className="flex-1 overflow-y-auto p-5 px-6">
+
+        {/* ── Main content area ── */}
+        <main style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "24px 24px",
+          position: "relative",
+        }}>
           {children}
         </main>
       </div>

@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 interface TopbarProps {
-  criticalCount: number;
+  criticalCount?: number;
 }
 
-const VIEW_META: Record<string, { title: string; icon: string; desc: string }> = {
-  "/":         { title: "Оперативный центр",      icon: "◈", desc: "Dashboard" },
-  "/tasks":    { title: "Журнал задач",            icon: "≡", desc: "Tasks" },
-  "/timeline": { title: "Хронология мероприятий", icon: "◫", desc: "Timeline" },
-  "/roles":    { title: "Личный состав",           icon: "◉", desc: "Personnel" },
+const VIEW_META: Record<string, { title: string; icon: string; desc: string; color: string }> = {
+  "/":         { title: "Оперативный центр",      icon: "◈", desc: "Dashboard",  color: "oklch(68% 0.18 272)" },
+  "/tasks":    { title: "Журнал задач",            icon: "≡", desc: "Tasks",      color: "oklch(75% 0.18 75)"  },
+  "/timeline": { title: "Хронология мероприятий", icon: "◫", desc: "Timeline",   color: "oklch(72% 0.14 210)" },
+  "/roles":    { title: "Личный состав",           icon: "◉", desc: "Personnel",  color: "oklch(66% 0.20 285)" },
 };
 
 function LiveClock() {
@@ -29,84 +29,112 @@ function LiveClock() {
   }, []);
 
   return (
-    <div className="flex items-center gap-1 font-mono">
-      <span className="text-[15px] font-bold tabular-nums tracking-widest" style={{ color: "#1ae8a0", textShadow: "0 0 16px rgba(26,232,160,0.4)" }}>
+    <div style={{ display: "flex", alignItems: "baseline", gap: 2, fontFamily: "var(--font-mono)" }}>
+      <span style={{
+        fontSize: 16, fontWeight: 700, letterSpacing: "0.12em",
+        color: "oklch(72% 0.17 155)",
+        textShadow: "0 0 20px oklch(72% 0.17 155 / 0.45)",
+        fontVariantNumeric: "tabular-nums",
+      }}>
         {time.h}:{time.m}
       </span>
-      <span className="text-[11px] tabular-nums" style={{ color: "rgba(26,232,160,0.35)" }}>
+      <span style={{
+        fontSize: 11, color: "oklch(72% 0.17 155 / 0.35)",
+        fontVariantNumeric: "tabular-nums",
+      }}>
         :{time.s}
       </span>
     </div>
   );
 }
 
-export function Topbar({ criticalCount }: TopbarProps) {
+export function Topbar({ criticalCount = 0 }: TopbarProps) {
   const pathname = usePathname();
-  const meta = VIEW_META[pathname] ?? { title: "ЦСУ ПД", icon: "◈", desc: "" };
+  const meta = VIEW_META[pathname] ?? { title: "ЦСУ ПД", icon: "◈", desc: "", color: "oklch(68% 0.18 272)" };
 
   const today = new Date().toLocaleDateString("ru-RU", {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+    weekday: "short", day: "numeric", month: "long", year: "numeric",
   });
 
   return (
-    <header
-      className="h-14 min-h-14 flex items-center px-5 gap-4"
-      style={{
-        background: "linear-gradient(90deg, rgba(7,13,26,0.96), rgba(4,8,15,0.98))",
-        backdropFilter: "blur(24px)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        boxShadow: "0 2px 20px rgba(0,0,0,0.4)",
-      }}
-    >
+    <header style={{
+      height: 56, minHeight: 56,
+      display: "flex", alignItems: "center",
+      padding: "0 20px",
+      gap: 14,
+      background: "linear-gradient(90deg, oklch(20% 0.04 266 / 0.97), oklch(17% 0.035 268 / 0.98))",
+      backdropFilter: "blur(24px)",
+      borderBottom: "1px solid oklch(100% 0 0 / 0.07)",
+      boxShadow: "0 2px 24px oklch(0% 0 0 / 0.4)",
+      position: "relative",
+      zIndex: 10,
+    }}>
+      {/* Subtle accent line at top */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: 1,
+        background: `linear-gradient(90deg, transparent, ${meta.color.replace(")", " / 0.4)")}, transparent)`,
+      }} />
+
       {/* Back button */}
       <button
         type="button"
         onClick={() => window.history.back()}
         disabled={pathname === "/"}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed"
         style={{
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.03)",
-          color: "rgba(136,153,187,0.7)",
-          fontSize: "11px",
-          fontFamily: "var(--font-mono)",
+          display: "flex", alignItems: "center", gap: 6,
+          padding: "6px 12px", borderRadius: 12,
+          border: "1px solid oklch(100% 0 0 / 0.09)",
+          background: "oklch(100% 0 0 / 0.03)",
+          color: "oklch(60% 0.04 258)",
+          fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.05em",
+          cursor: "pointer",
+          transition: "all 0.18s ease",
+          opacity: pathname === "/" ? 0.25 : 1,
+          pointerEvents: pathname === "/" ? "none" : "auto",
         }}
         onMouseEnter={e => {
-          if (!e.currentTarget.disabled) {
-            e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
-            e.currentTarget.style.color = "#eef2ff";
+          if (pathname !== "/") {
+            e.currentTarget.style.background = "oklch(100% 0 0 / 0.07)";
+            e.currentTarget.style.borderColor = "oklch(100% 0 0 / 0.15)";
+            e.currentTarget.style.color = "oklch(96% 0.008 255)";
           }
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-          e.currentTarget.style.color = "rgba(136,153,187,0.7)";
+          e.currentTarget.style.background = "oklch(100% 0 0 / 0.03)";
+          e.currentTarget.style.borderColor = "oklch(100% 0 0 / 0.09)";
+          e.currentTarget.style.color = "oklch(60% 0.04 258)";
         }}
       >
-        ← <span className="tracking-wider">НАЗАД</span>
+        ← <span>НАЗАД</span>
       </button>
 
-      <div className="w-px h-5 shrink-0" style={{ background: "rgba(255,255,255,0.07)" }} />
+      {/* Divider */}
+      <div style={{ width: 1, height: 20, background: "oklch(100% 0 0 / 0.08)", flexShrink: 0 }} />
 
       {/* Page title */}
-      <div className="flex items-center gap-2.5">
-        <span className="text-[14px]" style={{ color: "rgba(136,153,187,0.5)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{
+          fontSize: 15,
+          color: meta.color,
+          filter: `drop-shadow(0 0 6px ${meta.color.replace(")", " / 0.5)")})`,
+          lineHeight: 1,
+        }}>
           {meta.icon}
         </span>
-        <h2
-          className="text-[13px] font-semibold tracking-widest uppercase"
-          style={{ color: "#eef2ff", letterSpacing: "0.1em" }}
-        >
+        <h2 style={{
+          fontSize: 13, fontWeight: 600, letterSpacing: "0.1em",
+          textTransform: "uppercase", color: "oklch(96% 0.008 255)",
+          whiteSpace: "nowrap",
+        }}>
           {meta.title}
         </h2>
         {meta.desc && (
-          <span
-            className="text-[9px] font-mono tracking-wider hidden lg:block"
-            style={{ color: "rgba(74,90,122,0.6)" }}
+          <span style={{
+            fontSize: 9, fontFamily: "var(--font-mono)", letterSpacing: "1.5px",
+            color: "oklch(45% 0.04 262)",
+            display: "none",  /* visible at lg+ via inline below */
+          }}
+            className="hidden lg:inline"
           >
             // {meta.desc}
           </span>
@@ -115,34 +143,52 @@ export function Topbar({ criticalCount }: TopbarProps) {
 
       {/* Critical badge */}
       {criticalCount > 0 && (
-        <div
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl"
-          style={{
-            background: "rgba(255,107,107,0.08)",
-            border: "1px solid rgba(255,107,107,0.2)",
-            boxShadow: "0 0 16px rgba(255,107,107,0.08)",
-          }}
-        >
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ background: "#ff6b6b", boxShadow: "0 0 6px #ff6b6b", animation: "pulseGlow 1.5s ease-in-out infinite" }}
-          />
-          <span className="text-[10px] font-mono font-semibold tracking-wider" style={{ color: "#ff9999" }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "6px 12px", borderRadius: 12,
+          background: "oklch(68% 0.22 25 / 0.09)",
+          border: "1px solid oklch(68% 0.22 25 / 0.25)",
+          boxShadow: "0 0 20px oklch(68% 0.22 25 / 0.10)",
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: "oklch(68% 0.22 25)",
+            boxShadow: "0 0 8px oklch(68% 0.22 25 / 0.9)",
+            flexShrink: 0,
+            animation: "pulseGlow 1.5s ease-in-out infinite",
+          }} />
+          <span style={{
+            fontSize: 10, fontFamily: "var(--font-mono)", fontWeight: 700,
+            letterSpacing: "1.5px", textTransform: "uppercase",
+            color: "oklch(82% 0.12 25)",
+          }}>
             ⚠ {criticalCount} КРИТИЧНЫХ
           </span>
         </div>
       )}
 
-      {/* Right side */}
-      <div className="ml-auto flex items-center gap-4">
-        <span
-          className="text-[10px] capitalize hidden md:block font-mono"
-          style={{ color: "rgba(74,90,122,0.7)" }}
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
+
+      {/* Right: date + clock */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <span style={{
+          fontSize: 10, fontFamily: "var(--font-mono)",
+          color: "oklch(45% 0.04 262)",
+          textTransform: "capitalize",
+          letterSpacing: "0.02em",
+          whiteSpace: "nowrap",
+        }}
+          className="hidden md:block"
         >
           {today}
         </span>
 
-        <div className="w-px h-5 hidden md:block" style={{ background: "rgba(255,255,255,0.07)" }} />
+        <div style={{
+          width: 1, height: 20,
+          background: "oklch(100% 0 0 / 0.08)",
+          flexShrink: 0,
+        }} className="hidden md:block" />
 
         <LiveClock />
       </div>
