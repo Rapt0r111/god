@@ -5,19 +5,19 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const NAV_ITEMS = [
-  { href: "/",         icon: "◈", label: "Дашборд",      desc: "Dashboard"  },
-  { href: "/tasks",    icon: "≡", label: "Задачи",        desc: "Tasks"      },
-  { href: "/timeline", icon: "◫", label: "Хронология",   desc: "Timeline"   },
-  { href: "/roles",    icon: "◉", label: "Личный состав", desc: "Personnel"  },
+  { href: "/", icon: "◈", label: "Дашборд", desc: "Dashboard" },
+  { href: "/tasks", icon: "≡", label: "Задачи", desc: "Tasks" },
+  { href: "/timeline", icon: "◫", label: "Хронология", desc: "Timeline" },
+  { href: "/roles", icon: "◉", label: "Личный состав", desc: "Personnel" },
 ] as const;
 
 const CATEGORIES = [
-  { code: "Н",   icon: "⚗",  label: "Наука",            color: "oklch(72% 0.17 155)" },
-  { code: "А",   icon: "📡", label: "Агитация",          color: "oklch(68% 0.18 232)" },
-  { code: "БП",  icon: "🎯", label: "Боевая подготовка", color: "oklch(68% 0.22 25)"  },
-  { code: "ПД",  icon: "⚙",  label: "Повседн. деят.",    color: "oklch(75% 0.18 75)"  },
-  { code: "У",   icon: "🏁", label: "Увольнение",        color: "oklch(72% 0.18 55)"  },
-  { code: "П",   icon: "🔰", label: "Призыв",            color: "oklch(72% 0.14 210)" },
+  { code: "Н", icon: "⚗", label: "Наука", color: "oklch(72% 0.17 155)" },
+  { code: "А", icon: "📡", label: "Агитация", color: "oklch(68% 0.18 232)" },
+  { code: "БП", icon: "🎯", label: "Боевая подготовка", color: "oklch(68% 0.22 25)" },
+  { code: "ПД", icon: "⚙", label: "Повседн. деят.", color: "oklch(75% 0.18 75)" },
+  { code: "У", icon: "🏁", label: "Увольнение", color: "oklch(72% 0.18 55)" },
+  { code: "П", icon: "🔰", label: "Призыв", color: "oklch(72% 0.14 210)" },
 ] as const;
 
 interface SidebarProps {
@@ -25,7 +25,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ criticalCount = 0 }: SidebarProps) {
-  const pathname  = usePathname();
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -43,12 +43,12 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
   return (
     <nav
       style={{
-        position:   "relative",
-        display:    "flex",
+        position: "relative",
+        display: "flex",
         flexDirection: "column",
-        zIndex:     20,
+        zIndex: 20,
         flexShrink: 0,
-        width:      collapsed ? 68 : 232,
+        width: collapsed ? 68 : 232,
         transition: "width 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         background: "linear-gradient(180deg, oklch(20% 0.04 266 / 0.98) 0%, oklch(17% 0.035 268 / 0.99) 100%)",
         backdropFilter: "blur(40px)",
@@ -78,14 +78,14 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
         onClick={toggle}
         aria-label={collapsed ? "Развернуть меню" : "Свернуть меню"}
         style={{
-          position: "absolute", right: -11, top: 32, zIndex: 30,
+          position: "absolute", right: -12, top: 32, zIndex: 30,
           width: 26, height: 26, borderRadius: "50%",
           display: "flex", alignItems: "center", justifyContent: "center",
           background: "linear-gradient(135deg, oklch(30% 0.05 264 / 0.98), oklch(24% 0.04 266 / 0.99))",
           border: "1px solid oklch(100% 0 0 / 0.12)",
           boxShadow: "0 4px 16px oklch(0% 0 0 / 0.5)",
           color: "oklch(68% 0.18 272 / 0.8)",
-          fontSize: 11, cursor: "pointer", transition: "all 0.2s ease",
+          fontSize: 19, cursor: "pointer", transition: "all 0.2s ease",
         }}
         onMouseEnter={e => { e.currentTarget.style.color = "oklch(88% 0.08 272)"; e.currentTarget.style.boxShadow = "0 4px 20px oklch(0% 0 0 / 0.6), 0 0 8px oklch(68% 0.18 272 / 0.2)"; }}
         onMouseLeave={e => { e.currentTarget.style.color = "oklch(68% 0.18 272 / 0.8)"; e.currentTarget.style.boxShadow = "0 4px 16px oklch(0% 0 0 / 0.5)"; }}
@@ -169,8 +169,8 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {NAV_ITEMS.map(item => {
-            const active       = pathname === item.href;
-            const hasCritical  = item.href === "/tasks" && criticalCount > 0;
+            const active = pathname === item.href;
+            const hasCritical = item.href === "/tasks" && criticalCount > 0;
 
             return (
               <Link
@@ -325,52 +325,6 @@ export function Sidebar({ criticalCount = 0 }: SidebarProps) {
               ))}
             </div>
           </div>
-        )}
-      </div>
-
-      {/* ── FOOTER ── */}
-      <div style={{
-        padding: collapsed ? "14px 8px" : "14px 16px",
-        borderTop: "1px solid oklch(100% 0 0 / 0.07)",
-        position: "relative",
-      }}>
-        {collapsed ? (
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <span style={{
-              width: 8, height: 8, borderRadius: "50%",
-              background: "oklch(72% 0.17 155)",
-              boxShadow: "0 0 8px oklch(72% 0.17 155 / 0.8)",
-              display: "inline-block",
-              animation: "pulseGlow 2s ease-in-out infinite",
-            }} />
-          </div>
-        ) : (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <span style={{
-                width: 6, height: 6, borderRadius: "50%",
-                background: "oklch(72% 0.17 155)",
-                boxShadow: "0 0 6px oklch(72% 0.17 155 / 0.8)",
-                flexShrink: 0,
-                animation: "pulseGlow 2s ease-in-out infinite",
-              }} />
-              <span style={{
-                fontSize: 10, fontFamily: "var(--font-mono)",
-                color: "oklch(55% 0.04 258)",
-              }}>
-                Система онлайн
-              </span>
-            </div>
-            <div style={{
-              padding: "10px 14px", borderRadius: 12,
-              background: "oklch(68% 0.18 272 / 0.05)",
-              border: "1px solid oklch(68% 0.18 272 / 0.10)",
-            }}>
-              <p style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "oklch(45% 0.04 262)" }}>
-                v1.0 · ЦСУ ПД 2025
-              </p>
-            </div>
-          </>
         )}
       </div>
     </nav>
