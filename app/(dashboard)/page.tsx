@@ -4,47 +4,42 @@ import { tasks } from "@/lib/db/schema";
 import { getTaskDueInDays, isTaskDashboardCritical } from "@/lib/tasks/critical";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
-const MONTHS = ["","ЯНВ","ФЕВ","МАР","АПР","МАЙ","ИЮН","ИЮЛ","АВГ","СЕН","ОКТ","НОЯ","ДЕК"];
-
 async function getStats() {
-  const allTasks = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
+  const all = await db.select().from(tasks).orderBy(tasks.month, tasks.dateFrom);
 
-  const total    = allTasks.length;
-  const done     = allTasks.filter(t => t.status === "done").length;
-  const critical = allTasks.filter(t => isTaskDashboardCritical(t)).length;
+  const total    = all.length;
+  const done     = all.filter(t => t.status === "done").length;
+  const critical = all.filter(t => isTaskDashboardCritical(t)).length;
+  const pending  = all.filter(t => t.status === "pending" || t.status === "in_progress").length;
 
-  const currentMonth  = new Date().getMonth() + 1;
-  const thisMonth     = allTasks.filter(t => t.month === currentMonth);
-  const thisMonthDone = thisMonth.filter(t => t.status === "done").length;
+  const cur    = new Date().getMonth() + 1;
+  const curMonth  = all.filter(t => t.month === cur);
+  const curDone   = curMonth.filter(t => t.status === "done").length;
 
   const monthStats = Array.from({ length: 12 }, (_, i) => {
-    const m = allTasks.filter(t => t.month === i + 1);
+    const m = all.filter(t => t.month === i + 1);
     return {
-      month: i + 1,
-      total: m.length,
-      done: m.filter(t => t.status === "done").length,
+      month:    i + 1,
+      total:    m.length,
+      done:     m.filter(t => t.status === "done").length,
       critical: m.filter(t => isTaskDashboardCritical(t)).length,
     };
   });
 
-  const upcomingTasks = allTasks
+  const upcoming = all
     .filter(t => t.status !== "done" && t.status !== "cancelled")
     .sort((a, b) => {
-      const aIsCritical = isTaskDashboardCritical(a);
-      const bIsCritical = isTaskDashboardCritical(b);
-      if (aIsCritical !== bIsCritical) return aIsCritical ? -1 : 1;
-      const aDue = getTaskDueInDays(a);
-      const bDue = getTaskDueInDays(b);
-      if (aDue !== bDue) return aDue - bDue;
-      if (a.month !== b.month) return a.month - b.month;
-      return a.dateFrom - b.dateFrom;
+      const ac = isTaskDashboardCritical(a);
+      const bc = isTaskDashboardCritical(b);
+      if (ac !== bc) return ac ? -1 : 1;
+      return getTaskDueInDays(a) - getTaskDueInDays(b);
     })
-    .slice(0, 7);
+    .slice(0, 8);
 
   return {
-    total, done, critical,
-    thisMonth: thisMonth.length, thisMonthDone,
-    currentMonth, monthStats, upcomingTasks,
+    total, done, critical, pending,
+    curMonth: curMonth.length, curDone, currentMonth: cur,
+    monthStats, upcoming,
   };
 }
 
