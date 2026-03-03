@@ -40,7 +40,6 @@ export type SubtaskInsert = {
 
 // ── Dashboard ─────────────────────────────────────────────────────────
 
-
 export async function getDashboardStats() {
   const all = await db.select().from(tasks);
   const critical = all.filter((t) => isTaskDashboardCritical(t)).length;
@@ -55,15 +54,15 @@ export async function createTask(data: TaskInsert) {
   try {
     const [created] = await db.insert(tasks).values({
       title:       data.title,
-      category:    data.category as any,
-      priority:    data.priority as any,
-      responsible: data.responsible as any,
+      category:    data.category as never,
+      priority:    data.priority as never,
+      responsible: data.responsible as never,
       month:       data.month,
       dateFrom:    data.dateFrom,
       dateTo:      data.dateTo,
       description: data.description,
       notes:       data.notes,
-      status:      (data.status ?? "pending") as any,
+      status:      (data.status ?? "pending") as never,
     }).returning();
     revalidatePath("/tasks");
     revalidatePath("/timeline");
@@ -72,7 +71,7 @@ export async function createTask(data: TaskInsert) {
     return { success: true, task: created };
   } catch (error) {
     console.error("createTask error:", error);
-    return { success: false, error: "Ошибка создания задачи" };
+    return { success: false, error: "Ошибка создания задачи", task: null };
   }
 }
 
@@ -81,9 +80,9 @@ export async function updateTask(id: number, data: TaskUpdate) {
     const [updated] = await db.update(tasks)
       .set({
         title:       data.title,
-        category:    data.category as any,
-        priority:    data.priority as any,
-        responsible: data.responsible as any,
+        category:    data.category as never,
+        priority:    data.priority as never,
+        responsible: data.responsible as never,
         month:       data.month,
         dateFrom:    data.dateFrom,
         dateTo:      data.dateTo,
@@ -99,7 +98,24 @@ export async function updateTask(id: number, data: TaskUpdate) {
     return { success: true, task: updated };
   } catch (error) {
     console.error("updateTask error:", error);
-    return { success: false, error: "Ошибка обновления задачи" };
+    return { success: false, error: "Ошибка обновления задачи", task: null };
+  }
+}
+
+// FIXED: BUG-1 — new action to support arbitrary status transitions (status cycle in TasksPageClient)
+export async function setTaskStatus(id: number, status: string) {
+  try {
+    await db.update(tasks)
+      .set({ status: status as never })
+      .where(eq(tasks.id, id));
+    revalidatePath("/tasks");
+    revalidatePath("/timeline");
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("setTaskStatus error:", error);
+    return { success: false, error: "Ошибка изменения статуса" };
   }
 }
 
@@ -149,10 +165,9 @@ export async function deleteTask(id: number) {
   return { success: true };
 }
 
-
 export async function getTasksByResponsible(responsible: string) {
   return db.query.tasks.findMany({
-    where: eq(tasks.responsible, responsible as any),
+    where: eq(tasks.responsible, responsible as never),
     with: { subtasks: true },
     orderBy: (t, { asc }) => [asc(t.month), asc(t.dateFrom)],
   });
@@ -161,23 +176,13 @@ export async function getTasksByResponsible(responsible: string) {
 export async function getTimelineTasks() {
   return db.query.tasks.findMany({
     columns: {
-      id: true,
-      title: true,
-      category: true,
-      month: true,
-      dateFrom: true,
-      dateTo: true,
-      responsible: true,
-      status: true,
-      priority: true,
+      id: true, title: true, category: true, month: true,
+      dateFrom: true, dateTo: true, responsible: true,
+      status: true, priority: true,
     },
     with: {
       subtasks: {
-        columns: {
-          id: true,
-          title: true,
-          status: true,
-        },
+        columns: { id: true, title: true, status: true },
         orderBy: (s, { asc }) => [asc(s.order)],
       },
     },
@@ -199,7 +204,7 @@ export async function addSubtask(taskId: number, data: SubtaskInsert) {
     return { success: true, subtask: created };
   } catch (error) {
     console.error("addSubtask error:", error);
-    return { success: false, subtask: null as any };
+    return { success: false, subtask: null as never };
   }
 }
 
